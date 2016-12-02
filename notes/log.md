@@ -79,3 +79,9 @@
     bitcode files (giving a set of augmented LLVM bitcode files).
   * The instrumented files can then be compiled using `llc` into a binary as
     normal, with the TESLA functionality included.
+
+## 2/12/2016
+
+* Got set up on the development server by Khilan - managed to get TESLA building
+  and installing into a home directory appropriately.
+* Manually worked through compiling a program to use TESLA etc.
