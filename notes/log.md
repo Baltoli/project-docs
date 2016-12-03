@@ -99,3 +99,14 @@
   * `TESLA_NOW` is replaced by `TESLA_ASSERTION_SITE`
   * `called` seems to have been replaced by `call` but I'm not sure if this is a
     drop-in replacement.
+* Notes on using TESLA:
+  * `TESLA_ASSERTION_SITE` refers to the point at which the assertion is written
+    in the original program (hence why `previously` and `eventually` are written
+    the way they are). It can be used to express more complex interleavings of
+    temporal properties by having things before / after it as well.
+  * `ANY` takes an argument (`int`, `long long`, `ptr` etc.) to represent the
+    type of argument being passed to the function call.
+  * The `call` function takes a single parameter - the function call as it would
+    be written in the program! This is different to `returnfrom`, which takes an
+    extra parameter for the return value. Why can't you do
+    `call(foo(ANY(int)))`? Ask Jon.
