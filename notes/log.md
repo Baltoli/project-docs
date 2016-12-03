@@ -85,3 +85,17 @@
 * Got set up on the development server by Khilan - managed to get TESLA building
   and installing into a home directory appropriately.
 * Manually worked through compiling a program to use TESLA etc.
+* Built a somewhat hacky CMakeLists that lets me compile a _simply-structured_ C
+  application into a version that is instrumented with TESLA. At some point will
+  need to look into how this can actually be done in practice for a larger code
+  base! (Ask Jon Anderson?)
+* Begun to look into building some very simple TESLA assertions on a small
+  program.
+
+## 3/12/2016
+
+* Continued to work on very simple examples learning to use TESLA. Found that
+  the documentation is out of date in a number of places:
+  * `TESLA_NOW` is replaced by `TESLA_ASSERTION_SITE`
+  * `called` seems to have been replaced by `call` but I'm not sure if this is a
+    drop-in replacement.
