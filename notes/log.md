@@ -110,3 +110,12 @@
     be written in the program! This is different to `returnfrom`, which takes an
     extra parameter for the return value. Why can't you do
     `call(foo(ANY(int)))`? Ask Jon.
+
+## 5/12/2016
+
+* Did some more digging into why explicit automata descriptions aren't working
+  for me. No real answers yet - the symptom is that I have an undefined name in
+  the instrumented LLVM code. Something has inserted a global variable for the
+  automaton into the code but has not "expanded" it with a definition. Have
+  emailed Jon for clarification / help but no answer yet. The next place to look
+  is probably trying to find out what is meant to replace the global variable.
