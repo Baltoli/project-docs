@@ -119,3 +119,27 @@
   automaton into the code but has not "expanded" it with a definition. Have
   emailed Jon for clarification / help but no answer yet. The next place to look
   is probably trying to find out what is meant to replace the global variable.
+
+## 15/12/2016
+
+* Still no reply from Jon. Should get Robert to prod him. Looking into why I get
+  these linker errors with a much-simplified example. Seems that the
+  `tesla_update_state` function is getting called with `my_auto` as an argument,
+  which is a global variable in the LLVM IR. This means (probably) that
+  something isn't actually populating this global variable with a real value.
+  Dig though code and find out where?
+* When we end up calling `ExternAutomatonDescrip` to get a global variable,
+  the first time we call, there isn't a variable ready. The second time, there
+  is and we get it.
+* Looks like `BuildAutomatonDescription` is doing what we want but it isn't
+  getting called - it is responsible for getting rid of extern specified global
+  variables and replacing them with things that actually have an initializer!
+* It seems to be called in two separate places in Assertion.cpp - how do these
+  different places get triggered? Actually only in one location for the version
+  of TESLA I have on my machine (why is this different??) This was different
+  because I was building against CTSRD TESLA rather than CADETS TESLA and there
+  was some difference in the code for newer commits.
+* The path that gets to where we want to be is returning early because there are
+  no assertions in the module. How do I add an assertion to the module?
+* `TESLA_STRUCT_AUTOMATON` is dead - the actual syntax is to use the automaton
+  just like a function call (for example, `eventually(my_auto(a))`)
