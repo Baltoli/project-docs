@@ -143,3 +143,5 @@
   no assertions in the module. How do I add an assertion to the module?
 * `TESLA_STRUCT_AUTOMATON` is dead - the actual syntax is to use the automaton
   just like a function call (for example, `eventually(my_auto(a))`)
+* Usage: you can't go arbitrarily far down the call stack using `TESLA_WITHIN` -
+  it seems to be only within the current function that it's usable. 
