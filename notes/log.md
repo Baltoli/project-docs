@@ -145,3 +145,7 @@
   just like a function call (for example, `eventually(my_auto(a))`)
 * Usage: you can't go arbitrarily far down the call stack using `TESLA_WITHIN` -
   it seems to be only within the current function that it's usable. 
+* Setting up: managed to get my tesla experimentation work shoved into the TESLA
+  source tree so that I can build etc all in the same place. Took a bit of
+  working to get CMake not to break but now it works. Next step: modelling
+  simple locks.
