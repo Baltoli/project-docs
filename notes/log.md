@@ -162,3 +162,6 @@
   deadlock situation yet (can it?). 
 * Need to look into why if a thread exits without calling `lock_release`, it
   won't trigger an assertion failure.
+* Using previously instead of eventually seems to fix the deadlock problem on
+  the lock automata. Also added a check to make sure that acquire calls go
+  "F...FT" only.
