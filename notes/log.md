@@ -165,3 +165,5 @@
 * Using previously instead of eventually seems to fix the deadlock problem on
   the lock automata. Also added a check to make sure that acquire calls go
   "F...FT" only.
+* Using two or more locks: I think strict mode might be a problem here. How to
+  fix this?
