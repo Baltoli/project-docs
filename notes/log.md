@@ -149,3 +149,16 @@
   source tree so that I can build etc all in the same place. Took a bit of
   working to get CMake not to break but now it works. Next step: modelling
   simple locks.
+
+## 16/12/2016
+
+* Begin to work on getting a very simple model of locks verified. Set up project
+  structure etc. Convenience macro for TESLA struct field accesses (might be
+  extensible in the future to a full struct macro for ease).
+* Implemented a simple lock automaton that ensures that a particular function is
+  'well-behaved' with regard to a particular lock (i.e. it acquires the lock at
+  some point, then releases it later). This currently catches things like
+  releasing without acquiring, acquiring after release. It can't handle a
+  deadlock situation yet (can it?). 
+* Need to look into why if a thread exits without calling `lock_release`, it
+  won't trigger an assertion failure.
