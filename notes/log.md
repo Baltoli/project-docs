@@ -167,3 +167,28 @@
   "F...FT" only.
 * Using two or more locks: I think strict mode might be a problem here. How to
   fix this?
+
+## 17/12/2016
+
+* Looking into how I can use `tesla-print` to get `.dot` files for debugging.
+  Managed to get graphviz on OS X to output me a file. Workflow is a little bit
+  inconvenient though (but obviously no way to view pngs on the server).
+* Currently doesn't look like there's an easy way to have a function that acts
+  as a thread worker be instrumented from outside of its own definition (or a
+  caller), nor for a function to work on *multiple* locks.
+* Even shifting stuff one level up the call stack seems to break things a bit -
+  why can't I use `acq_rel` from `thread_work` which just calls into
+  `thread_say`?
+* Seem to have sorted this out - if I use the wider bound of `thread_work` then
+  it works, but not the narrow bound of `thread_say`.
+* Now have a system for making assertions about several locks in the same
+  function (not interleaved though I don't think). Uses a strict sequence.
+* At this stage I have a working verifier for a very simple lock that can be
+  used to verify acquire-release behaviour for a single lock, multiple locks in
+  sequence, or multiple locks interleaved.
+* Next step is to think about how best to statically analyse this type of
+  structure, and also to look at how locks are implemented internally in (for
+  example) FreeBSD (and then to come up with equivalent automata for the real
+  locks).
+* Also worth thinking about what properties (in a formal sense) this
+  implementation allows me to verify.
