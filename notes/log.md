@@ -213,3 +213,27 @@
 * A `Manifest` describes all the automata contained in a single file, while an
   `Automaton` is singular (only describes one single set of states and
   transitions).
+* Initial effort will be to statically analyse the locking assertions I've built
+  over the last few days.
+* What do we want to prove about this automata specifically? (in this case I
+  think that I do actually want to be specific and see how it can be generalised
+  to a more significant structure).
+  * The `acq_rel` automaton *should* be generic over any kind of lock simple
+    enough to be described with simple atomic acquire / release semantics.
+  * For example, a Pthreads mutex could be adapted to this structure by wrapping
+    the Pthreads acquire / release functions (should try this at some point by
+    making an *almost* identical example to the current `locks.c` experiment.
+  * What `acq_rel` asserts is that on any code path, the function will spin
+    around 0 or more times failing to acquire the lock, then successfully
+    acquires the lock, then releases it.
+  * Need to characterise *exactly* what behaviour is allowed and forbidden by
+    the automaton as it is currently implemented (by building a set of smaller
+    test cases that demonstrate its behaviour - note that `lock_acquire` and
+    `lock_free` are *mockable* - they present an interface that can just as well
+    be implemented by something that doesn't actually do any locking at all!).
+  * Then once I have an informal but demonstrable model of the lock automaton's
+    behaviour, I can start to work out exactly how these properties can be
+    described (and proved) at the IR level.
+  * For this specific analysis of my automaton only, there is no need to really
+    work with the TESLA IR at all - instead need to just look for the very
+    specific form that instruments an acquire / release cycle.
