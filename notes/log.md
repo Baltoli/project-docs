@@ -244,3 +244,5 @@
   TESLA invocations for every single executable being built). These improvements
   to the TESLA build system allow me to build arbitrary C executables with TESLA
   assertions built in just by calling `add_tesla_executable`.
+* Have also begun to do some rebasing and cleanup on the locks branch so that
+  when I merge it to master it's not totally horrific to look at.
