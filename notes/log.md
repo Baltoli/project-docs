@@ -192,3 +192,9 @@
   locks).
 * Also worth thinking about what properties (in a formal sense) this
   implementation allows me to verify.
+
+## 18/12/2016
+
+* Small amount of work looking into the lifetime automata but to no real
+  progress - I can get them to compile but their definitions seem to somehow be
+  different to regular 'in-function' automata. Shelving this for now.
