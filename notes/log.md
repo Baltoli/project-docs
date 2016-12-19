@@ -237,3 +237,10 @@
   * For this specific analysis of my automaton only, there is no need to really
     work with the TESLA IR at all - instead need to just look for the very
     specific form that instruments an acquire / release cycle.
+* Worked out some CMake hackery to allow multiple TESLA executables to share a
+  single source file. As far as I can see the solution of building every source
+  file for every target executable is necessary - instrumentation will change
+  things etc so this is the only way to do it generically (without having custom
+  TESLA invocations for every single executable being built). These improvements
+  to the TESLA build system allow me to build arbitrary C executables with TESLA
+  assertions built in just by calling `add_tesla_executable`.
