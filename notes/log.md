@@ -246,3 +246,10 @@
   assertions built in just by calling `add_tesla_executable`.
 * Have also begun to do some rebasing and cleanup on the locks branch so that
   when I merge it to master it's not totally horrific to look at.
+* Implemented a few small misbehaving programs to demonstrate the kinds of
+  behaviour that the lock automata attempt to catch.
+* TODO for tomorrow: spilt these up, as they all use the same 'locking'
+  implementation - a couple of extra headers etc. means that all each example
+  needs to be is the 'do_work' function after including `lock.h` (so that
+  details of the test harness can be changed more easily - currently duplicated
+  across all the examples).
