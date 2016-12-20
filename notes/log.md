@@ -303,3 +303,12 @@
   * The optimised manifest can then be used as a drop-in replacement for the
     non-optimised version (bonus from this is that the program can then be
     instrumented using both versions and their behaviour compares).
+* Gist of this is that what we want is really a new TESLA tool (`tesla-static`)
+  that takes an bitcode file and a manifest for analysis, then returns a new
+  with possibly different contents.
+  * Benefit of this is that we're not doing anything unsafe at the bitcode level
+    (in this particular model). All we do there is analysis of some kind that
+    informs the different manifest.
+  * Probably need this to be whole-program analysis. Should therefore
+    investigate whether `llvm-link` can be built into the build system (i.e.
+    that it plays nicely with instrumentation etc.)
