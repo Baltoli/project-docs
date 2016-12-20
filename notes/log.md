@@ -248,11 +248,6 @@
   when I merge it to master it's not totally horrific to look at.
 * Implemented a few small misbehaving programs to demonstrate the kinds of
   behaviour that the lock automata attempt to catch.
-* TODO for tomorrow: spilt these up, as they all use the same 'locking'
-  implementation - a couple of extra headers etc. means that all each example
-  needs to be is the 'do_work' function after including `lock.h` (so that
-  details of the test harness can be changed more easily - currently duplicated
-  across all the examples).
 
 ## 20/12/2016
 
@@ -281,3 +276,30 @@
   * Doing this might even make it easier to statically analyse locks - working
     out the value of an integer value seems like it would be more amenable than
     chasing pointers.
+* Update: this strategy of using IDs rather than pointers isn't totally workable
+  with the current implementation. Maybe possible in the future to rip it out
+  and design from scratch (but wouldn't be able to use automata quite as
+  idiomatically as they currently are).
+* So with that in mind, the properties we can observe the `acq_rel` automaton as
+  having are (for a *single* lock being used by a function):
+  * `lock_acquire` returns false 0 or more times, until it returns true exactly
+    once. It is not called again.
+  * `lock_release` is called exactly once.
+  * Any extra calls to either lock function will fail.
+  * Calling `lock_release` before `lock_acquire` has returned true will fail.
+* Where in the TESLA workflow should static analysis live?
+  * Likely to be in the form of an IR pass to actually perform the analysis (but
+    also need some information from the analyser level to know where to apply
+    analysis).
+  * For now, the analysis will be specific to the `acq_rel` automaton, and so
+    all we need to do at the analyser level is find usages / bounds / locks etc
+    for each instance of the automaton.
+  * So at the point at which static analysis is performed we require:
+    * The combined manifest file with the whole-program view of assertions made
+    * The uninstrumented `.ll` file that the program was compiled into
+  * From these prerequisites, we should then produce a statically-analysed
+    version of the manifest that has had verifiable assertions removed (but that
+    remains in the same format).
+  * The optimised manifest can then be used as a drop-in replacement for the
+    non-optimised version (bonus from this is that the program can then be
+    instrumented using both versions and their behaviour compares).
