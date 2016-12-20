@@ -312,3 +312,8 @@
   * Probably need this to be whole-program analysis. Should therefore
     investigate whether `llvm-link` can be built into the build system (i.e.
     that it plays nicely with instrumentation etc.)
+  * It can in fact. I've now updated the TESLA build script to link all the .bc
+    files into a single one before instrumenting (and have changed extensions
+    etc. to be more correct). Now the TESLA build script will compile the
+    program from a single .bc file (and analysis can be done on this
+    individually).
