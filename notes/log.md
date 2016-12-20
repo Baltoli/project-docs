@@ -253,3 +253,31 @@
   needs to be is the 'do_work' function after including `lock.h` (so that
   details of the test harness can be changed more easily - currently duplicated
   across all the examples).
+
+## 20/12/2016
+
+* Finished off writing example programs that show the behaviour of my simple
+  lock automata (successful / good path as well as several 'failed' examples).
+  Still running into the issue that assertions don't seem to care about the
+  identity of the pointer they're being called with (`acq_rel(&lock)` is
+  equivalent to `acq_rel(&other)` behaviourally - it doesn't seem to matter
+  which one is actually acquired and released). Need to work out if there's a
+  solution to this (my instinct is that there isn't an easy way to do so because
+  of the way instrumentation is added to code).
+* One possible hacky workaround is to add a global ID to every lock - then, the
+  `lock_X` functions could work on a lock ID rather than directly on a pointer.
+  I think this might be easier to reason about, provided that the correct
+  guarantees are made of the global lock ID 'repository'.
+  * `lock_init` would need to increment the global ID counter, set the field on
+    the lock, put the lock itself into an array (by value), then return the id.
+  * `lock_acquire` and `lock_release` would need to work on the base pointer +
+    offset, rather than on the addresses directly. They could then be modified
+    to take an ID (integer) rather than a direct pointer.
+  * `lock_free` would then need to perform any necessary cleanup (can't see what
+    this would actually be just now).
+  * This would mean that initializing a lock would not necessarily be atomic
+    (but that's fine I think - just need to do lifecycle things sequentially
+    before using locks for real).
+  * Doing this might even make it easier to statically analyse locks - working
+    out the value of an integer value seems like it would be more amenable than
+    chasing pointers.
