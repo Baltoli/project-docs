@@ -344,3 +344,12 @@
       them one after another in a pipeline.
 * Have implemented a pass system that allows for manifest passes to be
   constructed and run on manifests / IR files.
+* Now the next problem is how to create a new manifest given the original one.
+  Seems to be that modifying in place isn't possible as the `Manifest` class is
+  const-ed up pretty heavily. Should look further at `tesla-cat` to work out how
+  this could be done. Looks like `ManifestPass::run()` will need to actually
+  return a new `Manifest` (which can be passed into the next one in the pipeline
+  etc.).
+* The analysis for `acq_rel` is an include / exclude decision. So what needs to
+  be done is walk the root automata for things that are `acq_rel` (if it's
+  included), then delete (don't pass on) root automata if the analysis succeeds.
