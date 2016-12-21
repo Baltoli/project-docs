@@ -342,3 +342,5 @@
     * Base class for manifest passes that defines an interface each conforms to.
     * Builder class that takes a list of instantiated manifest passes and runs
       them one after another in a pipeline.
+* Have implemented a pass system that allows for manifest passes to be
+  constructed and run on manifests / IR files.
