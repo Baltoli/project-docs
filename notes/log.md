@@ -317,3 +317,28 @@
     etc. to be more correct). Now the TESLA build script will compile the
     program from a single .bc file (and analysis can be done on this
     individually).
+
+## 21/12/2016
+
+* Got the boilerplate set up for the static analysis tool (very similar to
+  `tesla-instrument`). It is now able to load a manifest and an IR file from
+  disk when it is run.
+* Did a bit of tinkering to see what information I can get out of the manifest
+  file using the protobuf generated code etc. Seems to be a reasonably easy
+  interface to work with (`set_X` for setting fields, `X` for getting fields).
+* Now need to work out what kind of interface I want the static analysis to
+  have.
+  * Will make sense to have a modular system (so that future analyses aren't
+    tied directly into the structure of the tool itself and the initial work I'm
+    doing here).
+  * Then each additional analysis I do can be plugged into the tool with a
+    minimum of work.
+  * The information that we have at the start is the unmodified manifest file
+    and the IR. It makes sense that each 'pass' will get the same things passed
+    to it, with the exception that the manifest will be changed between each
+    step (as it wouldn't make sense to leave it unchanged and then do every pass
+    at once at the end).
+  * So it will make sense to have:
+    * Base class for manifest passes that defines an interface each conforms to.
+    * Builder class that takes a list of instantiated manifest passes and runs
+      them one after another in a pipeline.
