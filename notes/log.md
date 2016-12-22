@@ -384,3 +384,13 @@
 * Once the definitions are copied, it's then a case of walking root usages (how
   to handle sub-automata). This is at least the case for the include / exclude
   decision we're making in this model at first.
+* So a the run method of each pass will actually need to return a new manifest
+  (pointer to).
+* Hygiene: pass interface is *bad* at the moment. Should rewrite to eliminate
+  usage of raw pointers (think about ownership semantics). Fixed this for the
+  most part, but there's still the interface between `main` and
+  `ManifestPassManager` that has a couple of `shared_ptrs` sticking around.
+  Should work to eliminate those as well.
+* At the moment, a manager runs passes and resets its own `Manifest` (this
+  allows for an 'ownership chain' through the run function). Should also maybe
+  clean up the external interface a bit as everything is public at the moment.
