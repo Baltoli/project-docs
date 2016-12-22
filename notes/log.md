@@ -353,3 +353,18 @@
 * The analysis for `acq_rel` is an include / exclude decision. So what needs to
   be done is walk the root automata for things that are `acq_rel` (if it's
   included), then delete (don't pass on) root automata if the analysis succeeds.
+
+## 22/12/2016
+
+* The `cat` tool generates a new file by directly writing the textual
+  representation of a `ManifestFile` to disk. It seems to be valid to initialize
+  a `Manifest` only given the file containing the textual representation.
+* The logic to do this is pretty complex, but what we're going to want to do is
+  hijack the process at the point at which we have a buffer containing a
+  `ManifestFile` protobuf object.
+* By doing this we then have a workflow:
+    immutable Manifest --analysis-> ManifestFile --load--> new Manifest
+* This is then composable for many passes in sequence, and `tesla-cat` shows how
+  to generate a `ManifestFile` given constituent parts (Automata and Usages).
+  From this we can then implement the recursive walk accept / reject style that
+  will be used for the `acq_rel` analysis.
