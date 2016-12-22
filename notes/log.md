@@ -374,3 +374,13 @@
 * Also another quality of life problem - there's a problem with how `llvm-lit`
   is running tests (to do with an output option), so probably wise to fix that
   before I do any major reshuffling of TESLA internals.
+* So now we have a way to construct a `Manifest` from a `ManifestFile`. We don't
+  have direct access to the input `ManifestFile`, but what we do have is the set
+  of defined Automata and the set of root Usages. We probably don't want to ever
+  get rid of a defined automata (as if there's no references to it then it will
+  disappear at instrumentation time).
+* That means that we need to copy all the defined Automata into a new
+  `ManifestFile` regardless of what else is being done.
+* Once the definitions are copied, it's then a case of walking root usages (how
+  to handle sub-automata). This is at least the case for the include / exclude
+  decision we're making in this model at first.
