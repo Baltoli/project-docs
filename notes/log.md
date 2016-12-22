@@ -394,3 +394,17 @@
 * At the moment, a manager runs passes and resets its own `Manifest` (this
   allows for an 'ownership chain' through the run function). Should also maybe
   clean up the external interface a bit as everything is public at the moment.
+* Next up it looks like some kind of generic way to walk over the *usages* in a
+  manifest and make some kind of decision about them. Obviously the protocol
+  buffer format gives us a handy way of describing the manifest as a tree, but
+  what would be the best way to iterate over it?
+* Alternatively, don't do it generically for now. The `acq_rel` automaton should
+  be fairly easy to recognise usages for. We want roots that:
+  * Are a sequence of events beginning with the assertion site, immediately
+    followed by a subautomaton with name `acq_rel`, followed by a return from
+    some function.
+  * Can recognise things in this format by doing some pretty nasty protobuf
+    code, but it's probably simpler for now to do that than to wrangle up some
+    crazy generic method to do it.
+  * Then once we have a way of recognizing usages of `acq_rel`, the next step is
+    to pick out the bounds of each usage and do the analysis on the IR.
