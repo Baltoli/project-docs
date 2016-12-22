@@ -368,3 +368,9 @@
   to generate a `ManifestFile` given constituent parts (Automata and Usages).
   From this we can then implement the recursive walk accept / reject style that
   will be used for the `acq_rel` analysis.
+* Have replaced some parts of the `Manifest` code with uses of
+  `std::unique_ptr`, as the legacy LLVM reimplementation has been deprecated. It
+  would be worthwhile to fix up the rest of the code.
+* Also another quality of life problem - there's a problem with how `llvm-lit`
+  is running tests (to do with an output option), so probably wise to fix that
+  before I do any major reshuffling of TESLA internals.
