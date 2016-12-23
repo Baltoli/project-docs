@@ -408,3 +408,15 @@
     crazy generic method to do it.
   * Then once we have a way of recognizing usages of `acq_rel`, the next step is
     to pick out the bounds of each usage and do the analysis on the IR.
+
+## 23/12/2016
+
+* Today: work on recognizing usages of `acq_rel` in an automaton root. Want a
+  function that takes a root usage, and returns true if it is an instance of
+  `acq_rel`.
+* Came across an interesting problem where instrumenting a module fails when all
+  of the roots are removed from the file (fails in InstrContext.cpp with an
+  error relating to automaton lifetimes).
+* Have now built the static analysis tool into the TESLA CMake build
+  (optionally). It can now automatically run the static analyser over the
+  genrated manifest and compile two versions of the binary.
