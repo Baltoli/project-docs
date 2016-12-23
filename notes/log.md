@@ -451,3 +451,9 @@
     machinery to achieve the same idea.
 * Worth nothing that currently I still don't know the actual cause of the
   lifetime problem.
+* Final thoughts: I think the deletion marker is the best way to go without
+  touching an LLVM pass as well. Benefits are:
+  * No more messing around with these weird lifetime errors
+  * Not throwing away information as the current approach does - all it's doing
+    is *adding to* the manifest data to suggest approaches to the
+    instrumentation pass.
