@@ -438,3 +438,16 @@
   toggle static analysis of built binaries on or off. So if `tesla-static`
   introduces a build error, the solution is now to run `soff` so that the broken
   binary doesn't get run.
+* Is the lifetime error limited to when there are no roots at all in a manifest?
+  Confirmed that this seems to be the problem. Rather than spleunking through
+  the original TESLA code, it might in fact be easier to do a cleanup pass that
+  finds unused automata in the manifest and deletes them.
+* The problem then with just deleting them is that calls to
+  `tesla_inline_assertion` will then fail. Need to think about how best to deal
+  with this problem going forward. Some options:
+  * Extend protocol grammar to mark usages as deleted, then ignore them at
+    instrumentation time, leaving the rest of the machinery intact.
+  * Move away from manifest pass structure for now and use regular LLVM
+    machinery to achieve the same idea.
+* Worth nothing that currently I still don't know the actual cause of the
+  lifetime problem.
