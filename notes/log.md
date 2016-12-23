@@ -420,3 +420,21 @@
 * Have now built the static analysis tool into the TESLA CMake build
   (optionally). It can now automatically run the static analyser over the
   genrated manifest and compile two versions of the binary.
+* So we actually need to look at all of the automata descriptions first off, and
+  identify which automata use `acq_rel` (rather than looking directly at the
+  usages as I previously thought).
+* Strategy: search for automata that reference `acq_rel` in the way we define
+  (sequence of events given above). Then populate the vector of locations
+  appropriately. From these locations, iterate through the roots and check each
+  location for membership in the set. If it is in the set, flag the beginning
+  and end locations for analysis.
+* So now have a pass that manages to remove *any* usages of `acq_rel` that it
+  finds, but it still has the problem from above (that lifetimes get messed up).
+* Should also work out a better way of getting myself out of a 'trusting trust'
+  cycle. If work on `tesla-static` introduces a bug, then things start to fail
+  *badly* at build time because it's part of the build process. Intermediate
+  could be to use the CMake binary dir version?
+* Actual solution turned out to be to use an extra CMake config variable to
+  toggle static analysis of built binaries on or off. So if `tesla-static`
+  introduces a build error, the solution is now to run `soff` so that the broken
+  binary doesn't get run.
