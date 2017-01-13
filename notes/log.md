@@ -477,3 +477,14 @@
   * Intra-procedural analysis and the placement of `tesla static` seem to be
     reasonably well thought out for now, as well as the proposed extensions to
     the instrumenter and the protobuf structure.
+* Next steps to think about for the project:
+  * Work out how to do the data flow analysis for simple acquire / release locks
+    as I've implemented (will involve writing an LLVM pass).
+  * Related: look into updating the protocol buffer specification so that I can
+    add my own fields for the instrumenter to look at.
+  * Should probably split out sections of this log that are too 'stream of
+    consciousness' into separate documents (designing components like the data
+    flow analysis is a good candidate).
+  * Look into the problem / bug / misunderstanding relating to using multiple
+    pointers with the same automaton. If no solution then ping Jon on Slack to
+    get his thoughts.
