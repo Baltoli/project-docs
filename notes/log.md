@@ -488,3 +488,12 @@
   * Look into the problem / bug / misunderstanding relating to using multiple
     pointers with the same automaton. If no solution then ping Jon on Slack to
     get his thoughts.
+* Progress today:
+  * Fixed the systematic errors with the test suite, and have identified a
+    possible regression in the parser.
+  * Parser regression notes:
+    * ParseArg -> MemberExpr branch -> ParseStructField -> ParseArg -> ???
+    * Need to figure out what the next branch is!
+    * Left a TODO in the right place to pick up where the error seems to
+      manifest itself first. Should look at why the incorrect branch makes two
+      goes round the function!
