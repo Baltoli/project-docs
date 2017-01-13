@@ -457,3 +457,23 @@
   * Not throwing away information as the current approach does - all it's doing
     is *adding to* the manifest data to suggest approaches to the
     instrumentation pass.
+
+## 13/1/2017
+
+* Back working on TESLA after a break to do coursework post-christmas. Meeting
+  with Robert earlier today in which we discussed the work that I've been doing
+  so far on the project. Main points were:
+  * He agrees that the problem of not being able to use the same automata on two
+    different pointers is perplexing - should do some more digging into this and
+    work out the actual source of the problem. Mentioned a table of parameters
+    that can be indexed into to find the correct automaton instance for a call.
+    This code might be in the runtime library.
+  * Modelling the automaton using function calls to acquire and release is
+    probably best as it abstracts the lock internals from the semantics of the
+    action.
+  * Think about how the model devised could be broadened to (for example)
+    reader-writer locks, or data structures that permit operations only when
+    locked.
+  * Intra-procedural analysis and the placement of `tesla static` seem to be
+    reasonably well thought out for now, as well as the proposed extensions to
+    the instrumenter and the protobuf structure.
