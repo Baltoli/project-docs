@@ -506,3 +506,7 @@
   only care about a single field.
 * Next step for this afternoon's work: look into the multiple automaton stuff
   and see if I can get that to work.
+* Looked into strict / conditional mode in more detail. Think I have worked out
+  (at least partially) what the problem with using multiple locks is (related to
+  strict mode).
+* Wrote up findings for the strict / conditional mode stuff.
