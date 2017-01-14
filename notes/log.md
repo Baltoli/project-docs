@@ -497,3 +497,12 @@
     * Left a TODO in the right place to pick up where the error seems to
       manifest itself first. Should look at why the incorrect branch makes two
       goes round the function!
+
+## 14/1/2017
+
+* Fixed the parser regression identified yesterday. The solution was to add an
+  extra parameter to the argument parsing methods so that they can be
+  specialised to the case where we're passing a whole structure by value, but
+  only care about a single field.
+* Next step for this afternoon's work: look into the multiple automaton stuff
+  and see if I can get that to work.
