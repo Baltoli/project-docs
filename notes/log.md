@@ -522,3 +522,10 @@
   installed if the experiments are breaking the build.
 * Looked into the indirection issue from yesterday, which seems like it could be
   a known limitation - sent Jon a message asking for clarification.
+* Wrote up current status of locking automata and informal / behavioural
+  specifications of the properties that it asserts.
+* Integrated the new protocol buffer field into `AcquireReleasePass`. As a first
+  / dummy operation it just searches for usages of the automaton named, then
+  adds the deleted field before copying the usage across.
+* Next step is to design the actual optimisation that informs the copy yes / no
+  stage of the pass.
