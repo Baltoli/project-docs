@@ -533,3 +533,4 @@
   adding any extra instrumentation. Tested this on the locks experiments, and in
   simple cases it seems to work (allows the failing cases to pass when their
   usages of `acq_rel` are deleted).
+* Looked into the usage of field assignments as assertion bound events.
