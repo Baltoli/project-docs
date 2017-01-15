@@ -510,3 +510,15 @@
   (at least partially) what the problem with using multiple locks is (related to
   strict mode).
 * Wrote up findings for the strict / conditional mode stuff.
+* Starting to look at lock behaviour but have run into another parser issue (I
+  think, anyway) - indirection seems to be be going wrong for me.
+* Another useful command would be to disable experiments in general (eon / eoff)
+  so that TESLA can be rebuilt and installed easily if the experiment build is
+  broken, without having to change code.
+
+## 15/1/2017
+
+* Added the experimental on / off flags that allow TESLA to be rebuilt and
+  installed if the experiments are breaking the build.
+* Looked into the indirection issue from yesterday, which seems like it could be
+  a known limitation - sent Jon a message asking for clarification.
