@@ -60,7 +60,7 @@ thread. They exist in the TSA repository in `experiments/locks`.
 * **mult_rel**: The lock is released more than once. There is an error
   because of the extra lock event not described by the automaton.
 * **no_acq**: The lock is not acquired and so there is an error.
-* **no_release**: The lock is not released within the automaton bounds,
+* **no_rel**: The lock is not released within the automaton bounds,
   and so there is an error.
 * **no_acq_rel**: The lock is neither acquired nor released, so there is
   an error.
