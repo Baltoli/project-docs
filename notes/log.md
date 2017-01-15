@@ -529,3 +529,7 @@
   adds the deleted field before copying the usage across.
 * Next step is to design the actual optimisation that informs the copy yes / no
   stage of the pass.
+* Extended the instrumenter so that it will skip over deleted usages without
+  adding any extra instrumentation. Tested this on the locks experiments, and in
+  simple cases it seems to work (allows the failing cases to pass when their
+  usages of `acq_rel` are deleted).
