@@ -534,3 +534,14 @@
   simple cases it seems to work (allows the failing cases to pass when their
   usages of `acq_rel` are deleted).
 * Looked into the usage of field assignments as assertion bound events.
+
+## 16/1/2017
+
+* Looked into how the variable names in an assertion site are mapped onto LLVM
+  `Value` objects. Found the mechanism that does this by searching all of the
+  things in scope at the assertion site (allocas, globals and parameters).
+* Worked out where the actual static analysis will live inside the
+  `AcquireReleasePass`, and when it will get called.
+* Started to stub out some implementations / things that will need to be done
+  to get the appropriate information out of the usage and module.
+* Fixed that annoying CMake install problem for the experiments directory.

@@ -62,3 +62,23 @@ end events, what we need to do is:
 
 This should all be implemented as an LLVM pass that can be run by
 `AcqRelPass` on the module that it owns.
+
+## Variable Name to Value
+
+When we call an assertion, it references a variable in the current
+scope. How does this get translated into an LLVM `Value *`?
+
+* In the parser we have `ParseArgs` that we've come across before. It
+  will end up getting run on each argument to a TESLA macro, drilling
+  down into the structure as appropriate.
+* The end result of the parsing is a collection of `tesla::Argument`
+  objects. These are then put into `Parser::References` at the end of
+  parsing (if the argument should be registered).
+* The instrumenter then has logic about getting the name of a value in
+  scope (`GetArgumentValue`). This populates the argument value based on
+  what is in scope.
+* This is used at the assertion site to create the instrumentation
+  functions (and calls to them).
+
+Now that we know how to get the `Value` corresponding to the arguments
+to an assertion, we can perform the analysis.
