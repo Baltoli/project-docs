@@ -81,4 +81,54 @@ scope. How does this get translated into an LLVM `Value *`?
   functions (and calls to them).
 
 Now that we know how to get the `Value` corresponding to the arguments
-to an assertion, we can perform the analysis.
+to an assertion, we can perform the analysis. This will in fact need to
+be ripped out and put somewhere that the static analysis tool can access
+it.
+
+* `CollectArgs` is only called in one place, and it doesn't appear to
+  reference any state contained in the `AssertionSiteInstrumenter`
+  class.
+* `GetArgumentValue` is aldready not part of a class, so we don't need
+  to extract it.
+
+So to expose the necessary functionality, need to move `CollectArgs`
+from being a class method to being a function in the `tesla::`
+namespace. It looks like the right place to move it to is
+`Instrumentation.cpp`, which contains 'miscellaneous instrumentation
+helpers'. Makes sense to first transfer just the implementation and have
+the existing method proxy to it, then swap over in a separate commit.
+
+Now that we can get the function etc. from a usage, we want to write the
+LLVM IR analysis.
+
+## IR Analysis
+
+All of the LLVM machinery is in place to actually perform the IR
+analysis. The goals and interfaces to this analysis are:
+
+* Given a function name (bounds) and a module, walk through the IR graph
+  and attempt to prove each of the properties that we care about for the
+  module.
+* The interface is a standard LLVM pass initialised with a string naming
+  the bounds function within the module. It gets the module my virtue of
+  being an LLVM pass.
+* Because of the way argument mapping is implemented, the pass will
+  modify the IR.
+* Thinking about it, the pass should get a `tesla::Automaton` as its
+  argument rather than just the name of the bounding function. To
+  extract arguments, it needs to have the automaton. The associated
+  `Usage` can be extracted from this class as well, so it's OK to just
+  swap the constructor over from what it is at the moment.
+  * Small problem here - fair bit of refactoring is needed to get the
+    `Automata` into the pass. Need to change how things are passed
+    through the manifest pass to get the automaton into the LLVM pass,
+    but very possible to do.
+* I think the `Before` argument can just be any instruction preceding
+  the assertion site, so would it be OK to just pick the first
+  instruction entry? (this is because all it seems to be needed to do is
+  get the grandparent function).
+
+Things to think about:
+
+* What are the formal properties we want to prove?
+* At what point do we give up and say the analysis isn't decidable?

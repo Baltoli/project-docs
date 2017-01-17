@@ -545,3 +545,14 @@
 * Started to stub out some implementations / things that will need to be done
   to get the appropriate information out of the usage and module.
 * Fixed that annoying CMake install problem for the experiments directory.
+
+## 17/1/2017
+
+* Next step is to rip out the part of the instrumenter that maps variable names
+  onto an LLVM `Value`. Have implemented this and moved the appropriate parts
+  out into a common location so that the static analyser is able to access them.
+* Working on integrating the LLVM pass boilerplate into the setup I have going
+  at the moment - have it such that the pass is run, setting a variable on
+  itself that is checked by the consumer of the pass afterwards.
+* Realised that my pass construction interface isn't quite right, and I need to
+  actually give an `Automata`.
