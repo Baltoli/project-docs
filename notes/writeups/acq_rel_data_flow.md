@@ -101,6 +101,17 @@ the existing method proxy to it, then swap over in a separate commit.
 Now that we can get the function etc. from a usage, we want to write the
 LLVM IR analysis.
 
+The arguments can't be extracted directly from the implicit automaton -
+instead, they are all the way down at the bottom level. Will need to
+extract these (another parameter to the pass?) and pass them in. What
+happens if we give these subautomata to CollectArgs?
+
+What we probably need to do is extract the sub-automata from the top
+level and collect their arguments. One possible way to do this would be
+to make an alternate version of `CollectArgs` that accepts a vector of
+`Argument` (this is the only thing that requires the automaton itself in
+the current version).
+
 ## IR Analysis
 
 All of the LLVM machinery is in place to actually perform the IR
@@ -132,3 +143,29 @@ Things to think about:
 
 * What are the formal properties we want to prove?
 * At what point do we give up and say the analysis isn't decidable?
+
+### Formal Properties
+
+The properties enforced by the `acq_rel` automaton are:
+
+* Calls to `lock_acquire` must return false zero or more times before
+  returning true exactly once. There can be no calls to `lock_acquire`
+  after the one that returns true.
+  * The easiest form of this is when we have a direct conditional branch
+    on the result of the acquisition. If this is the case, then
+* There must be exactly one call to `lock_release`, and it must occur
+  after all calls to `lock_acquire` (of which there must be at least
+  one).
+
+Some more informal things that might be detectable:
+
+* No branching on the result of a call to `lock_acquire` - this is
+  almost certainly a wrong usage and can probably be flagged as a
+  warning.
+
+### Analysis Techniques
+
+We would like to get the call graph from the bound function, but
+unfortunately LLVM 3.3 doesn't have that built in. Looks like the best
+way to proceed is just to do a simple search of the calls, check whether
+they are in the module and stick them in a vector.

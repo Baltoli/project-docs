@@ -556,3 +556,19 @@
   itself that is checked by the consumer of the pass afterwards.
 * Realised that my pass construction interface isn't quite right, and I need to
   actually give an `Automata`.
+
+## 18/1/2017
+
+* Rewired stuff to pass an `Automaton` instance into the LLVM pass so that the
+  argument information can be accessed.
+* Run into a problem with how arguments are stored on an `Automaton` - need to
+  recurse down into subautomata.
+* Worked it out so that the LLVM pass can be given the argument list from the
+  subautomata. In the future (i.e. when thinking about generic analysis), it
+  will be useful to work out a way of extracting the argument vector from an
+  automaton's subautomata more generally. Given that each has an index, I can
+  see it being possible via a subautomata walking approach.
+* Implemented the first actual static analysis of the project! I can now check
+  `acq_rel` assertions to make sure that on every call path in the bounds, calls
+  to the acquire and release functions *only* use the variable named in the
+  assertion.
