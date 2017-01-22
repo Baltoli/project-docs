@@ -572,3 +572,10 @@
   `acq_rel` assertions to make sure that on every call path in the bounds, calls
   to the acquire and release functions *only* use the variable named in the
   assertion.
+
+## 19/1/2017
+
+*  Big achievement for the day is getting the project to build without errors on
+   LLVM 3.4. It doesn't look like it'll be easy to get it updated further
+   because of incompatibilities with the CMake system that I haven't been able
+   to resolve yet.

@@ -169,3 +169,16 @@ We would like to get the call graph from the bound function, but
 unfortunately LLVM 3.3 doesn't have that built in. Looks like the best
 way to proceed is just to do a simple search of the calls, check whether
 they are in the module and stick them in a vector.
+
+Next analysis to perform is a conservative one to make sure that there
+is never a call to `lock_release` after a call to `lock_acquire`. To do
+this, need to find every call to the function `lock_acquire` within the
+bound function (and recursively into the control path functions?) Maybe
+worth making the analysis more conservative to minimise wasted work here
+first. One way to do this is to get rid of my own control path
+implementation and instead use the LLVM dominator pass to get the
+dominance tree for the module. This would then give me the tools needed
+to work out whether or not calls to `_release` can come before
+`_acquire`.
+
+Can't get an actual LLVM call graph without going to 3.4. Worth a try?
