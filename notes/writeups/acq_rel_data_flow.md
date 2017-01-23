@@ -182,3 +182,12 @@ to work out whether or not calls to `_release` can come before
 `_acquire`.
 
 Can't get an actual LLVM call graph without going to 3.4. Worth a try?
+
+Have got the CallGraph pass working from LLVM 3.4, so now it's time to
+work out how best to use it. What we are trying to work out is:
+
+The 'other lock' analysis needs:
+
+* The module we are analysing, the same as any other analysis.
+* The bounds function.
+* The lock that it's OK to call the acq / rel functions on.

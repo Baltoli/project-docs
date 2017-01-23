@@ -579,3 +579,16 @@
    LLVM 3.4. It doesn't look like it'll be easy to get it updated further
    because of incompatibilities with the CMake system that I haven't been able
    to resolve yet.
+
+## 23/1/2017
+
+* Worked out how to get call graph information out of the corresponding LLVM
+  pass.
+* Realised that some of my thinking on how to improve the 'other lock' analysis
+  was actually wrong.
+* Begun to implement a more general framework for implementing static analyses
+  within the context of an LLVM pass. The idea is that the LLVM pass has a
+  larger-scale analysis it wants to do, and the individual analyses do the
+  smaller units of work.
+* Added some TODOs and questions about the static analysis methodology, and the
+  `OtherLock` analysis.
