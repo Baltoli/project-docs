@@ -592,3 +592,19 @@
   smaller units of work.
 * Added some TODOs and questions about the static analysis methodology, and the
   `OtherLock` analysis.
+
+## 24/1/2017
+
+* Finished factoring out the "Other Lock Used" static analysis into its own
+  self-contained implementation. The next step will be to write more of these
+  analyses.
+* Added a new example that doesn't check that acquisition was successful.
+* Begun to work on the analysis that will check for non-branching on the result
+  of calls to the acquire function.
+* Maybe worth noting that because the `acq_rel` analysis is so specific to this
+  one automaton, it is possible to generate warnings.
+* Found a limitation of the interprocedural approach taken here - can't really
+  go back to a file name once a debug location is identified.
+* Finished implementing the "no branch" analysis.
+* Added a failing example for the case when a lock is released before being
+  acquired, and begun to work on the analysis of this behaviour.
