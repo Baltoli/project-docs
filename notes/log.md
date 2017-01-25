@@ -608,3 +608,18 @@
 * Finished implementing the "no branch" analysis.
 * Added a failing example for the case when a lock is released before being
   acquired, and begun to work on the analysis of this behaviour.
+
+# 25/1/201
+
+* Today working on the analysis that checks for release-before-acquire of a
+  lock. Implemented this and seen it working on the example written yesterday to
+  demonstrate the problem.
+* Implemented a common way to get the debug location from an instruction
+  (module, function, line), and converted existing analyses to use it.
+* Spent some time in debugging hell trying to get the CallGraph to work, only to
+  discover it was all my fault in the end anyway. Or is it? Still getting
+  bizarre results.
+* Maybe worth reinventing the wheel after all and building a 'SimpleCallGraph'
+  structure that can just build itself from a module. Saves lots of time
+  hassling the LLVM stuff to work.
+* Begun to work on this data structure to save on LLVM pain.
