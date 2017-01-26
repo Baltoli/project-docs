@@ -609,7 +609,7 @@
 * Added a failing example for the case when a lock is released before being
   acquired, and begun to work on the analysis of this behaviour.
 
-# 25/1/201
+# 25/1/2017
 
 * Today working on the analysis that checks for release-before-acquire of a
   lock. Implemented this and seen it working on the example written yesterday to
@@ -623,3 +623,10 @@
   structure that can just build itself from a module. Saves lots of time
   hassling the LLVM stuff to work.
 * Begun to work on this data structure to save on LLVM pain.
+
+# 26/1/2017
+
+* Implemented the simpler call graph structure and started to use it in the call
+  order analysis.
+* Realised that my approach to this is actually a bit wrong and have had to
+  think about how to improve it (problem is ordering, really).

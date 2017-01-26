@@ -66,6 +66,19 @@ The analysis will be:
 * In fact, we don't need to reinvent this data structure. Now that we're
   on LLVM 3.4, we can just compute the actual call graph.
 
+So now given a call graph, what needs to be done is:
+
+* For each function in the module, look at its immediate calls and mark
+  them as acquirers / releasers as appropriate.
+* Then for each releaser, check that there are no acquirers in its
+  transitive call graph.
+* This isn't quite right - actually what we want is for there not to be
+  any acquirers after any releasers in the transitive call graph of the
+  *bound function*. How do we actually want to do this? I think the
+  current call graph structure is somewhat inadequate.
+* Within a single function, we have no guarantees about the ordering of
+  function calls - *unless* we add dominance tree analysis to this?
+
 ## FF...T
 
 TODO
