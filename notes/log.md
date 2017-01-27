@@ -630,3 +630,13 @@
   order analysis.
 * Realised that my approach to this is actually a bit wrong and have had to
   think about how to improve it (problem is ordering, really).
+
+# 27/1/2017
+
+* Rethought some of the problems identified yesterday (with dominance vs. call
+  graph analysis), and realised that it is possible to reconcile the two into a
+  useful analysis.
+* Meeting with Robert - progress continues and some interesting ideas and
+  thoughts have been written up as notes.
+* Finalised the call order analysis with a useful warning message.
+* 

@@ -81,4 +81,43 @@ So now given a call graph, what needs to be done is:
 
 ## FF...T
 
+This analysis wants to track where we can get to after spinning on a
+lock. Basically, we want to know what can happen if the acquisition
+returns `false` compared to when it returns `true`. Because we know from
+a previous analysis that there is a branch on the return value of the
+acquire function, we can potentially identify BB destinations based on
+the result.
+
+We know from prior analysis that there could be intermediate usages of
+the return value before we get to the final destination (i.e. the
+branch). For obvious reasons, we can't always model this, but for the
+simple cases that we've seen before it might be possible. In any case,
+supporting a direct branch should definitely be doable. Because the
+simplest idiom involves a negated branch, we might end up seeing an XOR
+with `true` - possible to symbolically execute something that simple.
+
+So the steps for this analysis will be:
+
+* Identify all the calls to `lock_acquire` in the passed module.
+* For each call, look at the usages of the return value:
+  * Want to 'trace' each usage of the return value to a branch. It's
+    possible that there are multiple usages of the value (e.g. if there
+    are different branches based on an unrelated condition).
+  * To do this tracing:
+    * If a usage is a branch, then we have found the associated branch.
+    * If not, then the usage is in some other kind of instruction. If
+      it's a 'simple' usage (for now, just binary op. with a constant as
+      the other arg), then track the change in symbolic value, and
+      search from usages of the new branch.
+    * Add the followed usage to the queue to trace, then repeat until a
+      branch is found or we can't follow any more.
+    * Need to associate it with the root call somehow - if we have
+      multiple usages then we want the branch for each root usage. So
+      the end result that we get out of this stage of the analysis is a
+      mapping from calls to possible branches + expression (e.g. xor T)
+      representing how to get the branch choice from the call result.
+* Once we have this mapping:
+
+## One Usage
+
 TODO
