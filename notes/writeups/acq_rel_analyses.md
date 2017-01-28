@@ -116,8 +116,22 @@ So the steps for this analysis will be:
       the end result that we get out of this stage of the analysis is a
       mapping from calls to possible branches + expression (e.g. xor T)
       representing how to get the branch choice from the call result.
-* Once we have this mapping:
+* Once we have this mapping from acquire call to eventual branch (+
+  symbolic expression - lambda?):
+  * Identify the destination of the "true" branch (i.e. the one that
+    corresponds to the lock acquisition succeeding).
+  * From this destination, ensure that we can't call acquire again (i.e.
+    the destination doesn't dominate any calls to acquire, and we can't
+    call any acquiring functions).
+  * If these conditions hold, then we know that after a true return, we
+    can't call again.
+  * If they don't hold, then this analysis should add a message saying
+    why (dominator or function call), then fail.
 
 ## One Usage
 
-TODO
+Enforcing the property that a lock is used only once (i.e. it is not
+acquired or released multiple times) is covered by the
+release-before-acquire analysis and the call order analysis, at least
+for now. This is because to use the lock multiple times, it needs to be
+released then acquired - a failure case for those analyses.

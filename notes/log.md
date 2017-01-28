@@ -639,4 +639,9 @@
 * Meeting with Robert - progress continues and some interesting ideas and
   thoughts have been written up as notes.
 * Finalised the call order analysis with a useful warning message.
+
+# 28/1/2017
+
+* Noted that using a lock asserted about only once is covered by the RBA
+  analysis.
 * 
