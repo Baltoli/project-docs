@@ -644,4 +644,23 @@
 
 * Noted that using a lock asserted about only once is covered by the RBA
   analysis.
-* 
+* Realised that I'm missing some very simple analyses that will catch mistakes
+  in usage (e.g. missing calls, release dominance).
+* Beginning to implement these analyses to cover all the examples.
+* Worked out that what I want is reachability rather than dominance in the cases
+  I've used so far.
+* Begun to implement a way of computing BB reachability within a function.
+
+# 29/1/2017
+
+* Implemented the reachability graph check for getting from one basic block to
+  another.
+* Finished implementing the release reachability analysis that makes sure we
+  can't call release again after calling it once.
+* Begun to look at an analysis that looks for address-taken instances of the
+  acquire and release functions.
+* Looked into some informal performance analysis of optimised apps - learned to
+  use gprof for this. Needs a more formal analysis to take into account the
+  large variation in results, but generally can see an improvement when using
+  the optimised version. A next step would be to fix an actual benchmark and get
+  some results into a graph etc.
