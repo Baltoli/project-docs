@@ -135,3 +135,20 @@ acquired or released multiple times) is covered by the
 release-before-acquire analysis and the call order analysis, at least
 for now. This is because to use the lock multiple times, it needs to be
 released then acquired - a failure case for those analyses.
+
+## Missing Call
+
+This is low-hanging fruit - if there are no calls to either acquire or
+release from the bound function, then things are definitely wrong!
+
+## Release Dominators
+
+This is a two-pronged analysis - both inter- and intra-procedural. The
+first step is to identify all release calls and store them in a
+map indexed by the function in which they appear. Then, for each entry
+in this map, compute the dominance tree for the function and check that
+there is no dominance relation between any two distinct calls. As well
+as this, make sure that we can't call a function that also calls
+release.
+
+Instead of dominance, we want reachability.
