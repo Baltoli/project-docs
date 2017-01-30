@@ -1,0 +1,6004 @@
+version: 1
+creator: callgrind-3.10.1
+pid: 95453
+cmd:  ./experiments/locks/locks_bench
+part: 1
+thread: 8
+
+
+desc: I1 cache: 
+desc: D1 cache: 
+desc: LL cache: 
+
+desc: Timerange: Basic block 0 - 2115444899
+desc: Trigger: Program termination
+
+positions: line
+events: Ir
+summary: 1338935656
+
+
+ob=(1) /libexec/ld-elf.so.1
+fl=(1) ???
+fn=(4492) __tls_get_addr
+0 30664656
+
+ob=(5) /home/test/tesla-static-analysis/build/experiments/locks/locks_bench
+fl=(5) ???
+fn=(3056) munmap
+0 3
+cfn=(2644) .mcount
+calls=1 0 
+0 34
+0 6
+
+fn=(3800) __je_extent_tree_szad_nsearch
+0 27
+cfn=(2644)
+calls=3 0 
+0 174
+0 15
+cfn=(2644)
+calls=1 0 
+0 76
+0 1
+cfn=(2644)
+calls=1 0 
+0 76
+0 2
+cfn=(3810) extent_quantize
+calls=1 0 
+0 580
+0 2
+cfn=(2644)
+calls=1 0 
+0 76
+0 2
+cfn=(3810)
+calls=1 0 
+0 580
+0 35
+
+fn=(3808) __je_extent_tree_szad_insert
+0 14
+cfn=(2644)
+calls=1 0 
+0 49
+0 29
+
+fn=(3834) __je_tcache_get_hard
+0 8
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 8
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 6
+cfn=(2644)
+calls=1 0 
+0 377
+0 3
+cfn=(2644)
+calls=1 0 
+0 377
+0 3
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 4
+cfn=(2644)
+calls=1 0 
+0 377
+0 8
+cfn=(3844) __je_tcache_create
+calls=1 0 
+0 80320
+0 3
+cfn=(3836) __je_arena_choose_hard
+calls=1 0 
+0 180064
+0 3
+
+fn=(3860) __je_chunk_alloc_cache
+0 17
+cfn=(2644)
+calls=1 0 
+0 49
+0 17
+cfn=(3862) chunk_recycle
+calls=1 0 
+0 4321
+0 11
+
+fn=(3880) arena_avail_insert
+0 1704
+cfn=(2644)
+calls=142 0 
+0 40129
+0 142
+cfn=(2644)
+calls=142 0 
+0 40129
+0 142
+cfn=(2644)
+calls=142 0 
+0 40129
+0 1562
+cfn=(2644)
+calls=142 0 
+0 40129
+0 568
+cfn=(2644)
+calls=142 0 
+0 40129
+0 1704
+cfn=(2644)
+calls=142 0 
+0 40129
+0 142
+cfn=(2644)
+calls=142 0 
+0 40129
+0 142
+cfn=(2644)
+calls=142 0 
+0 40129
+0 142
+cfn=(2644)
+calls=142 0 
+0 40129
+0 284
+cfn=(2644)
+calls=142 0 
+0 40129
+0 284
+cfn=(2644)
+calls=142 0 
+0 40129
+0 142
+cfn=(2644)
+calls=142 0 
+0 40129
+0 568
+cfn=(2644)
+calls=142 0 
+0 40129
+0 142
+cfn=(2644)
+calls=142 0 
+0 40129
+0 288
+cfn=(2644)
+calls=1 0 
+0 167
+0 141
+cfn=(2644)
+calls=141 0 
+0 39962
+0 284
+cfn=(2644)
+calls=142 0 
+0 40129
+0 1136
+cfn=(2644)
+calls=142 0 
+0 40129
+0 2842
+cfn=(2644)
+calls=141 0 
+0 39962
+0 2397
+
+fn=(5046) localeconv_l
+0 6
+cfn=(2644)
+calls=1 0 
+0 62
+0 1
+cfn=(2644)
+calls=1 0 
+0 62
+0 16
+
+fn=(5060) _swrite
+0 10
+cfn=(2644)
+calls=1 0 
+0 49
+0 6
+cfn=(5062) __swrite
+calls=1 0 
+0 152
+0 13
+
+fn=(5062)
+0 10
+cfn=(2644)
+calls=1 0 
+0 62
+0 9
+cfn=(5064) _write
+calls=1 0 
+0 71
+
+fn=(5182) __cxa_thread_call_dtors
+0 11
+cfn=(2644)
+calls=1 0 
+0 34
+0 14
+
+fn=(5248) __je_tcache_bin_flush_small
+0 658
+cfn=(2644)
+calls=47 0 
+0 7674
+0 47
+cfn=(2644)
+calls=47 0 
+0 7674
+0 47
+cfn=(2644)
+calls=47 0 
+0 7674
+0 47
+cfn=(2644)
+calls=47 0 
+0 7674
+0 47
+cfn=(2644)
+calls=47 0 
+0 7674
+0 675
+cfn=(2644)
+calls=14 0 
+0 3416
+0 28
+cfn=(2644)
+calls=14 0 
+0 3416
+0 42
+cfn=(2644)
+calls=14 0 
+0 3416
+0 42
+cfn=(2644)
+calls=14 0 
+0 3416
+0 28
+cob=(6) /lib/libthr.so.3
+cfi=(6) ???
+cfn=(4510) pthread_mutex_lock
+calls=14 0 
+0 1946
+0 14
+0 14
+cfn=(2644)
+calls=14 0 
+0 3416
+0 392
+cfn=(2644)
+calls=14 0 
+0 3416
+0 1350
+cfn=(2644)
+calls=225 0 
+0 15525
+0 2151
+cfn=(2644)
+calls=239 0 
+0 18941
+0 717
+cfn=(2644)
+calls=239 0 
+0 18941
+0 1912
+cfn=(5250) __je_arena_dalloc_bin_junked_locked
+calls=239 0 
+0 5057501
+0 984
+cfn=(2644)
+calls=14 0 
+0 3416
+0 14
+cfn=(2644)
+calls=14 0 
+0 3416
+0 42
+cfn=(2644)
+calls=14 0 
+0 3416
+0 28
+cob=(6)
+cfi=(6)
+cfn=(4616) pthread_mutex_unlock
+calls=14 0 
+0 2758
+0 14
+0 14
+cfn=(2644)
+calls=14 0 
+0 3416
+0 14
+cfn=(2644)
+calls=14 0 
+0 3416
+0 14
+cfn=(2644)
+calls=14 0 
+0 3416
+0 56
+cfn=(2644)
+calls=14 0 
+0 3416
+0 42
+cfn=(2644)
+calls=14 0 
+0 3416
+0 14
+cfn=(2644)
+calls=14 0 
+0 3416
+0 14
+cfn=(2644)
+calls=14 0 
+0 3416
+0 14
+cfn=(2644)
+calls=14 0 
+0 3416
+0 56
+cfn=(2644)
+calls=14 0 
+0 3416
+0 14
+cfn=(2644)
+calls=14 0 
+0 3416
+0 112
+cfn=(2644)
+calls=14 0 
+0 3416
+0 192
+cfn=(2644)
+calls=33 0 
+0 4664
+0 165
+cfn=(2644)
+calls=33 0 
+0 4664
+0 99
+cfn=(2644)
+calls=33 0 
+0 4664
+0 66
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=33 0 
+0 4587
+0 33
+0 33
+cfn=(2644)
+calls=33 0 
+0 4664
+0 231
+cfn=(2644)
+calls=33 0 
+0 4664
+0 33
+cfn=(2644)
+calls=33 0 
+0 4664
+0 99
+cfn=(2644)
+calls=33 0 
+0 4664
+0 66
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=33 0 
+0 6501
+0 33
+0 517
+cfn=(5258) memmove
+calls=47 0 
+0 3212
+0 517
+
+fn=(5250)
+0 2629
+cfn=(2644)
+calls=239 0 
+0 53640
+0 2629
+cfn=(5252) arena_dalloc_bin_locked_impl
+calls=239 0 
+0 4998603
+
+fn=(3532) memcpy
+0 4181544
+cfn=(2644)
+calls=1393848 0 
+0 47390877
+0 26483103
+
+fn=(3810)
+0 24
+cfn=(2644)
+calls=4 0 
+0 360
+0 8
+cfn=(2644)
+calls=4 0 
+0 360
+0 4
+cfn=(2644)
+calls=4 0 
+0 360
+0 16
+cfn=(2644)
+calls=4 0 
+0 360
+0 4
+cfn=(2644)
+calls=4 0 
+0 360
+0 40
+cfn=(2644)
+calls=4 0 
+0 360
+0 64
+
+fn=(3824) __je_chunk_dss_prec_get
+0 3
+cfn=(2644)
+calls=1 0 
+0 49
+0 3
+
+fn=(3862)
+0 38
+cfn=(2644)
+calls=2 0 
+0 369
+0 6
+cfn=(2644)
+calls=2 0 
+0 369
+0 2
+cfn=(2644)
+calls=2 0 
+0 369
+0 24
+cfn=(2644)
+calls=2 0 
+0 369
+0 6
+cfn=(2644)
+calls=2 0 
+0 369
+0 4
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=2 0 
+0 278
+0 2
+0 2
+cfn=(2644)
+calls=2 0 
+0 369
+0 4
+cfn=(2644)
+calls=2 0 
+0 369
+0 2
+cfn=(2644)
+calls=2 0 
+0 369
+0 8
+cfn=(3864) memcmp
+calls=2 0 
+0 139
+0 5
+cfn=(2644)
+calls=1 0 
+0 188
+0 15
+cfn=(2644)
+calls=2 0 
+0 369
+0 2
+cfn=(2644)
+calls=2 0 
+0 369
+0 2
+cfn=(2644)
+calls=2 0 
+0 369
+0 6
+cfn=(2644)
+calls=2 0 
+0 369
+0 4
+cfn=(2644)
+calls=2 0 
+0 369
+0 4
+cfn=(2644)
+calls=2 0 
+0 369
+0 4
+cfn=(2644)
+calls=2 0 
+0 369
+0 4
+cfn=(2644)
+calls=2 0 
+0 369
+0 8
+cfn=(3800)
+calls=2 0 
+0 138
+0 10
+cfn=(2644)
+calls=2 0 
+0 369
+0 8
+cfn=(2644)
+calls=2 0 
+0 369
+0 4
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=2 0 
+0 352
+0 2
+0 16
+cfn=(2644)
+calls=2 0 
+0 369
+0 52
+
+fn=(3868) arena_chunk_register
+0 13
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 1
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 12
+cfn=(3870) __je_chunk_register
+calls=1 0 
+0 2416
+
+fn=(3872) __je_rtree_set
+0 11
+cfn=(2644)
+calls=1 0 
+0 195
+0 1
+cfn=(2644)
+calls=1 0 
+0 195
+0 3
+cfn=(2644)
+calls=1 0 
+0 195
+0 5
+cfn=(2644)
+calls=1 0 
+0 195
+0 1
+cfn=(2644)
+calls=1 0 
+0 195
+0 4
+cfn=(2644)
+calls=1 0 
+0 195
+0 3
+cfn=(2644)
+calls=1 0 
+0 195
+0 7
+cfn=(2644)
+calls=1 0 
+0 195
+0 12
+cfn=(2644)
+calls=1 0 
+0 195
+0 1
+cfn=(2644)
+calls=1 0 
+0 195
+0 4
+cfn=(2644)
+calls=1 0 
+0 195
+0 11
+
+fn=(3884) arena_run_split_remove
+0 1065
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 213
+cfn=(2644)
+calls=71 0 
+0 27782
+0 142
+cfn=(2644)
+calls=71 0 
+0 27782
+0 355
+cfn=(3886) arena_avail_remove
+calls=71 0 
+0 231389
+0 284
+cfn=(2644)
+calls=71 0 
+0 27782
+0 1067
+cfn=(2644)
+calls=1 0 
+0 412
+0 1
+cfn=(2644)
+calls=1 0 
+0 412
+0 1
+cfn=(2644)
+calls=1 0 
+0 412
+0 1423
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 213
+cfn=(2644)
+calls=71 0 
+0 27782
+0 284
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 213
+cfn=(2644)
+calls=71 0 
+0 27782
+0 284
+cfn=(2644)
+calls=71 0 
+0 27782
+0 426
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 213
+cfn=(2644)
+calls=71 0 
+0 27782
+0 142
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 71
+cfn=(2644)
+calls=71 0 
+0 27782
+0 142
+cfn=(2644)
+calls=71 0 
+0 27782
+0 284
+cfn=(2644)
+calls=71 0 
+0 27782
+0 1207
+cfn=(3880)
+calls=71 0 
+0 507460
+
+fn=(3892) a0ialloc
+0 492
+cfn=(2644)
+calls=41 0 
+0 1569
+0 41
+cfn=(2644)
+calls=41 0 
+0 1569
+0 123
+cfn=(2644)
+calls=41 0 
+0 1569
+0 41
+cfn=(2644)
+calls=41 0 
+0 1569
+0 328
+cfn=(2644)
+calls=41 0 
+0 1569
+0 205
+cfn=(2644)
+calls=41 0 
+0 1569
+0 41
+cfn=(2644)
+calls=41 0 
+0 1569
+0 246
+cfn=(3849) __je_arena_malloc_hard'2
+calls=1 0 
+0 2969
+cfn=(3848) __je_arena_malloc_hard
+calls=40 0 
+0 121000
+0 247
+cfn=(2644)
+calls=1 0 
+0 209
+0 1
+cfn=(2644)
+calls=1 0 
+0 209
+0 6
+cfn=(2644)
+calls=1 0 
+0 209
+0 2
+cfn=(2644)
+calls=1 0 
+0 209
+0 1
+cfn=(2644)
+calls=1 0 
+0 209
+0 10
+cfn=(2644)
+calls=1 0 
+0 209
+0 1
+cfn=(2644)
+calls=1 0 
+0 209
+0 1
+cfn=(2644)
+calls=1 0 
+0 209
+0 1
+cfn=(2644)
+calls=1 0 
+0 209
+0 1
+cfn=(2644)
+calls=1 0 
+0 209
+0 3
+cfn=(2644)
+calls=1 0 
+0 209
+0 4
+cfn=(2644)
+calls=1 0 
+0 209
+0 1
+cfn=(2644)
+calls=1 0 
+0 209
+0 5
+cfn=(2644)
+calls=1 0 
+0 209
+0 1
+cfn=(2644)
+calls=1 0 
+0 209
+0 1
+cfn=(2644)
+calls=1 0 
+0 209
+0 370
+
+fn=(3896) arena_bin_nonfull_run_tryget
+0 690
+cfn=(2644)
+calls=69 0 
+0 4278
+0 69
+cfn=(2644)
+calls=69 0 
+0 4278
+0 828
+
+fn=(5018) vfprintf
+0 10
+cfn=(2644)
+calls=1 0 
+0 76
+0 1
+cfn=(2644)
+calls=1 0 
+0 76
+0 12
+cfn=(5020) vfprintf_l
+calls=1 0 
+0 3978
+
+fn=(5338) a0idalloc
+0 11
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 3
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 6
+cfn=(2644)
+calls=1 0 
+0 300
+0 2
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 10
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 3
+cfn=(2644)
+calls=1 0 
+0 300
+0 4
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 5
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 2
+cfn=(2644)
+calls=1 0 
+0 300
+0 2
+cfn=(2644)
+calls=1 0 
+0 300
+0 9
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 3
+cfn=(2644)
+calls=1 0 
+0 300
+0 2
+cfn=(2644)
+calls=1 0 
+0 300
+0 15
+cfn=(5340) __je_arena_dalloc_small
+calls=1 0 
+0 8312
+
+fn=(3344) memset
+0 729
+cfn=(2644)
+calls=243 0 
+0 11892
+0 111434
+
+fn=(3798) __je_base_alloc
+0 12
+cfn=(2644)
+calls=1 0 
+0 195
+0 3
+cfn=(2644)
+calls=1 0 
+0 195
+0 1
+cfn=(2644)
+calls=1 0 
+0 195
+0 3
+cfn=(2644)
+calls=1 0 
+0 195
+0 1
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 3
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=1 0 
+0 139
+0 1
+0 1
+cfn=(2644)
+calls=1 0 
+0 195
+0 3
+cfn=(3800)
+calls=1 0 
+0 1508
+0 6
+cfn=(3812) __je_extent_tree_szad_remove
+calls=1 0 
+0 1779
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 4
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cfn=(2644)
+calls=1 0 
+0 195
+0 3
+cfn=(2644)
+calls=1 0 
+0 195
+0 4
+cfn=(3808)
+calls=1 0 
+0 92
+0 10
+cfn=(2644)
+calls=1 0 
+0 195
+0 3
+cfn=(2644)
+calls=1 0 
+0 195
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=1 0 
+0 155
+0 1
+0 17
+cfn=(2644)
+calls=1 0 
+0 195
+0 12
+
+fn=(3806) __je_pages_map
+0 10
+cfn=(2644)
+calls=1 0 
+0 49
+0 15
+cfn=(3030) mmap
+calls=1 0 
+0 58
+0 13
+
+fn=(3852) arena_run_alloc_large
+0 26
+cfn=(2644)
+calls=2 0 
+0 98
+0 10
+cfn=(3854) arena_run_alloc_large_helper
+calls=2 0 
+0 96423
+0 24
+
+fn=(3886)
+0 1680
+cfn=(2644)
+calls=140 0 
+0 24360
+0 140
+cfn=(2644)
+calls=140 0 
+0 24360
+0 140
+cfn=(2644)
+calls=140 0 
+0 24360
+0 1540
+cfn=(2644)
+calls=140 0 
+0 24360
+0 560
+cfn=(2644)
+calls=140 0 
+0 24360
+0 1680
+cfn=(2644)
+calls=140 0 
+0 24360
+0 140
+cfn=(2644)
+calls=140 0 
+0 24360
+0 140
+cfn=(2644)
+calls=140 0 
+0 24360
+0 140
+cfn=(2644)
+calls=140 0 
+0 24360
+0 280
+cfn=(2644)
+calls=140 0 
+0 24360
+0 280
+cfn=(2644)
+calls=140 0 
+0 24360
+0 140
+cfn=(2644)
+calls=140 0 
+0 24360
+0 560
+cfn=(2644)
+calls=140 0 
+0 24360
+0 140
+cfn=(2644)
+calls=140 0 
+0 24360
+0 420
+cfn=(2644)
+calls=140 0 
+0 24360
+0 420
+cfn=(2644)
+calls=140 0 
+0 24360
+0 2240
+cfn=(3888) arena_run_heap_remove
+calls=140 0 
+0 28440
+0 700
+cfn=(2644)
+calls=140 0 
+0 24360
+0 2380
+
+fn=(5020)
+0 13
+cfn=(2644)
+calls=1 0 
+0 76
+0 1
+cfn=(2644)
+calls=1 0 
+0 76
+0 10
+cfn=(5022) flockfile
+calls=1 0 
+0 212
+0 10
+cfn=(5030) __vfprintf
+calls=1 0 
+0 3352
+0 5
+cfn=(5066) funlockfile
+calls=1 0 
+0 214
+0 9
+
+fn=(5022)
+0 6
+cfn=(2644)
+calls=1 0 
+0 49
+0 1
+cob=(6)
+cfi=(6)
+cfn=(5028) pthread_self
+calls=1 0 
+0 4
+0 1
+0 5
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=1 0 
+0 138
+0 1
+0 7
+
+fn=(5058) __sflush
+0 8
+cfn=(2644)
+calls=1 0 
+0 62
+0 22
+cfn=(5060)
+calls=1 0 
+0 230
+0 14
+
+fn=(5254) arena_dalloc_bin_run
+0 884
+cfn=(2644)
+calls=68 0 
+0 8500
+0 68
+cfn=(2644)
+calls=68 0 
+0 8500
+0 204
+cfn=(2644)
+calls=68 0 
+0 8500
+0 136
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=68 0 
+0 13396
+0 68
+0 136
+cfn=(2644)
+calls=68 0 
+0 8500
+0 204
+cfn=(2644)
+calls=68 0 
+0 8500
+0 136
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=68 0 
+0 9452
+0 68
+0 68
+cfn=(2644)
+calls=68 0 
+0 8500
+0 476
+cfn=(5256) arena_run_dalloc
+calls=68 0 
+0 3497615
+0 68
+cfn=(2644)
+calls=68 0 
+0 8500
+0 204
+cfn=(2644)
+calls=68 0 
+0 8500
+0 136
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=68 0 
+0 13396
+0 68
+0 68
+cfn=(2644)
+calls=68 0 
+0 8500
+0 204
+cfn=(2644)
+calls=68 0 
+0 8500
+0 136
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=68 0 
+0 9452
+0 68
+0 68
+cfn=(2644)
+calls=68 0 
+0 8500
+0 612
+
+fn=(5324) __je_thread_deallocated_cleanup
+0 4
+cfn=(2644)
+calls=1 0 
+0 118
+
+fn=(5342) __je_arena_dalloc_bin
+0 14
+cfn=(2644)
+calls=1 0 
+0 139
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 3
+cfn=(2644)
+calls=1 0 
+0 139
+0 4
+cfn=(2644)
+calls=1 0 
+0 139
+0 14
+cfn=(2644)
+calls=1 0 
+0 139
+0 3
+cfn=(2644)
+calls=1 0 
+0 139
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=1 0 
+0 139
+0 1
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 6
+cfn=(5252)
+calls=1 0 
+0 4568
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 3
+cfn=(2644)
+calls=1 0 
+0 139
+0 9
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=1 0 
+0 197
+0 1
+
+fn=(3782) __je_malloc_mutex_init
+0 240
+cfn=(2644)
+calls=40 0 
+0 1960
+0 240
+cfn=(4816) _pthread_mutex_init_calloc_cb
+calls=40 0 
+0 139600
+0 400
+
+fn=(3804) __je_chunk_alloc_mmap
+0 14
+cfn=(2644)
+calls=1 0 
+0 49
+0 4
+cfn=(3806)
+calls=1 0 
+0 145
+0 20
+
+fn=(3822) __je_arena_new
+0 11
+cfn=(2644)
+calls=1 0 
+0 90
+0 14
+cfn=(3798)
+calls=1 0 
+0 7878
+0 11
+cfn=(3782)
+calls=1 0 
+0 3561
+0 21
+cfn=(3344)
+calls=1 0 
+0 194
+0 9
+cfn=(3344)
+calls=1 0 
+0 586
+0 4
+cfn=(3824)
+calls=1 0 
+0 55
+0 4
+cfn=(2644)
+calls=1 0 
+0 90
+0 1
+cfn=(2644)
+calls=1 0 
+0 90
+0 1
+cfn=(2644)
+calls=1 0 
+0 90
+0 11
+cfn=(2644)
+calls=1 0 
+0 90
+0 74
+cfn=(2644)
+calls=37 0 
+0 1813
+0 165
+cfn=(3782)
+calls=1 0 
+0 3561
+0 6
+cfn=(3784) __je_extent_tree_szad_new
+calls=1 0 
+0 60
+0 2
+cfn=(3826) __je_extent_tree_ad_new
+calls=1 0 
+0 60
+0 2
+cfn=(3784)
+calls=1 0 
+0 60
+0 2
+cfn=(3826)
+calls=1 0 
+0 60
+0 4
+cfn=(3782)
+calls=1 0 
+0 3561
+0 9
+cfn=(3782)
+calls=1 0 
+0 3561
+0 20
+cfn=(3782)
+calls=1 0 
+0 3561
+0 140
+cfn=(3782)
+calls=35 0 
+0 124635
+0 180
+cfn=(2644)
+calls=36 0 
+0 1805
+0 404
+
+fn=(3838) __je_arena_nthreads_get
+0 98
+cfn=(2644)
+calls=14 0 
+0 918
+0 28
+cfn=(2644)
+calls=14 0 
+0 946
+0 14
+cfn=(2644)
+calls=14 0 
+0 974
+0 84
+
+fn=(3902) arena_run_reg_alloc
+0 3091
+cfn=(2644)
+calls=281 0 
+0 35244
+0 281
+cfn=(2644)
+calls=281 0 
+0 35244
+0 562
+cfn=(2644)
+calls=281 0 
+0 35244
+0 1441
+cfn=(2644)
+calls=36 0 
+0 3744
+0 252
+cfn=(2644)
+calls=36 0 
+0 3744
+0 735
+cfn=(2644)
+calls=245 0 
+0 31500
+0 1686
+cfn=(2644)
+calls=281 0 
+0 35244
+0 562
+cfn=(2644)
+calls=281 0 
+0 35244
+0 1124
+cfn=(2644)
+calls=281 0 
+0 35244
+0 7306
+
+fn=(5054) memchr
+0 30
+cfn=(2644)
+calls=3 0 
+0 147
+0 156
+
+fn=(5308) _malloc_thread_cleanup
+0 9
+cfn=(2644)
+calls=1 0 
+0 34
+0 14
+cfn=(3344)
+calls=1 0 
+0 64
+0 33
+cfn=(5310) __je_tsd_cleanup_wrapper
+calls=2 0 
+0 1743051
+0 24
+
+fn=(5344) __je_narenas_tdata_cleanup
+0 4
+cfn=(2644)
+calls=1 0 
+0 118
+
+fn=(3770) calloc
+0 1834
+cfn=(2644)
+calls=131 0 
+0 4454
+0 1310
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 1308
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 658
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 262
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 525
+cfn=(2644)
+calls=1 0 
+0 34
+0 9
+cfn=(3834)
+calls=1 0 
+0 264960
+0 2
+cfn=(2644)
+calls=1 0 
+0 34
+0 5
+cfn=(2644)
+calls=1 0 
+0 34
+0 260
+cfn=(2644)
+calls=130 0 
+0 4420
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 654
+cfn=(2644)
+calls=130 0 
+0 4420
+0 130
+cfn=(2644)
+calls=130 0 
+0 4420
+0 390
+cfn=(2644)
+calls=130 0 
+0 4420
+0 1670
+cfn=(2644)
+calls=130 0 
+0 4420
+0 130
+cfn=(2644)
+calls=130 0 
+0 4420
+0 520
+cfn=(3344)
+calls=130 0 
+0 109608
+0 260
+cfn=(2644)
+calls=130 0 
+0 4420
+0 130
+cfn=(2644)
+calls=130 0 
+0 4420
+0 130
+cfn=(2644)
+calls=130 0 
+0 4420
+0 780
+cfn=(2644)
+calls=130 0 
+0 4420
+0 1
+cfn=(2644)
+calls=1 0 
+0 34
+0 393
+cfn=(2644)
+calls=131 0 
+0 4454
+0 131
+cfn=(2644)
+calls=131 0 
+0 4454
+0 524
+cfn=(2644)
+calls=131 0 
+0 4454
+0 2222
+cfn=(2644)
+calls=130 0 
+0 4420
+0 2219
+cfn=(3848)
+calls=1 0 
+0 57452
+0 47
+cfn=(2644)
+calls=15 0 
+0 510
+0 15
+cfn=(2644)
+calls=15 0 
+0 510
+0 15
+cfn=(2644)
+calls=15 0 
+0 510
+0 15
+cfn=(2644)
+calls=15 0 
+0 510
+0 90
+cfn=(2644)
+calls=15 0 
+0 510
+0 120
+cfn=(3904) __je_tcache_alloc_small_hard
+calls=15 0 
+0 3080960
+0 49
+cfn=(2644)
+calls=1 0 
+0 34
+0 3
+
+fn=(3812)
+0 13
+cfn=(2644)
+calls=1 0 
+0 90
+0 8
+cfn=(2644)
+calls=1 0 
+0 90
+0 1
+cfn=(2644)
+calls=1 0 
+0 90
+0 2
+cfn=(3810)
+calls=1 0 
+0 580
+0 2
+cfn=(2644)
+calls=1 0 
+0 90
+0 2
+cfn=(3810)
+calls=1 0 
+0 580
+0 7
+cfn=(2644)
+calls=1 0 
+0 90
+0 2
+cfn=(2644)
+calls=1 0 
+0 90
+0 42
+
+fn=(3870)
+0 7
+cfn=(2644)
+calls=1 0 
+0 195
+0 6
+cfn=(3872)
+calls=1 0 
+0 2208
+
+fn=(5238) free
+0 1430
+cfn=(2644)
+calls=130 0 
+0 4420
+0 650
+cfn=(2644)
+calls=130 0 
+0 4420
+0 130
+cfn=(2644)
+calls=130 0 
+0 4420
+0 1040
+cfn=(2644)
+calls=130 0 
+0 4420
+0 130
+cfn=(2644)
+calls=130 0 
+0 4420
+0 260
+cfn=(2644)
+calls=130 0 
+0 4420
+0 130
+cfn=(2644)
+calls=130 0 
+0 4420
+0 130
+cfn=(2644)
+calls=130 0 
+0 4420
+0 910
+cfn=(5240) ifree
+calls=130 0 
+0 4866370
+0 130
+cfn=(2644)
+calls=130 0 
+0 4420
+0 130
+cfn=(2644)
+calls=130 0 
+0 4420
+0 1300
+
+fn=(5260) __je_tcache_event_hard
+0 11
+cfn=(2644)
+calls=1 0 
+0 475
+0 26
+
+fn=(5314) __je_tcache_cleanup
+0 6
+cfn=(2644)
+calls=1 0 
+0 76
+0 1
+cfn=(2644)
+calls=1 0 
+0 76
+0 1
+cfn=(2644)
+calls=1 0 
+0 76
+0 5
+cfn=(5316) tcache_destroy
+calls=1 0 
+0 1721277
+0 1
+cfn=(2644)
+calls=1 0 
+0 76
+0 5
+
+fn=(5332) __je_arena_nthreads_dec
+0 14
+cfn=(2644)
+calls=2 0 
+0 138
+0 4
+cfn=(2644)
+calls=2 0 
+0 138
+0 2
+cfn=(2644)
+calls=2 0 
+0 138
+0 12
+
+fn=(5340)
+0 14
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 6
+cfn=(5342)
+calls=1 0 
+0 6778
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 10
+
+fn=(5350) __je_quarantine_cleanup
+0 10
+cfn=(2644)
+calls=1 0 
+0 69
+0 1
+cfn=(2644)
+calls=1 0 
+0 69
+0 1
+cfn=(2644)
+calls=1 0 
+0 69
+0 11
+
+fn=(5352) __je_witnesses_cleanup
+0 3
+cfn=(2644)
+calls=1 0 
+0 62
+0 1
+cfn=(2644)
+calls=1 0 
+0 62
+0 2
+cfn=(2644)
+calls=1 0 
+0 118
+
+fn=(2644)
+0 28319520
+cfn=(2646) _mcount
+calls=2831952 0 
+0 53635518
+0 22655616
+
+fn=(3826)
+0 12
+cfn=(2644)
+calls=2 0 
+0 98
+0 10
+
+fn=(3850) __je_arena_malloc_large
+0 26
+cfn=(2644)
+calls=2 0 
+0 488
+0 2
+cfn=(2644)
+calls=2 0 
+0 488
+0 2
+cfn=(2644)
+calls=2 0 
+0 488
+0 10
+cfn=(2644)
+calls=2 0 
+0 488
+0 6
+cfn=(2644)
+calls=2 0 
+0 488
+0 4
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=2 0 
+0 278
+0 2
+0 2
+cfn=(2644)
+calls=2 0 
+0 488
+0 4
+cfn=(2644)
+calls=2 0 
+0 488
+0 24
+cfn=(3852)
+calls=2 0 
+0 96581
+0 12
+cfn=(2644)
+calls=2 0 
+0 488
+0 4
+cfn=(2644)
+calls=2 0 
+0 488
+0 10
+cfn=(2644)
+calls=2 0 
+0 488
+0 60
+cfn=(2644)
+calls=2 0 
+0 488
+0 6
+cfn=(2644)
+calls=2 0 
+0 488
+0 4
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=2 0 
+0 394
+0 2
+0 12
+cfn=(2644)
+calls=2 0 
+0 488
+0 2
+cfn=(2644)
+calls=2 0 
+0 488
+0 2
+cfn=(2644)
+calls=2 0 
+0 488
+0 6
+cfn=(2644)
+calls=2 0 
+0 488
+0 6
+cfn=(2644)
+calls=2 0 
+0 488
+0 2
+cfn=(2644)
+calls=2 0 
+0 488
+0 2
+cfn=(2644)
+calls=2 0 
+0 488
+0 2
+cfn=(2644)
+calls=2 0 
+0 488
+0 7
+cfn=(2644)
+calls=1 0 
+0 258
+0 1
+cfn=(2644)
+calls=1 0 
+0 258
+0 7
+cfn=(2644)
+calls=2 0 
+0 488
+0 33
+cfn=(3890) __je_arena_tdata_get_hard
+calls=1 0 
+0 11779
+0 3
+
+fn=(3854)
+0 20
+cfn=(2644)
+calls=2 0 
+0 166
+0 2
+cfn=(2644)
+calls=2 0 
+0 166
+0 2
+cfn=(2644)
+calls=2 0 
+0 166
+0 8
+cfn=(3856) arena_run_first_best_fit
+calls=2 0 
+0 6676
+0 8
+cfn=(2644)
+calls=2 0 
+0 166
+0 12
+cfn=(3882) arena_run_split_large_helper
+calls=2 0 
+0 88809
+0 32
+cfn=(2644)
+calls=2 0 
+0 166
+0 24
+
+fn=(3888)
+0 2255
+cfn=(2644)
+calls=205 0 
+0 27545
+0 3710
+
+fn=(3890)
+0 11
+cfn=(2644)
+calls=1 0 
+0 146
+0 1
+cfn=(2644)
+calls=1 0 
+0 146
+0 1
+cfn=(2644)
+calls=1 0 
+0 146
+0 2
+cfn=(2644)
+calls=1 0 
+0 146
+0 1
+cfn=(2644)
+calls=1 0 
+0 146
+0 2
+cfn=(2644)
+calls=1 0 
+0 146
+0 1
+cfn=(2644)
+calls=1 0 
+0 146
+0 1
+cfn=(2644)
+calls=1 0 
+0 146
+0 11
+cfn=(2644)
+calls=1 0 
+0 146
+0 4
+cfn=(2644)
+calls=1 0 
+0 146
+0 12
+cfn=(2644)
+calls=1 0 
+0 146
+0 5
+cfn=(3892)
+calls=1 0 
+0 7869
+0 5
+cfn=(2644)
+calls=1 0 
+0 146
+0 2
+cfn=(2644)
+calls=1 0 
+0 146
+0 109
+cfn=(2644)
+calls=32 0 
+0 1665
+0 179
+
+fn=(3894) arena_bin_malloc_hard
+0 897
+cfn=(2644)
+calls=69 0 
+0 14428
+0 69
+cfn=(2644)
+calls=69 0 
+0 14428
+0 690
+cfn=(2644)
+calls=69 0 
+0 14428
+0 138
+cfn=(3896)
+calls=69 0 
+0 10143
+0 276
+cfn=(2644)
+calls=69 0 
+0 14428
+0 69
+cfn=(2644)
+calls=69 0 
+0 14428
+0 207
+cfn=(2644)
+calls=69 0 
+0 14428
+0 138
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=69 0 
+0 13593
+0 69
+0 207
+cfn=(2644)
+calls=69 0 
+0 14428
+0 207
+cfn=(2644)
+calls=69 0 
+0 14428
+0 138
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=69 0 
+0 9591
+0 69
+0 69
+cfn=(2644)
+calls=69 0 
+0 14428
+0 207
+cfn=(2644)
+calls=69 0 
+0 14428
+0 69
+cfn=(2644)
+calls=69 0 
+0 14428
+0 207
+cfn=(3856)
+calls=69 0 
+0 320195
+0 752
+cfn=(3898) arena_run_split_small
+calls=68 0 
+0 2099679
+0 277
+cfn=(3858) arena_chunk_alloc
+calls=1 0 
+0 20729
+0 6
+cfn=(2644)
+calls=1 0 
+0 216
+0 16
+cfn=(3898)
+calls=1 0 
+0 30429
+0 416
+cfn=(3900) __je_bitmap_init
+calls=69 0 
+0 20849
+0 69
+cfn=(2644)
+calls=69 0 
+0 14428
+0 276
+cfn=(2644)
+calls=69 0 
+0 14428
+0 138
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=69 0 
+0 13593
+0 69
+0 69
+cfn=(2644)
+calls=69 0 
+0 14428
+0 207
+cfn=(2644)
+calls=69 0 
+0 14428
+0 138
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=69 0 
+0 9591
+0 69
+0 69
+cfn=(2644)
+calls=69 0 
+0 14428
+0 1311
+cfn=(3902)
+calls=69 0 
+0 105136
+
+fn=(3898)
+0 897
+cfn=(2644)
+calls=69 0 
+0 15387
+0 345
+cfn=(2644)
+calls=69 0 
+0 15387
+0 138
+cfn=(2644)
+calls=69 0 
+0 15387
+0 1035
+cfn=(2644)
+calls=69 0 
+0 15387
+0 69
+cfn=(2644)
+calls=69 0 
+0 15387
+0 69
+cfn=(2644)
+calls=69 0 
+0 15387
+0 69
+cfn=(2644)
+calls=69 0 
+0 15387
+0 69
+cfn=(2644)
+calls=69 0 
+0 15387
+0 207
+cfn=(2644)
+calls=69 0 
+0 15387
+0 276
+cfn=(2644)
+calls=69 0 
+0 15387
+0 69
+cfn=(2644)
+calls=69 0 
+0 15387
+0 69
+cfn=(2644)
+calls=69 0 
+0 15387
+0 69
+cfn=(2644)
+calls=69 0 
+0 15387
+0 69
+cfn=(2644)
+calls=69 0 
+0 15387
+0 207
+cfn=(2644)
+calls=69 0 
+0 15387
+0 828
+cfn=(3884)
+calls=69 0 
+0 1565191
+0 1173
+cfn=(2644)
+calls=69 0 
+0 15387
+0 284
+cfn=(2644)
+calls=142 0 
+0 16756
+0 211
+cfn=(2644)
+calls=211 0 
+0 32143
+0 211
+cfn=(2644)
+calls=211 0 
+0 32143
+0 211
+cfn=(2644)
+calls=211 0 
+0 32143
+0 211
+cfn=(2644)
+calls=211 0 
+0 32143
+0 422
+cfn=(2644)
+calls=211 0 
+0 32143
+0 1055
+cfn=(2644)
+calls=211 0 
+0 32143
+0 211
+cfn=(2644)
+calls=211 0 
+0 32143
+0 211
+cfn=(2644)
+calls=211 0 
+0 32143
+0 1477
+cfn=(2644)
+calls=211 0 
+0 32143
+0 2520
+
+fn=(3900)
+0 483
+cfn=(2644)
+calls=69 0 
+0 4761
+0 69
+cfn=(2644)
+calls=69 0 
+0 4761
+0 69
+cfn=(2644)
+calls=69 0 
+0 4761
+0 345
+cfn=(3344)
+calls=69 0 
+0 4912
+0 688
+
+fn=(3906) __je_arena_tcache_fill_small
+0 210
+cfn=(2644)
+calls=15 0 
+0 2505
+0 90
+cfn=(2644)
+calls=15 0 
+0 2505
+0 45
+cfn=(2644)
+calls=15 0 
+0 2505
+0 30
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=15 0 
+0 2085
+0 15
+0 15
+cfn=(2644)
+calls=15 0 
+0 2505
+0 4101
+cfn=(3902)
+calls=171 0 
+0 132057
+0 447
+cfn=(3894)
+calls=69 0 
+0 2892200
+0 1005
+cfn=(2644)
+calls=15 0 
+0 2505
+0 45
+cfn=(2644)
+calls=15 0 
+0 2505
+0 30
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=15 0 
+0 2955
+0 15
+0 30
+cfn=(2644)
+calls=15 0 
+0 2505
+0 15
+cfn=(2644)
+calls=15 0 
+0 2505
+0 15
+cfn=(2644)
+calls=15 0 
+0 2505
+0 45
+cfn=(2644)
+calls=15 0 
+0 2505
+0 30
+cfn=(2644)
+calls=15 0 
+0 2505
+0 15
+cfn=(2644)
+calls=15 0 
+0 2505
+0 15
+cfn=(2644)
+calls=15 0 
+0 2505
+0 15
+cfn=(2644)
+calls=15 0 
+0 2505
+0 60
+cfn=(2644)
+calls=15 0 
+0 2505
+0 15
+cfn=(2644)
+calls=15 0 
+0 2505
+0 90
+cfn=(2644)
+calls=15 0 
+0 2505
+0 195
+
+fn=(4816)
+0 280
+cfn=(2644)
+calls=40 0 
+0 1960
+0 280
+cob=(6)
+cfi=(6)
+cfn=(4818) _pthread_mutex_init_calloc_cb
+calls=40 0 
+0 137080
+
+fn=(5030)
+0 16
+cfn=(2644)
+calls=1 0 
+0 125
+0 20
+cfn=(2644)
+calls=1 0 
+0 125
+0 8
+cfn=(5046)
+calls=1 0 
+0 147
+0 188
+cfn=(2644)
+calls=2 0 
+0 180
+0 92
+cfn=(2644)
+calls=1 0 
+0 125
+0 57
+cfn=(2644)
+calls=1 0 
+0 125
+0 13
+cfn=(2644)
+calls=1 0 
+0 125
+0 7
+cfn=(2644)
+calls=1 0 
+0 125
+0 19
+cfn=(2644)
+calls=1 0 
+0 125
+0 2
+cfn=(2644)
+calls=1 0 
+0 125
+0 5
+cfn=(5052) __sfvwrite
+calls=1 0 
+0 596
+0 5
+cfn=(2644)
+calls=1 0 
+0 125
+0 2
+cfn=(2644)
+calls=1 0 
+0 125
+0 5
+cfn=(5052)
+calls=1 0 
+0 708
+0 32
+
+fn=(5056) __fflush
+0 6
+cfn=(2644)
+calls=1 0 
+0 62
+0 9
+cfn=(5058)
+calls=1 0 
+0 336
+
+fn=(5066)
+0 6
+cfn=(2644)
+calls=1 0 
+0 49
+0 1
+cob=(6)
+cfi=(6)
+cfn=(5028)
+calls=1 0 
+0 4
+0 1
+0 13
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=1 0 
+0 139
+0 1
+
+fn=(5256)
+0 1050
+cfn=(2644)
+calls=70 0 
+0 40677
+0 280
+cfn=(2644)
+calls=70 0 
+0 40677
+0 140
+cfn=(2644)
+calls=70 0 
+0 40677
+0 840
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 210
+cfn=(2644)
+calls=70 0 
+0 40677
+0 550
+cfn=(2644)
+calls=2 0 
+0 1265
+0 2
+cfn=(2644)
+calls=2 0 
+0 1265
+0 2
+cfn=(2644)
+calls=2 0 
+0 1265
+0 2
+cfn=(2644)
+calls=2 0 
+0 1265
+0 2
+cfn=(2644)
+calls=2 0 
+0 1265
+0 8
+cfn=(2644)
+calls=2 0 
+0 1265
+0 6
+cfn=(2644)
+calls=2 0 
+0 1265
+0 14
+cfn=(2644)
+calls=2 0 
+0 1265
+0 272
+cfn=(2644)
+calls=68 0 
+0 39412
+0 1610
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 210
+cfn=(2644)
+calls=70 0 
+0 40677
+0 840
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 630
+cfn=(2644)
+calls=70 0 
+0 40677
+0 420
+cfn=(2644)
+calls=70 0 
+0 40677
+0 210
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 280
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 280
+cfn=(2644)
+calls=70 0 
+0 40677
+0 280
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 70
+cfn=(2644)
+calls=70 0 
+0 40677
+0 210
+cfn=(2644)
+calls=70 0 
+0 40677
+0 215
+cfn=(2644)
+calls=5 0 
+0 3950
+0 5
+cfn=(2644)
+calls=5 0 
+0 3950
+0 5
+cfn=(2644)
+calls=5 0 
+0 3950
+0 5
+cfn=(2644)
+calls=5 0 
+0 3950
+0 5
+cfn=(2644)
+calls=5 0 
+0 3950
+0 15
+cfn=(2644)
+calls=5 0 
+0 3950
+0 24
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 12
+cfn=(2644)
+calls=4 0 
+0 3181
+0 24
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 12
+cfn=(2644)
+calls=4 0 
+0 3181
+0 8
+cfn=(2644)
+calls=4 0 
+0 3181
+0 44
+cfn=(3886)
+calls=4 0 
+0 13036
+0 20
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 100
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 16
+cfn=(2644)
+calls=4 0 
+0 3181
+0 20
+cfn=(2644)
+calls=4 0 
+0 3181
+0 16
+cfn=(2644)
+calls=4 0 
+0 3181
+0 12
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 4
+cfn=(2644)
+calls=4 0 
+0 3181
+0 20
+cfn=(2644)
+calls=4 0 
+0 3181
+0 8
+cfn=(2644)
+calls=4 0 
+0 3181
+0 8
+cfn=(2644)
+calls=4 0 
+0 3181
+0 290
+cfn=(2644)
+calls=69 0 
+0 40594
+0 69
+cfn=(2644)
+calls=69 0 
+0 40594
+0 69
+cfn=(2644)
+calls=69 0 
+0 40594
+0 69
+cfn=(2644)
+calls=69 0 
+0 40594
+0 69
+cfn=(2644)
+calls=69 0 
+0 40594
+0 207
+cfn=(2644)
+calls=69 0 
+0 40594
+0 203
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 195
+cfn=(2644)
+calls=65 0 
+0 39170
+0 390
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 195
+cfn=(2644)
+calls=65 0 
+0 39170
+0 390
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 195
+cfn=(2644)
+calls=65 0 
+0 39170
+0 130
+cfn=(2644)
+calls=65 0 
+0 39170
+0 715
+cfn=(3886)
+calls=65 0 
+0 211855
+0 260
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 1560
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 260
+cfn=(2644)
+calls=65 0 
+0 39170
+0 260
+cfn=(2644)
+calls=65 0 
+0 39170
+0 260
+cfn=(2644)
+calls=65 0 
+0 39170
+0 130
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 65
+cfn=(2644)
+calls=65 0 
+0 39170
+0 195
+cfn=(2644)
+calls=65 0 
+0 39170
+0 195
+cfn=(2644)
+calls=65 0 
+0 39170
+0 130
+cfn=(2644)
+calls=65 0 
+0 39170
+0 490
+cfn=(3880)
+calls=5 0 
+0 15875
+0 260
+cfn=(3880)
+calls=65 0 
+0 210340
+0 280
+cfn=(2644)
+calls=70 0 
+0 41139
+0 70
+cfn=(2644)
+calls=70 0 
+0 41139
+0 1750
+cfn=(2644)
+calls=70 0 
+0 41139
+0 350
+cfn=(2644)
+calls=70 0 
+0 41139
+0 1330
+
+fn=(5312) __je_tsd_cleanup
+0 12
+cfn=(2644)
+calls=2 0 
+0 167
+0 12
+cfn=(5314)
+calls=1 0 
+0 1721600
+0 2
+cfn=(5322) __je_thread_allocated_cleanup
+calls=1 0 
+0 122
+0 2
+cfn=(5324)
+calls=1 0 
+0 122
+0 2
+cfn=(5326) __je_prof_tdata_cleanup
+calls=1 0 
+0 122
+0 2
+cfn=(5328) __je_iarena_cleanup
+calls=1 0 
+0 951
+0 2
+cfn=(5334) __je_arena_cleanup
+calls=1 0 
+0 950
+0 2
+cfn=(5336) __je_arenas_tdata_cleanup
+calls=1 0 
+0 17723
+0 2
+cfn=(5344)
+calls=1 0 
+0 122
+0 2
+cfn=(5346) __je_arenas_tdata_bypass_cleanup
+calls=1 0 
+0 122
+0 2
+cfn=(5348) __je_tcache_enabled_cleanup
+calls=1 0 
+0 122
+0 2
+cfn=(5350)
+calls=1 0 
+0 230
+0 2
+cfn=(5352)
+calls=1 0 
+0 248
+0 2
+cfn=(5354) __je_witness_fork_cleanup
+calls=1 0 
+0 122
+0 2
+cfn=(2644)
+calls=1 0 
+0 118
+0 24
+
+fn=(5316)
+0 12
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 4
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 2
+cfn=(2644)
+calls=1 0 
+0 510
+0 3
+cfn=(2644)
+calls=1 0 
+0 510
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=1 0 
+0 139
+0 1
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 11
+cfn=(5318) __je_tcache_stats_merge
+calls=1 0 
+0 26809
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 3
+cfn=(2644)
+calls=1 0 
+0 510
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=1 0 
+0 197
+0 1
+0 10
+cfn=(5248)
+calls=1 0 
+0 2063
+0 175
+cfn=(5248)
+calls=35 0 
+0 1523561
+0 264
+cfn=(5320) __je_tcache_bin_flush_large
+calls=1 0 
+0 2060
+0 32
+cfn=(5320)
+calls=4 0 
+0 8240
+0 26
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 6
+cfn=(2644)
+calls=1 0 
+0 510
+0 2
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 9
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 3
+cfn=(2644)
+calls=1 0 
+0 510
+0 4
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 3
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 2
+cfn=(2644)
+calls=1 0 
+0 510
+0 2
+cfn=(2644)
+calls=1 0 
+0 510
+0 9
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 3
+cfn=(2644)
+calls=1 0 
+0 510
+0 2
+cfn=(2644)
+calls=1 0 
+0 510
+0 3
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 2
+cfn=(2644)
+calls=1 0 
+0 510
+0 2
+cfn=(2644)
+calls=1 0 
+0 510
+0 6
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 1
+cfn=(2644)
+calls=1 0 
+0 510
+0 12
+cfn=(5262) __je_arena_dalloc_large
+calls=1 0 
+0 132572
+
+fn=(5330) arena_unbind
+0 20
+cfn=(2644)
+calls=2 0 
+0 194
+0 2
+cfn=(2644)
+calls=2 0 
+0 194
+0 2
+cfn=(2644)
+calls=2 0 
+0 194
+0 16
+cfn=(5332)
+calls=2 0 
+0 446
+0 2
+cfn=(2644)
+calls=2 0 
+0 194
+0 19
+
+fn=(5334)
+0 6
+cfn=(2644)
+calls=1 0 
+0 97
+0 1
+cfn=(2644)
+calls=1 0 
+0 97
+0 1
+cfn=(2644)
+calls=1 0 
+0 97
+0 10
+cfn=(5330)
+calls=1 0 
+0 641
+
+fn=(2732) strncmp
+0 13938440
+cfn=(2644)
+calls=1393844 0 
+0 47390696
+0 514328436
+
+fn=(3784)
+0 12
+cfn=(2644)
+calls=2 0 
+0 98
+0 10
+
+fn=(3820) arena_init_locked
+0 22
+cfn=(2644)
+calls=2 0 
+0 201
+0 8
+cfn=(2644)
+calls=2 0 
+0 201
+0 2
+cfn=(2644)
+calls=2 0 
+0 201
+0 2
+cfn=(2644)
+calls=2 0 
+0 201
+0 8
+cfn=(2644)
+calls=2 0 
+0 201
+0 29
+cfn=(2644)
+calls=1 0 
+0 118
+0 1
+cfn=(2644)
+calls=1 0 
+0 118
+0 7
+cfn=(3822)
+calls=1 0 
+0 156556
+0 2
+cfn=(2644)
+calls=1 0 
+0 118
+0 2
+cfn=(2644)
+calls=1 0 
+0 118
+0 1
+cfn=(2644)
+calls=1 0 
+0 118
+0 3
+
+fn=(3844)
+0 11
+cfn=(2644)
+calls=1 0 
+0 377
+0 7
+cfn=(2644)
+calls=1 0 
+0 377
+0 12
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 2
+cfn=(2644)
+calls=1 0 
+0 377
+0 15
+cfn=(2644)
+calls=1 0 
+0 377
+0 5
+cfn=(2644)
+calls=1 0 
+0 377
+0 8
+cfn=(3846) __je_arena_palloc
+calls=1 0 
+0 66136
+0 5
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 6
+cfn=(2644)
+calls=1 0 
+0 377
+0 3
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 10
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 3
+cfn=(2644)
+calls=1 0 
+0 377
+0 4
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 5
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 3
+cfn=(2644)
+calls=1 0 
+0 377
+0 2
+cfn=(2644)
+calls=1 0 
+0 377
+0 3
+cfn=(2644)
+calls=1 0 
+0 377
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=1 0 
+0 139
+0 1
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 8
+cfn=(2644)
+calls=1 0 
+0 377
+0 3
+cfn=(2644)
+calls=1 0 
+0 377
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=1 0 
+0 197
+0 1
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 509
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 1
+cfn=(2644)
+calls=1 0 
+0 377
+0 2
+cfn=(2644)
+calls=1 0 
+0 377
+0 2
+cfn=(2644)
+calls=1 0 
+0 377
+0 5
+
+fn=(3864)
+0 9
+cfn=(2644)
+calls=3 0 
+0 147
+0 51
+
+fn=(3866) __je_chunk_alloc_wrapper
+0 17
+cfn=(2644)
+calls=1 0 
+0 90
+0 1
+cfn=(2644)
+calls=1 0 
+0 90
+0 1
+cfn=(2644)
+calls=1 0 
+0 90
+0 4
+cfn=(3864)
+calls=1 0 
+0 68
+0 3
+cfn=(2644)
+calls=1 0 
+0 90
+0 15
+cfn=(3862)
+calls=1 0 
+0 4029
+0 7
+cfn=(2644)
+calls=1 0 
+0 90
+0 1
+cfn=(2644)
+calls=1 0 
+0 90
+0 6
+cfn=(3804)
+calls=1 0 
+0 232
+0 16
+
+fn=(3904)
+0 210
+cfn=(2644)
+calls=15 0 
+0 930
+0 90
+cfn=(3906)
+calls=15 0 
+0 3078470
+0 15
+cfn=(2644)
+calls=15 0 
+0 930
+0 315
+
+fn=(5016) printf
+0 15
+cfn=(2644)
+calls=1 0 
+0 49
+0 10
+cfn=(5018)
+calls=1 0 
+0 4153
+0 7
+
+fn=(5064)
+0 3
+cfn=(2644)
+calls=1 0 
+0 62
+0 6
+
+fn=(5320)
+0 70
+cfn=(2644)
+calls=5 0 
+0 660
+0 5
+cfn=(2644)
+calls=5 0 
+0 660
+0 5
+cfn=(2644)
+calls=5 0 
+0 660
+0 5
+cfn=(2644)
+calls=5 0 
+0 660
+0 5
+cfn=(2644)
+calls=5 0 
+0 660
+0 45
+cfn=(2644)
+calls=5 0 
+0 660
+0 15
+cfn=(2644)
+calls=5 0 
+0 660
+0 15
+cfn=(2644)
+calls=5 0 
+0 660
+0 10
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=5 0 
+0 695
+0 5
+0 5
+cfn=(2644)
+calls=5 0 
+0 660
+0 50
+cfn=(2644)
+calls=5 0 
+0 660
+0 5
+cfn=(2644)
+calls=5 0 
+0 660
+0 15
+cfn=(2644)
+calls=5 0 
+0 660
+0 10
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=5 0 
+0 985
+0 5
+0 45
+cfn=(5258)
+calls=5 0 
+0 330
+0 55
+
+fn=(5322)
+0 4
+cfn=(2644)
+calls=1 0 
+0 118
+
+fn=(5328)
+0 6
+cfn=(2644)
+calls=1 0 
+0 97
+0 1
+cfn=(2644)
+calls=1 0 
+0 97
+0 1
+cfn=(2644)
+calls=1 0 
+0 97
+0 10
+cfn=(5330)
+calls=1 0 
+0 642
+
+fn=(5354)
+0 4
+cfn=(2644)
+calls=1 0 
+0 118
+
+fn=(3836)
+0 11
+cfn=(2644)
+calls=1 0 
+0 174
+0 2
+cfn=(2644)
+calls=1 0 
+0 174
+0 1
+cfn=(2644)
+calls=1 0 
+0 174
+0 5
+cfn=(2644)
+calls=1 0 
+0 174
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=1 0 
+0 139
+0 1
+0 1
+cfn=(2644)
+calls=1 0 
+0 174
+0 37
+cfn=(2644)
+calls=28 0 
+0 2282
+0 28
+cfn=(2644)
+calls=28 0 
+0 2282
+0 311
+cfn=(2644)
+calls=31 0 
+0 2580
+0 31
+cfn=(2644)
+calls=31 0 
+0 2580
+0 127
+cfn=(2644)
+calls=3 0 
+0 419
+0 3
+cfn=(2644)
+calls=3 0 
+0 426
+0 18
+cfn=(3838)
+calls=3 0 
+0 654
+0 6
+cfn=(2644)
+calls=3 0 
+0 433
+0 3
+cfn=(2644)
+calls=3 0 
+0 440
+0 21
+cfn=(3838)
+calls=3 0 
+0 654
+0 12
+cfn=(2644)
+calls=3 0 
+0 447
+0 3
+cfn=(2644)
+calls=3 0 
+0 454
+0 18
+cfn=(3838)
+calls=3 0 
+0 654
+0 6
+cfn=(2644)
+calls=3 0 
+0 461
+0 3
+cfn=(2644)
+calls=3 0 
+0 468
+0 24
+cfn=(3838)
+calls=3 0 
+0 654
+0 110
+cfn=(2644)
+calls=1 0 
+0 230
+0 1
+cfn=(2644)
+calls=1 0 
+0 230
+0 7
+cfn=(3838)
+calls=1 0 
+0 223
+0 6
+cfn=(2644)
+calls=1 0 
+0 230
+0 5
+cfn=(3820)
+calls=1 0 
+0 157788
+0 14
+cfn=(3840) arena_bind
+calls=1 0 
+0 675
+0 1
+cfn=(2644)
+calls=1 0 
+0 230
+0 1
+cfn=(2644)
+calls=1 0 
+0 230
+0 8
+cfn=(3838)
+calls=1 0 
+0 223
+0 6
+cfn=(2644)
+calls=1 0 
+0 230
+0 4
+cfn=(3820)
+calls=1 0 
+0 450
+0 10
+cfn=(3840)
+calls=1 0 
+0 676
+0 1
+cfn=(2644)
+calls=1 0 
+0 230
+0 1
+cfn=(2644)
+calls=1 0 
+0 230
+0 3
+cfn=(2644)
+calls=1 0 
+0 230
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=1 0 
+0 197
+0 1
+0 10
+
+fn=(3842) __je_arena_nthreads_inc
+0 14
+cfn=(2644)
+calls=2 0 
+0 138
+0 4
+cfn=(2644)
+calls=2 0 
+0 138
+0 2
+cfn=(2644)
+calls=2 0 
+0 138
+0 12
+
+fn=(3846)
+0 17
+cfn=(2644)
+calls=1 0 
+0 83
+0 8
+cfn=(2644)
+calls=1 0 
+0 83
+0 1
+cfn=(2644)
+calls=1 0 
+0 83
+0 3
+cfn=(2644)
+calls=1 0 
+0 83
+0 7
+cfn=(2644)
+calls=1 0 
+0 83
+0 24
+cfn=(3848)
+calls=1 0 
+0 65646
+0 15
+
+fn=(3848)
+0 588
+cfn=(2644)
+calls=42 0 
+0 6048
+0 42
+cfn=(2644)
+calls=42 0 
+0 6048
+0 86
+cfn=(2644)
+calls=2 0 
+0 488
+0 2
+cfn=(2644)
+calls=2 0 
+0 488
+0 2
+cfn=(2644)
+calls=2 0 
+0 488
+0 5
+cfn=(2644)
+calls=1 0 
+0 258
+0 1
+cfn=(2644)
+calls=1 0 
+0 258
+0 327
+cfn=(2644)
+calls=40 0 
+0 5560
+0 200
+cfn=(2644)
+calls=40 0 
+0 5560
+0 40
+cfn=(2644)
+calls=40 0 
+0 5560
+0 40
+cfn=(2644)
+calls=40 0 
+0 5560
+0 120
+cfn=(2644)
+calls=40 0 
+0 5560
+0 80
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=40 0 
+0 5560
+0 40
+0 40
+cfn=(2644)
+calls=40 0 
+0 5560
+0 360
+cfn=(3902)
+calls=40 0 
+0 29560
+0 360
+cfn=(2644)
+calls=40 0 
+0 5560
+0 120
+cfn=(2644)
+calls=40 0 
+0 5560
+0 80
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=40 0 
+0 6200
+0 40
+0 520
+cfn=(3344)
+calls=40 0 
+0 3760
+0 80
+cfn=(2644)
+calls=40 0 
+0 5560
+0 40
+cfn=(2644)
+calls=40 0 
+0 5560
+0 40
+cfn=(2644)
+calls=40 0 
+0 5560
+0 468
+cfn=(3850)
+calls=2 0 
+0 120061
+
+fn=(3849)
+0 14
+cfn=(2644)
+calls=1 0 
+0 139
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 10
+cfn=(2644)
+calls=1 0 
+0 139
+0 5
+cfn=(2644)
+calls=1 0 
+0 139
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 3
+cfn=(2644)
+calls=1 0 
+0 139
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=1 0 
+0 139
+0 1
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 9
+cfn=(3902)
+calls=1 0 
+0 739
+0 9
+cfn=(2644)
+calls=1 0 
+0 139
+0 3
+cfn=(2644)
+calls=1 0 
+0 139
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=1 0 
+0 197
+0 1
+0 11
+cfn=(2644)
+calls=1 0 
+0 139
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 1
+cfn=(2644)
+calls=1 0 
+0 139
+0 11
+
+fn=(3856)
+0 852
+cfn=(2644)
+calls=71 0 
+0 6880
+0 71
+cfn=(2644)
+calls=71 0 
+0 6880
+0 284
+cfn=(2644)
+calls=71 0 
+0 6880
+0 71
+cfn=(2644)
+calls=71 0 
+0 6880
+0 926
+cfn=(2644)
+calls=71 0 
+0 6880
+0 2011
+cfn=(2644)
+calls=2011 0 
+0 124682
+0 6246
+cfn=(2644)
+calls=2082 0 
+0 131562
+0 17007
+cfn=(2644)
+calls=70 0 
+0 6790
+0 1969
+
+fn=(3858)
+0 13
+cfn=(2644)
+calls=1 0 
+0 181
+0 2
+cfn=(2644)
+calls=1 0 
+0 181
+0 5
+cfn=(2644)
+calls=1 0 
+0 181
+0 15
+cfn=(3860)
+calls=1 0 
+0 4415
+0 4
+cfn=(2644)
+calls=1 0 
+0 181
+0 2
+cfn=(2644)
+calls=1 0 
+0 181
+0 3
+cfn=(2644)
+calls=1 0 
+0 181
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=1 0 
+0 197
+0 1
+0 12
+cfn=(3866)
+calls=1 0 
+0 4940
+0 10
+cfn=(3868)
+calls=1 0 
+0 4211
+0 4
+cfn=(2644)
+calls=1 0 
+0 181
+0 3
+cfn=(2644)
+calls=1 0 
+0 181
+0 2
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=1 0 
+0 139
+0 1
+0 1
+cfn=(2644)
+calls=1 0 
+0 181
+0 19
+cfn=(2644)
+calls=1 0 
+0 181
+0 1
+cfn=(2644)
+calls=1 0 
+0 181
+0 1
+cfn=(2644)
+calls=1 0 
+0 181
+0 2
+cfn=(2644)
+calls=1 0 
+0 181
+0 9
+cfn=(2644)
+calls=1 0 
+0 181
+0 8
+cfn=(2644)
+calls=1 0 
+0 181
+0 1
+cfn=(2644)
+calls=1 0 
+0 181
+0 1
+cfn=(2644)
+calls=1 0 
+0 181
+0 2
+cfn=(2644)
+calls=1 0 
+0 181
+0 4
+cfn=(2644)
+calls=1 0 
+0 181
+0 12
+cfn=(3880)
+calls=1 0 
+0 3236
+0 12
+
+fn=(3882)
+0 28
+cfn=(2644)
+calls=2 0 
+0 712
+0 8
+cfn=(2644)
+calls=2 0 
+0 712
+0 4
+cfn=(2644)
+calls=2 0 
+0 712
+0 26
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 6
+cfn=(2644)
+calls=2 0 
+0 712
+0 8
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 6
+cfn=(2644)
+calls=2 0 
+0 712
+0 32
+cfn=(3884)
+calls=2 0 
+0 45302
+0 46
+cfn=(2644)
+calls=2 0 
+0 712
+0 17
+cfn=(2644)
+calls=17 0 
+0 1649
+0 19
+cfn=(2644)
+calls=19 0 
+0 2361
+0 19
+cfn=(2644)
+calls=19 0 
+0 2361
+0 19
+cfn=(2644)
+calls=19 0 
+0 2361
+0 19
+cfn=(2644)
+calls=19 0 
+0 2361
+0 38
+cfn=(2644)
+calls=19 0 
+0 2361
+0 95
+cfn=(2644)
+calls=19 0 
+0 2361
+0 132
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 6
+cfn=(2644)
+calls=2 0 
+0 712
+0 8
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 4
+cfn=(2644)
+calls=2 0 
+0 712
+0 6
+cfn=(2644)
+calls=2 0 
+0 712
+0 4
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 6
+cfn=(2644)
+calls=2 0 
+0 712
+0 4
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 2
+cfn=(2644)
+calls=2 0 
+0 712
+0 4
+cfn=(2644)
+calls=2 0 
+0 712
+0 12
+cfn=(2644)
+calls=2 0 
+0 712
+0 20
+
+fn=(5240)
+0 1560
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 1430
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 390
+cfn=(2644)
+calls=130 0 
+0 33715
+0 520
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 776
+cfn=(2644)
+calls=129 0 
+0 33422
+0 3
+cfn=(2644)
+calls=1 0 
+0 293
+0 520
+cfn=(2644)
+calls=130 0 
+0 33715
+0 390
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 1300
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 130
+cfn=(2644)
+calls=130 0 
+0 33715
+0 390
+cfn=(2644)
+calls=130 0 
+0 33715
+0 519
+cfn=(2644)
+calls=129 0 
+0 33499
+0 774
+cfn=(2644)
+calls=129 0 
+0 33499
+0 129
+cfn=(2644)
+calls=129 0 
+0 33499
+0 1806
+cfn=(2644)
+calls=129 0 
+0 33499
+0 129
+cfn=(2644)
+calls=129 0 
+0 33499
+0 129
+cfn=(2644)
+calls=129 0 
+0 33499
+0 1668
+cfn=(2644)
+calls=1 0 
+0 475
+0 1
+cfn=(2644)
+calls=1 0 
+0 475
+0 1
+cfn=(2644)
+calls=1 0 
+0 475
+0 2
+cfn=(2644)
+calls=1 0 
+0 475
+0 2
+cfn=(2644)
+calls=1 0 
+0 475
+0 6
+cfn=(2644)
+calls=1 0 
+0 475
+0 1
+cfn=(2644)
+calls=1 0 
+0 475
+0 1
+cfn=(2644)
+calls=1 0 
+0 475
+0 1
+cfn=(2644)
+calls=1 0 
+0 475
+0 1
+cfn=(2644)
+calls=1 0 
+0 475
+0 2
+cfn=(2644)
+calls=1 0 
+0 475
+0 2
+cfn=(2644)
+calls=1 0 
+0 475
+0 22
+cfn=(5260)
+calls=1 0 
+0 512
+0 77
+cfn=(5248)
+calls=11 0 
+0 3755367
+0 23
+cfn=(2644)
+calls=1 0 
+0 475
+0 13
+cfn=(5262)
+calls=1 0 
+0 79624
+
+fn=(5258)
+0 156
+cfn=(2644)
+calls=52 0 
+0 2548
+0 838
+
+fn=(5326)
+0 4
+cfn=(2644)
+calls=1 0 
+0 118
+
+fn=(5336)
+0 6
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 2
+cfn=(2644)
+calls=1 0 
+0 300
+0 1
+cfn=(2644)
+calls=1 0 
+0 300
+0 4
+cfn=(2644)
+calls=1 0 
+0 300
+0 2
+cfn=(2644)
+calls=1 0 
+0 300
+0 6
+cfn=(5338)
+calls=1 0 
+0 15901
+
+fn=(2646)
+0 53635518
+
+fn=(3030)
+0 6
+cfn=(2644)
+calls=2 0 
+0 83
+0 12
+
+fn=(3840)
+0 24
+cfn=(2644)
+calls=2 0 
+0 166
+0 2
+cfn=(2644)
+calls=2 0 
+0 166
+0 2
+cfn=(2644)
+calls=2 0 
+0 166
+0 16
+cfn=(3842)
+calls=2 0 
+0 446
+0 2
+cfn=(2644)
+calls=2 0 
+0 166
+0 6
+cfn=(2644)
+calls=2 0 
+0 166
+0 23
+
+fn=(4820) __je_bootstrap_calloc
+0 280
+cfn=(2644)
+calls=40 0 
+0 1360
+0 440
+cfn=(3892)
+calls=40 0 
+0 132600
+
+fn=(5052)
+0 24
+cfn=(2644)
+calls=2 0 
+0 98
+0 85
+cfn=(5054)
+calls=3 0 
+0 333
+0 74
+cfn=(3532)
+calls=3 0 
+0 204
+0 24
+cfn=(5056)
+calls=1 0 
+0 413
+0 49
+
+fn=(5252)
+0 3600
+cfn=(2644)
+calls=240 0 
+0 53842
+0 960
+cfn=(2644)
+calls=240 0 
+0 53842
+0 240
+cfn=(2644)
+calls=240 0 
+0 53842
+0 240
+cfn=(2644)
+calls=240 0 
+0 53842
+0 240
+cfn=(2644)
+calls=240 0 
+0 53842
+0 240
+cfn=(2644)
+calls=240 0 
+0 53842
+0 720
+cfn=(2644)
+calls=240 0 
+0 53842
+0 960
+cfn=(2644)
+calls=240 0 
+0 53842
+0 3600
+cfn=(2644)
+calls=240 0 
+0 53842
+0 1920
+cfn=(2644)
+calls=240 0 
+0 53842
+0 240
+cfn=(2644)
+calls=240 0 
+0 53842
+0 240
+cfn=(2644)
+calls=240 0 
+0 53842
+0 240
+cfn=(2644)
+calls=240 0 
+0 53842
+0 480
+cfn=(2644)
+calls=240 0 
+0 53842
+0 480
+cfn=(2644)
+calls=240 0 
+0 53842
+0 240
+cfn=(2644)
+calls=240 0 
+0 53842
+0 240
+cfn=(2644)
+calls=240 0 
+0 53842
+0 480
+cfn=(2644)
+calls=240 0 
+0 53842
+0 960
+cfn=(2644)
+calls=240 0 
+0 53842
+0 4320
+cfn=(2644)
+calls=240 0 
+0 53842
+0 240
+cfn=(2644)
+calls=240 0 
+0 53842
+0 2994
+cfn=(2644)
+calls=139 0 
+0 32712
+0 202
+cfn=(2644)
+calls=101 0 
+0 21130
+0 3324
+cfn=(2644)
+calls=68 0 
+0 17873
+0 201
+cfn=(2644)
+calls=65 0 
+0 17225
+0 260
+cfn=(2644)
+calls=65 0 
+0 17225
+0 585
+cfn=(2644)
+calls=65 0 
+0 17225
+0 195
+cfn=(3888)
+calls=65 0 
+0 5070
+0 847
+cfn=(2644)
+calls=66 0 
+0 17462
+0 285
+cfn=(5254)
+calls=3 0 
+0 118614
+0 325
+cfn=(5254)
+calls=65 0 
+0 3522277
+0 2466
+cfn=(2644)
+calls=66 0 
+0 17462
+0 66
+cfn=(2644)
+calls=66 0 
+0 17462
+0 66
+cfn=(2644)
+calls=66 0 
+0 17462
+0 594
+
+fn=(5262)
+0 26
+cfn=(2644)
+calls=2 0 
+0 985
+0 4
+cfn=(2644)
+calls=2 0 
+0 985
+0 6
+cfn=(2644)
+calls=2 0 
+0 985
+0 4
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=2 0 
+0 278
+0 2
+0 2
+cfn=(2644)
+calls=2 0 
+0 985
+0 12
+cfn=(5264) arena_dalloc_large_locked_impl
+calls=2 0 
+0 194639
+0 2
+cfn=(2644)
+calls=2 0 
+0 985
+0 6
+cfn=(2644)
+calls=2 0 
+0 985
+0 4
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=2 0 
+0 394
+0 2
+0 2
+cfn=(2644)
+calls=2 0 
+0 985
+0 2
+cfn=(2644)
+calls=2 0 
+0 985
+0 2
+cfn=(2644)
+calls=2 0 
+0 985
+0 6
+cfn=(2644)
+calls=2 0 
+0 985
+0 4
+cfn=(2644)
+calls=2 0 
+0 985
+0 2
+cfn=(2644)
+calls=2 0 
+0 985
+0 2
+cfn=(2644)
+calls=2 0 
+0 985
+0 2
+cfn=(2644)
+calls=2 0 
+0 985
+0 8
+cfn=(2644)
+calls=2 0 
+0 985
+0 2
+cfn=(2644)
+calls=2 0 
+0 985
+0 12
+cfn=(2644)
+calls=2 0 
+0 985
+0 26
+
+fn=(5264)
+0 30
+cfn=(2644)
+calls=2 0 
+0 1265
+0 6
+cfn=(2644)
+calls=2 0 
+0 1265
+0 20
+cfn=(2644)
+calls=2 0 
+0 1265
+0 2
+cfn=(2644)
+calls=2 0 
+0 1265
+0 2
+cfn=(2644)
+calls=2 0 
+0 1265
+0 2
+cfn=(2644)
+calls=2 0 
+0 1265
+0 2
+cfn=(2644)
+calls=2 0 
+0 1265
+0 4
+cfn=(2644)
+calls=2 0 
+0 1265
+0 4
+cfn=(2644)
+calls=2 0 
+0 1265
+0 16
+cfn=(2644)
+calls=2 0 
+0 1265
+0 8
+cfn=(2644)
+calls=2 0 
+0 1265
+0 2
+cfn=(2644)
+calls=2 0 
+0 1265
+0 44
+cfn=(5256)
+calls=2 0 
+0 178006
+0 10
+cfn=(2644)
+calls=2 0 
+0 1265
+0 36
+
+fn=(5310)
+0 10
+cfn=(2644)
+calls=2 0 
+0 98
+0 14
+cfn=(5312)
+calls=2 0 
+0 1742915
+0 14
+
+fn=(5318)
+0 9
+cfn=(2644)
+calls=1 0 
+0 104
+0 1
+cfn=(2644)
+calls=1 0 
+0 104
+0 3
+cfn=(2644)
+calls=1 0 
+0 104
+0 4
+cfn=(2644)
+calls=1 0 
+0 104
+0 35
+cfn=(2644)
+calls=35 0 
+0 2905
+0 108
+cfn=(2644)
+calls=36 0 
+0 3009
+0 72
+cob=(6)
+cfi=(6)
+cfn=(4510)
+calls=36 0 
+0 5004
+0 36
+0 36
+cfn=(2644)
+calls=36 0 
+0 3009
+0 108
+cfn=(2644)
+calls=36 0 
+0 3009
+0 108
+cfn=(2644)
+calls=36 0 
+0 3009
+0 72
+cob=(6)
+cfi=(6)
+cfn=(4616)
+calls=36 0 
+0 5580
+0 36
+0 240
+
+fn=(5346)
+0 4
+cfn=(2644)
+calls=1 0 
+0 118
+
+fn=(5348)
+0 4
+cfn=(2644)
+calls=1 0 
+0 118
+
+fl=(8) /home/test/tesla-static-analysis/experiments/locks/bench.c
+fn=(5012) __tesla_instrumentation_assertion_/home/test/tesla-static-analysis/experiments/locks/bench.c:56#0
+82 5
+cob=(7) /usr/local/lib/libtesla.so
+cfi=(7) ???
+cfn=(4464) tesla_debugging
+calls=1 -82 
+* 19
+* 1
+* 11
+cob=(7)
+cfi=(7)
+cfn=(4724) tesla_update_state
+calls=1 -82 
+* 2323
+* 1
+* 3
+
+fn=(5068) __tesla_instrumentation_callee_return_lock_release
+82 8
+cob=(7)
+cfi=(7)
+cfn=(4464)
+calls=1 -82 
+* 19
+* 1
+* 12
+cob=(7)
+cfi=(7)
+cfn=(4724)
+calls=1 -82 
+* 1776
+* 1
+* 4
+
+fn=(4980) thread_work
+50 10
+cob=(7)
+cfi=(7)
+cfn=(4464)
+calls=1 -50 
+* 19
+* 1
+* 5
+cob=(7)
+cfi=(7)
+cfn=(4480) tesla_sunrise
+calls=1 -50 
+* 3688493
+* 1
+* 1
+cfn=(5012)
+calls=1 +32 
+* 2363
++8 4
+-38 7
+cfn=(5014) __tesla_instrumentation_callee_return_lock_acquire
+calls=1 +62 
+* 1828
++38 696919
+-38 4878433
+cfn=(5014)
+calls=696919 +62 
+* 1311601556
+* 696920
++22 696920
++2 10000006
++1 4
+cfi=(5)
+cfn=(5016)
+calls=1 -45 
+* 4234
+-21 3
+cfn=(5068)
+calls=1 +58 
+* 1821
+* 1
++36 1
+cob=(6)
+cfi=(6)
+cfn=(5074) pthread_exit
+calls=1 -60 
+* 6665998
+* 1
+
+fn=(5014)
+82 6272280
+cob=(7)
+cfi=(7)
+cfn=(4464)
+calls=696920 -82 
+* 13241480
+* 696920
+* 11847637
+cob=(7)
+cfi=(7)
+cfn=(4724)
+calls=696919 -82 
+* 1275361716
+* 696919
+* 1
+cob=(7)
+cfi=(7)
+cfn=(4724)
+calls=1 -82 
+* 1830
+* 1
+* 3484600
+
+ob=(6)
+fl=(6)
+fn=(4584) 0x000000000000fd20
+0 6896
+
+fn=(4322) 0x000000000000d650
+0 5340
+
+fn=(4672) pthread_getspecific
+0 43
+
+fn=(5076) 0x0000000000015e40
+0 28
+cob=(5)
+cfi=(5)
+cfn=(5182)
+calls=1 0 
+0 59
+0 1
+0 1
+cfn=(5186) 0x0000000000016030
+calls=1 0 
+0 6665905
+
+fn=(4958) 0x0000000000008a10
+0 43
+cfn=(4316) 0x000000000000d5d0
+calls=1 0 
+0 55
+0 9
+cob=(5)
+cfi=(8)
+cfn=(4980)
+calls=1 50 
+0 1338935549
+
+fn=(5186)
+0 8
+cfn=(5190) 0x000000000000ca40
+calls=1 0 
+0 4922532
+0 9
+cob=(5)
+cfi=(5)
+cfn=(5308)
+calls=1 0 
+0 1743229
+0 1
+0 19
+cfn=(5366) 0x00000000000127e0
+calls=1 0 
+0 100
+0 6
+0 1
+
+fn=(5190)
+0 45
+cfn=(4316)
+calls=1 0 
+0 55
+0 2
+cob=(7)
+cfi=(7)
+cfn=(5220) tesla_pthread_destructor
+calls=1 0 
+0 4922246
+0 71
+cfn=(4316)
+calls=1 0 
+0 55
+0 3
+cob=(5)
+cfi=(5)
+cfn=(3056)
+calls=1 0 
+0 43
+0 1
+0 11
+
+fn=(4316)
+0 4607
+cfn=(4322)
+calls=355 0 
+0 5325
+0 710
+cfn=(4328) 0x000000000000d750
+calls=355 0 
+0 7455
+0 2442
+
+fn=(4682) pthread_setspecific
+0 27
+cob=(5)
+cfi=(5)
+cfn=(3030)
+calls=1 0 
+0 43
+0 1
+0 20
+
+fn=(4510)
+0 4310
+cfn=(4512) 0x000000000000fde0
+calls=431 0 
+0 11637
+0 3017
+cfn=(4570) 0x00000000000100d0
+calls=431 0 
+0 39220
+0 1724
+
+fn=(4634) 0x0000000000010b10
+0 19395
+
+fn=(4570)
+0 15084
+cfn=(4584)
+calls=431 0 
+0 6896
+0 17240
+
+fn=(4616)
+0 23274
+cfn=(4634)
+calls=431 0 
+0 19395
+0 14651
+cfn=(4316)
+calls=430 0 
+0 20374
+0 3879
+
+fn=(5366)
+0 11
+cfn=(4322)
+calls=1 0 
+0 15
+0 2
+cfn=(4328)
+calls=1 0 
+0 21
+0 51
+
+fn=(4328)
+0 7476
+
+fn=(4512)
+0 11637
+
+fn=(5028)
+0 8
+
+fn=(5074)
+0 4
+cfn=(5076)
+calls=1 0 
+0 6665994
+
+fn=(4536) 0x0000000000011170
+0 1480
+
+fn=(4818)
+0 360
+cob=(5)
+cfi=(5)
+cfn=(4820)
+calls=40 0 
+0 134680
+0 280
+cfn=(4536)
+calls=40 0 
+0 1480
+0 280
+
+ob=(7)
+fl=(7)
+fn=(4730) tesla_class_get
+0 13241518
+cfn=(4732) fnv_hash32
+calls=696922 0 
+0 4181532
+0 32755333
+cfn=(4734) tesla_class_acquire
+calls=696922 0 
+0 15332284
+0 5575376
+
+fn=(4734)
+0 8363064
+cfn=(4740) tesla_class_perthread_acquire
+calls=696922 0 
+0 3484610
+0 696922
+0 2787688
+
+fn=(4464)
+0 26483112
+
+fn=(4694) tesla_class_init
+0 4096
+cob=(5)
+cfi=(5)
+cfn=(3770)
+calls=128 0 
+0 3057089
+0 128
+0 1280
+cfn=(4700) tesla_class_perthread_postinit
+calls=128 0 
+0 768
+0 128
+0 768
+
+fn=(4756) tesla_instance_active
+0 12544636
+
+fn=(4774) tesla_action
+0 8363064
+cfn=(4756)
+calls=696922 0 
+0 12544596
+0 32058367
+cob=(5)
+cfi=(5)
+cfn=(3532)
+calls=696922 0 
+0 39027632
+0 696922
+0 20210738
+cob=(5)
+cfi=(5)
+cfn=(3532)
+calls=696922 0 
+0 39027632
+0 696922
+0 5575376
+cfn=(4776) tesla_key_matches
+calls=696922 0 
+0 66207590
+0 6969211
+cfn=(4776)
+calls=696919 0 
+0 20210651
+0 7666121
+
+fn=(5246) tesla_class_perthread_destroy
+0 640
+
+fn=(4504) pthread_key
+0 24
+
+fn=(4710) ev_sunrise
+0 72
+cfn=(4712) print_sunrise
+calls=1 0 
+0 33
+0 21
+
+fn=(4790) tesla_class_put
+0 8363064
+cfn=(4796) tesla_class_perthread_release
+calls=696922 0 
+0 3484610
+0 696922
+0 2787688
+
+fn=(4480)
+0 14
+cfn=(4486) tesla_store_get
+calls=1 0 
+0 3688303
+0 1
+0 45
+cfn=(4710)
+calls=1 0 
+0 126
+0 1
+0 3
+
+fn=(4732)
+0 4181532
+
+fn=(4766) ev_new_instance
+0 72
+cfn=(4768) print_new_instance
+calls=1 0 
+0 33
+0 21
+
+fn=(4782) ev_transition
+0 51572228
+cfn=(4784) print_transition_taken
+calls=696922 0 
+0 23695348
+0 14635362
+
+fn=(4688) tesla_store_init
+0 20
+cob=(5)
+cfi=(5)
+cfn=(3770)
+calls=1 0 
+0 142329
+0 1
+0 1546
+cfn=(4694)
+calls=128 0 
+0 3064257
+0 128
+0 2438
+cob=(5)
+cfi=(5)
+cfn=(3770)
+calls=1 0 
+0 58351
+0 1
+0 8
+cob=(5)
+cfi=(5)
+cfn=(3344)
+calls=1 0 
+0 4931
+0 1
+0 8
+
+fn=(4724)
+0 9756908
+cfn=(4486)
+calls=696922 0 
+0 59238440
+0 696922
+0 5575376
+cfn=(4730)
+calls=696922 0 
+0 71086043
+0 696922
+0 6272298
+cfn=(4742) tesla_update_class_state
+calls=696922 0 
+0 1102530920
+0 1393844
+cfn=(4790)
+calls=696922 0 
+0 15332284
+0 696922
+0 2090766
+
+fn=(4742)
+0 27179958
+cfn=(4744) same_static_lifetime
+calls=696922 0 
+0 623048268
+0 11847802
+cfn=(4754) tesla_instance_new
+calls=1 0 
+0 137
+0 1
+0 43
+cfn=(4756)
+calls=1 0 
+0 18
+0 6
+cfn=(4766)
+calls=1 0 
+0 126
+0 1
+0 42512260
+cfn=(4774)
+calls=696922 0 
+0 259254822
+0 696922
+0 18119972
+cfn=(4782)
+calls=696922 0 
+0 89902938
+0 696922
+0 29270724
+
+fn=(4744)
+0 32058412
+cob=(5)
+cfi=(5)
+cfn=(2732)
+calls=696922 0 
+0 272496502
+0 696922
+0 7666142
+cob=(5)
+cfi=(5)
+cfn=(2732)
+calls=696922 0 
+0 303161070
+0 696922
+0 6272298
+
+fn=(4776)
+0 86418241
+
+fn=(4700)
+0 768
+
+fn=(4712)
+0 8
+cfn=(4464)
+calls=1 0 
+0 19
+0 1
+0 5
+
+fn=(4784)
+0 6272298
+cfn=(4464)
+calls=696922 0 
+0 13241518
+0 696922
+0 3484610
+
+fn=(5220)
+0 8
+cfn=(5226) tesla_store_free
+calls=1 0 
+0 4922234
+0 1
+0 3
+
+fn=(5226)
+0 7
+cfn=(4464)
+calls=1 0 
+0 19
+0 1
+0 1415
+cfn=(5232) tesla_class_destroy
+calls=128 0 
+0 4814111
+0 128
+0 516
+cob=(5)
+cfi=(5)
+cfn=(5238)
+calls=1 0 
+0 92847
+0 1
+0 3
+cob=(5)
+cfi=(5)
+cfn=(5238)
+calls=1 0 
+0 13182
+0 1
+0 3
+
+fn=(4768)
+0 8
+cfn=(4464)
+calls=1 0 
+0 19
+0 1
+0 5
+
+fn=(4796)
+0 3484610
+
+fn=(4486)
+0 12544614
+cob=(1)
+cfi=(1)
+cfn=(4492)
+calls=696923 0 
+0 15332306
+0 696923
+0 2090771
+cfn=(4504)
+calls=2 0 
+0 24
+0 2
+0 6
+cob=(6)
+cfi=(6)
+cfn=(4672)
+calls=2 0 
+0 43
+0 2
+0 6
+cob=(1)
+cfi=(1)
+cfn=(4492)
+calls=2 0 
+0 44
+0 2
+0 8
+cob=(1)
+cfi=(1)
+cfn=(4492)
+calls=2 0 
+0 44
+0 2
+0 1393842
+cob=(1)
+cfi=(1)
+cfn=(4492)
+calls=696921 0 
+0 15332262
+0 696921
+0 2787695
+cob=(5)
+cfi=(5)
+cfn=(3770)
+calls=1 0 
+0 414014
+0 1
+0 5
+cob=(6)
+cfi=(6)
+cfn=(4682)
+calls=1 0 
+0 91
+0 1
+0 2787702
+cfn=(4688)
+calls=1 0 
+0 3274019
+0 1
+0 5575392
+
+fn=(5232)
+0 768
+cob=(5)
+cfi=(5)
+cfn=(5238)
+calls=128 0 
+0 4810911
+0 128
+0 1152
+cfn=(5246)
+calls=128 0 
+0 640
+0 128
+0 384
+
+fn=(4740)
+0 3484610
+
+fn=(4754)
+0 34
+cfn=(4756)
+calls=1 0 
+0 22
+0 8
+cob=(5)
+cfi=(5)
+cfn=(3532)
+calls=1 0 
+0 56
+0 1
+0 16
+
+totals: 1338935656
