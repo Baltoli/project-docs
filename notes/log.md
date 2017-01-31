@@ -676,3 +676,9 @@
   are picked up by this that inform a couple more small analyses.
 * Started to think about benchmarking and profiling an example to show the
   benefit of removing locks.
+
+# 31/1/2017
+
+* Looked more into how callgrind can be used to get program costs - should
+  confirm this with Robert as a viable benchmarking method. Collected the data
+  from the callgrind runs for 10 threads.
