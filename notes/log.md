@@ -664,3 +664,15 @@
   large variation in results, but generally can see an improvement when using
   the optimised version. A next step would be to fix an actual benchmark and get
   some results into a graph etc.
+
+# 30/1/2017
+
+* Identified that the multiple acquire example actually does need the FF...T
+  analysis example to be recognised (as before it was in a weaker form that
+  could be detected by the no-branch analysis).
+* Implemented a chunk of the tracing algorithm that will eventually map calls to
+  acquire onto a branch, with a modifier to choose the destination.
+* Finished implementing the FF...T analysis, and thought about some bugs that
+  are picked up by this that inform a couple more small analyses.
+* Started to think about benchmarking and profiling an example to show the
+  benefit of removing locks.

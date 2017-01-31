@@ -128,6 +128,20 @@ So the steps for this analysis will be:
   * If they don't hold, then this analysis should add a message saying
     why (dominator or function call), then fail.
 
+The mult_acq example was previously detected by the no-branch analysis, but we
+need the stronger checks that this analysis can give us. In this example, we
+acquire the lock properly both times by spinning, but accidentally do so twice.
+So we have something like:
+
+         ---> acq(lock)
+        /    /       \
+        -false       true
+                      |
+                  second_acq(lock) // fail because we reach a different call
+                                   // after the first call has returned true
+            
+So we should be able to detect this example using the analysis.
+
 ## One Usage
 
 Enforcing the property that a lock is used only once (i.e. it is not
