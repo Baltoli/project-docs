@@ -1,0 +1,9 @@
+#!/usr/bin/awk -f
+
+/TOTALS/ {
+  print "total:"$1
+}
+
+/tesla_/ {
+  print "tesla:"$1
+}
