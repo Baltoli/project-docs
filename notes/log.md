@@ -682,3 +682,13 @@
 * Looked more into how callgrind can be used to get program costs - should
   confirm this with Robert as a viable benchmarking method. Collected the data
   from the callgrind runs for 10 threads.
+
+# 3/2/2017
+
+* Meeting with Robert - chatted about benchmarking strategies for synthetic
+  examples for the mutex analysis. Callgrind seems viable for simple examples,
+  but for more complex ones it might affect the concurrent execution too much to
+  be useful. For a better analysis, a real computation might well provide a
+  useful measure via wall clock time (rather than just spinning).
+* Asked Jon where to get an updated FreeBSD kernel with TESLA assertions so that
+  I can try to reproduce the performance analyses from the original paper.
