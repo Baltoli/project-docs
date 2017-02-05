@@ -692,3 +692,34 @@
   useful measure via wall clock time (rather than just spinning).
 * Asked Jon where to get an updated FreeBSD kernel with TESLA assertions so that
   I can try to reproduce the performance analyses from the original paper.
+* Begun to have a think about how we can do more generic analysis of automata,
+  including a small writeup of the key things we'll need to look at and some
+  questions that should be answered.
+* Chatted to Arun about building FreeBSD with TESLA enabled.
+* Starting to look into compiling a FReeBSD kernel that I can add things to and
+  instrument etc.
+* Ran into some errors when compiling FreeBSD.
+
+# 4/2/2017
+
+* Added methods to the Manifest class that allow for automata search that
+  doesn't panic if they aren't found. Updated current code to use these new
+  methods if possible.
+* Fixed some bugs in the acq-rel analysis that caused crashes when not running
+  on the expected examples.
+* Started to think about call sequence analysis.
+
+# 5/2/2017
+
+* Trying to build the CADETS version of the kernel rather than the TESLA
+  version. The problem I was experiencing yesterday seemed to be to do with
+  there not being a rule to make a particular .tesla file for a .c file, so
+  maybe have a look at the makefile that gives the rules for TESLA builds, as
+  well as the one that builds cam.c.
+* Worked out some properties of functions that are useful to prove to perform
+  static analysis (calls exactly once etc).
+* So it's definitely TESLA causing the problem with the kernel build - the
+  vanilla CADETS version builds just fine.
+* Implemented some auxiliary stuff getting towards a calls-exactly-once
+  analysis.
+* Finished implementing the calls-exactly-once analysis.
