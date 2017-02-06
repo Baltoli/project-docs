@@ -723,3 +723,14 @@
 * Implemented some auxiliary stuff getting towards a calls-exactly-once
   analysis.
 * Finished implementing the calls-exactly-once analysis.
+* Did a lot more digging into the Makefile problems that are stopping me from
+  being able to build the kernel with TESLA enabled.
+
+# 6/2/2017
+
+* Spent lots of time tracking down an annoyingly subtle bug in the code for
+  transitive-once-calls.
+* Had an interesting idea - what if I were to extract a common format from both
+  code and assertions, then use more general theorem proving techniques to prove
+  properties of the program? Has other benefits like counterexample generation
+  etc. Definitely worth looking into in some detail.

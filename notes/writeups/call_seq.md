@@ -67,3 +67,14 @@ So what we want to check is:
   out transitive calls etc, so we know that it's in the right place.
 * Then, need to check that every function that *could* call `g` is
   preceded by a call to a function that calls `f` exactly once.
+  * How to do this preceding call analysis is a little bit more complicated.
+    For a 'could-g' function, we need to look at each call to it. For each call,
+    check in its function for a preceding call to a 'must-call-f' function.
+
+But we also have the case where we have something that calls an 'f-exactly-once'
+function itself exactly once. So we need something like an iterate until
+convergence algorithm that finds all the functions that are transitively
+'f-exactly-once'.
+
+So now what I need to do is fix the case where if a function calls the target
+*and* makes a call to a function that *can* call it as well.
