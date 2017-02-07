@@ -739,4 +739,9 @@
 
 * Wrote up a starting note about the model-checking approach.
 * Started to do some background reading on model checking for C programs.
-* 
+* Implemented a non-spinny benchmark for locks - have threads do a bubble sort
+  on an array interval while holding a global lock on the array.
+* Used the non-spinny benchmark to do some back of the envelope data gathering.
+  It seems like the statically analysed and optimised version is indeed reliably
+  faster than the instrumented version. Need to verify, but it seems like the
+  difference increases with contention as would be expected.
