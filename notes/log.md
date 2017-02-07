@@ -739,3 +739,4 @@
 
 * Wrote up a starting note about the model-checking approach.
 * Started to do some background reading on model checking for C programs.
+* 

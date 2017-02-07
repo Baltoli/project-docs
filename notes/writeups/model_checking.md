@@ -33,3 +33,29 @@ it just might not be statically provable.
 Analysis and demonstration of this being useful is probably going to
 want to come from performance demonstrations and / or bug finding in
 code.
+
+### Important Themes & Ideas
+
+* What happens when an analysis is not provable?
+* Expressivity of the assertion language - what properties can an
+  implementation prove?
+* Anything to do with runtime rather than compile time.
+* Counterexample generation - is it possible? Can execution paths be
+  identified?
+* Code released - is anything available to look at or use?
+
+### Clarke
+* A Tool for Checking ANSI-C Programs, 2004
+
+### Merz
+* LLBMC: Bounded Model Checking of C and C++ Programs Using a Compiler IR, 2012 
+
+### Schlich
+* Model checking C source code for embedded systems, 2009
+
+### Morse
+* Model checking LTL properties over ANSI-C programs with bounded
+  traces, 2015
+
+### Chen
+* Model checking one million lines of C code, 2004
