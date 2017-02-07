@@ -734,3 +734,8 @@
   code and assertions, then use more general theorem proving techniques to prove
   properties of the program? Has other benefits like counterexample generation
   etc. Definitely worth looking into in some detail.
+
+# 7/2/2017
+
+* Wrote up a starting note about the model-checking approach.
+* Started to do some background reading on model checking for C programs.
