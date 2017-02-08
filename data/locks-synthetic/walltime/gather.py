@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/env python3
 from subprocess import Popen, PIPE
 import sys
 import statistics
