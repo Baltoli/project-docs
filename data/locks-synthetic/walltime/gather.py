@@ -22,4 +22,4 @@ if __name__ == "__main__":
     for i in range(0, runs-1):
         print(times[i], end=",")
     print(times[runs-1])
-    print("{:.2f} +- {:.2f}s".format(statistics.mean(times), statistics.pstdev(times)))
+    print("{:.2f},{:.2f}".format(statistics.mean(times), statistics.pstdev(times)))
