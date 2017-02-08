@@ -750,4 +750,7 @@
 
 * Collected some actual performance data for the instrumented vs. uninstrumented
   versions of the acquire-release automaton.
-* 
+* Kicked off a rather long-running data acquisition script that will (hopefully)
+  get some good data for the static / non-static versions.
+* Reviewed a few of the papers identified as possibly being relevant.
+* Fiddled with benchmarks to try to get better data.
