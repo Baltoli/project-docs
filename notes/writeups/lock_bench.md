@@ -16,3 +16,10 @@ The benchmark chosen is an interval bubble sort. Each thread is
 responsible for sorting an interval of a global array, and for checking
 that it's sorted at the end. The number of threads and the size of the
 data array are the important parameters in this benchmark.
+
+## Results
+
+Next step now that I have a script for gathering data is to actually get
+some significant results that I can present. Would be good to
+demonstrate the effects of increasing contention on the lock
+performance.

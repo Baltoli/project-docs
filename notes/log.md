@@ -745,3 +745,9 @@
   It seems like the statically analysed and optimised version is indeed reliably
   faster than the instrumented version. Need to verify, but it seems like the
   difference increases with contention as would be expected.
+
+# 8/2/2017
+
+* Collected some actual performance data for the instrumented vs. uninstrumented
+  versions of the acquire-release automaton.
+* 
