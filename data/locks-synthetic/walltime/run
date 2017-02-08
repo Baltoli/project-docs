@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+BUILD_DIR="/home/test/tesla-static-analysis/build"
+EXP_DIR="$BUILD_DIR/experiments"
+LOCK_DIR="$EXP_DIR/locks"
+S_BENCH="$LOCK_DIR/locks_bench_static"
+I_BENCH="$LOCK_DIR/locks_bench"
+
+N=20000
+RUNS=50
+THREADS=(4 6 8 10 12 14 16 20 24 28 32 36 40)
+for th in ${THREADS[@]}; do
+  echo "Running static at $th..."
+  ./gather.py $RUNS $S_BENCH $th $N > "./static_${th}_$N"
+  echo "Running instrumented at $th..."
+  ./gather.py $RUNS $I_BENCH $th $N > "./instrumented_${th}_$N"
+done

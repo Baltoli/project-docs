@@ -4,7 +4,8 @@ import sys
 import statistics
 
 def get_wall_time(prog, t, n):
-    p = Popen(["/usr/bin/time", "-p", prog, str(t), str(n)], stdout=PIPE, stderr=PIPE)
+    p = Popen(["/usr/bin/time", "-p", prog, str(t), str(n)], stdout=PIPE,
+            stderr=PIPE)
     o, e = p.communicate()
     line = str(e).split('\\n')[0]
     val = line.split(' ')[-1]
