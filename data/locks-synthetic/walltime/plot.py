@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     ixs = map(lambda d: d[0], data["instrumented"])
     iys = map(lambda d: d[1], data["instrumented"])
-    ierrs = map(lambda d: d[2], data["instrumented")
+    ierrs = map(lambda d: d[2], data["instrumented"])
 
     sxs = map(lambda d: d[0], data["static"])
     sys = map(lambda d: d[1], data["static"])
