@@ -759,3 +759,6 @@
 
 * More fiddling with benchmarks to try to get more compelling data.
 * Continued with lit review.
+* Noted a 500 byte / 20% reduction in binary size when applying static analysis
+  to the locks benchmark.
+* Begun to work out what I want a model checking tool to be able to achieve.

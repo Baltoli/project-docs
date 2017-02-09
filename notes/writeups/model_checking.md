@@ -179,3 +179,42 @@ They note that the usability and positive results from their tool are largely
 down to how easy it was for them to actually use it on real software with its
 own build process - maybe worth looking into with TESLA to a greater extent than
 I already have?
+
+## Implementation Design
+
+Need ot think about what we want a model checking tool for TESLA to really do
+(what the assertions are, how the model is extracted from the module, how it is
+checked etc.)
+
+As above, model checking data flow is going to be much harder than model
+checking a CFG analysis. A first stab at this is likely to involve only the CFG
+for the program. In terms of base TESLA events, this essentially restricts us to
+the subset that deals with function calls and returns, assertion sites, and
+temporal combinations thereof.
+
+So we'd be able to check things like:
+
+```
+eventually(
+  ATLEAST(1,
+    TSEQUENCE(
+      returnfrom(lock_acquire),
+      call(lock_release)
+    )
+  )
+)
+```
+
+This TESLA assertion specifies how the events are allowed to occur in sequence -
+we must have the assertion site before a return from `lock_acquire`, then we
+must have `lock_release`, then any number of matched pairs thereafter.
+
+Then, we'd be able to extract the relevant events from the LLVM IR as a
+finitely-unwound trace - use some kind of iterative deepening search to attempt
+to find a counterexample? How to know when to terminate (from lit review - some
+just have a maximum depth that the user can specify) is a problem. Could try to
+work out if things are changing or if we're just in a cycle that has no
+relevance to the assertion.
+
+Given a counterexample, have the sequence of events that generated it and could
+maybe reconstruct the relevant flow control that led to it?
