@@ -754,3 +754,8 @@
   get some good data for the static / non-static versions.
 * Reviewed a few of the papers identified as possibly being relevant.
 * Fiddled with benchmarks to try to get better data.
+
+# 9/2/2017
+
+* More fiddling with benchmarks to try to get more compelling data.
+* Continued with lit review.

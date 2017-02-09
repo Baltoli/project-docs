@@ -121,9 +121,61 @@ than the C code, using cycle-accurate simulation.
 So the conclusion from this paper is that in the specific context of
 microcontrollers, C isn't an appropriate abstraction for model checking.
 
-### Morse
-* Model checking LTL properties over ANSI-C programs with bounded
-  traces, 2015
+### Model checking LTL properties over ANSI-C programs with bounded traces (2015)
 
-### Chen
-* Model checking one million lines of C code, 2004
+This is a runtime thing - they build an automaton and weave it into the
+executing code (but with an explicit focus on multithreaded systems - they add
+an explicit monitor thread rather than having threads monitor themselves
+inline).
+
+Evaluation done on the embedded firmware of a medical device, and on a control
+application (so a similar focus on embedded systems as the 2009 paper on MCSq
+has).
+
+Temporal expressions are on global variables and are essentially pure LTL (e.g.
+G(Pressed -> F(Charge > Min)) is the example given). Uses Büchi automata to
+express the negated formulae (counterexample finding). Interesting approach is
+that these automata allow for acceptance of infinite traces through the model -
+maybe worth looking into futher as a checking algorithm.
+
+Their contribution on the practical side is summed up as being a way to express
+LTL properties on an *unmodified* program (while TESLA obviously entails
+targeted modifications of a program to instrument it).
+
+Model is built directly from the C program rather than from an abstract
+representation.
+
+Technique of unrolling loops to a finite depth comes up again.
+
+This is a very interesting paper that I should read in more depth at some point
+- lots of interesting techniques and potentially relevant algorithms.
+
+### Model checking one million lines of C code (2004)
+
+Focus on security and safety properties (similarly to TESLA), expressed as
+temporal logic assertions of a sort.
+
+Technique for exploring a CFG of a program is pushdown model checking. The tool
+built is not sensitive to data flow (i.e. particular values of variables /
+memory as the program executes), only to control flow. No support for concurrent
+programs.
+
+The paper (as with others) obviously predates LLVM, and so uses syntactic
+matching on variables in the source code. Makes a note of the fact that checking
+a property statically using model checking is likely to generate false
+positives. The things that the authors have checked using MOPS are not
+dissimilar to things that could be checked using TESLA, albeit in a
+single-threaded environment only.
+
+Tooling support is not dissimilar to how TESLA works in practice - tool to
+generate an external description from a C source, and a tool to validate
+assertions against this description. There's a discussion of tooling support and
+how best to integrate this kind of tool into the compilation process.
+
+The tooling support discussion is interesting - they come up with a solution
+whereby the annotations are put into a comment section of the executable files
+themselves. This means that the CFG and machine code remain in the same place.
+They note that the usability and positive results from their tool are largely
+down to how easy it was for them to actually use it on real software with its
+own build process - maybe worth looking into with TESLA to a greater extent than
+I already have?
