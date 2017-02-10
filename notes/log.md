@@ -754,3 +754,26 @@
   get some good data for the static / non-static versions.
 * Reviewed a few of the papers identified as possibly being relevant.
 * Fiddled with benchmarks to try to get better data.
+
+# 9/2/2017
+
+* More fiddling with benchmarks to try to get more compelling data.
+* Continued with lit review.
+* Noted a 500 byte / 20% reduction in binary size when applying static analysis
+  to the locks benchmark.
+* Begun to work out what I want a model checking tool to be able to achieve.
+
+# 10/2/2017
+
+* Meeting with Robert. Worked out that Jon should be able to log into a CL login
+  server, and from there take a look at my failing FreeBSD compilation. Should
+  also ask him where I get my hands on the OpenSSL code so that I can look at
+  real software that uses TESLA assertions.
+* Robert agrees that the model checking approach is viable, especially at the IR
+  level. He mentioned that data flow analysis is important - i.e. if several
+  data structures are being instrumented, how do we know statically which one
+  we're proving properties about?
+* Need to think about how best to skip stuff in a TESLA automaton -
+  counterintuitively, the best way might actually be to add *extra states* to an
+  automaton - this way, we can encode transitions directly past stuff that we
+  know to be true. More digging through the TESLA code needed here.
