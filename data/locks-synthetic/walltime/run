@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
+trap "exit" INT
+
 BUILD_DIR="/home/test/tesla-static-analysis/build"
 EXP_DIR="$BUILD_DIR/experiments"
 LOCK_DIR="$EXP_DIR/locks"
 S_BENCH="$LOCK_DIR/locks_bench_static"
 I_BENCH="$LOCK_DIR/locks_bench"
 
-N=25000
+N=15000
 RUNS=30
-THREADS=(4 6 8 10 12 14 16 20 24 28 32 36 40)
+THREADS=(8 10 12 14 16 20 24 28 32 36 40)
 for th in ${THREADS[@]}; do
   echo "Running static at $th..."
   ./gather.py $RUNS $S_BENCH $th $N > "./static_${th}_$N"
