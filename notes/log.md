@@ -777,3 +777,9 @@
   counterintuitively, the best way might actually be to add *extra states* to an
   automaton - this way, we can encode transitions directly past stuff that we
   know to be true. More digging through the TESLA code needed here.
+* Did some stats on a promising benchmark - T test seems to indicate that at
+  higher levels of contention, there's a significant improvement when using the
+  statically analysed version of the code. Difference is less significant when
+  there's less contention, but that makes sense as the overhead is all in code
+  that only gets triggered on lock contention.
+* Have kicked off a larger benchmark.
