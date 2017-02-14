@@ -788,3 +788,12 @@
 
 * Worked on model checking implementation - started to flesh out data structures
   and look at what format the data will be in.
+
+# 14/2/2017
+
+* Big chunk of work on model building - can extract a model from basic blocks
+  and functions that shows event flow.
+* Worked out a better way of structuring the code for dealign with graph
+  construction and began to rewrite the initial prototype using the new
+  techniques.
+* Written an instruction graph finder for an individual function.
