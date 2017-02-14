@@ -182,7 +182,7 @@ I already have?
 
 ## Implementation Design
 
-Need ot think about what we want a model checking tool for TESLA to really do
+Need to think about what we want a model checking tool for TESLA to really do
 (what the assertions are, how the model is extracted from the module, how it is
 checked etc.)
 
@@ -218,3 +218,39 @@ relevance to the assertion.
 
 Given a counterexample, have the sequence of events that generated it and could
 maybe reconstruct the relevant flow control that led to it?
+
+So an initial approach to this will require:
+
+* Extraction of a temporal assertion from a TESLA automaton instance.
+  * Will need to recurse into subautomata, and decide which events are
+    checkable (and therefore identify maximal checkable assertions?).
+  * What will this structure actually do differently to a TESLA assertion? I
+    guess it's the recursing into subautomata if we do decide to do that -
+    essentially will unwind the whole automaton a bit.
+* Extraction of events from an LLVM module into a model of the system.
+  * This will essentially be a graph, I think. Nodes in the graph will be an
+    LLVM value + some metadata.
+* Model checking algorithm that takes an assertion and an event graph, then
+  checks it against an assertion.
+
+First pass at this: only function call events.
+
+So a basic block actually defines a *subgraph* that just so happens to be a
+linear one. When building a subgraph, we should pass in a reference to a set so
+that we know which events have been seen. Then this means that a basic block
+returns us a graph that doesn't know about its successors?
+
+Unrolling functions - when we encounter a function call, emit a call event,
+unroll the function emitting all events, then emit a return event.
+
+So what we want to do really is build a graph for each function in the module
+(memoized - so that we either compute if needed, or look it up in the table). So
+when we first encounter a call event, we check if that function has an entry in
+the table. If not, we compute its event graph and store it, and if so, we just
+look up the stored graph.
+
+We want graphs to have a single entry and exit point so that they can be spliced
+together.
+
+How do we handle recursion??? Set of incomplete functions so that they can just
+point back?

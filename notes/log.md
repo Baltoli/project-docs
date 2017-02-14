@@ -783,3 +783,8 @@
   there's less contention, but that makes sense as the overhead is all in code
   that only gets triggered on lock contention.
 * Have kicked off a larger benchmark.
+
+# 13/2/2017
+
+* Worked on model checking implementation - started to flesh out data structures
+  and look at what format the data will be in.
