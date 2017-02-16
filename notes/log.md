@@ -797,3 +797,17 @@
   construction and began to rewrite the initial prototype using the new
   techniques.
 * Written an instruction graph finder for an individual function.
+
+# 16/2/2017
+
+* Big chunk of work on the generic graph implementation - I now have a reliable
+  (!) way of transforming instruction graphs depending on how they are required.
+* This approach seems way more flexible than what I had the other day, as it can
+  extract any relevant structure from a graph if you can express the
+  transformation as modification / discarding of nodes.
+* The next logical steps are to allow for the graph to increase in size (then
+  any arbitrary transformation can take place), to allow for a full module
+  instruction graph to be built, and to encode some common transformations as
+  helpers (i.e. call graph, call graph with decls etc.).
+* Once the graph stuff is done well enough, can look at proving things and
+  extracting predicates from TESLA assertions.

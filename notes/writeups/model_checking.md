@@ -254,3 +254,6 @@ together.
 
 How do we handle recursion??? Set of incomplete functions so that they can just
 point back?
+
+So now we have a more flexible way of handling graphs of events. Next logical
+step is a generic graph transformer I think.
