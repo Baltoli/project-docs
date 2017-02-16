@@ -811,3 +811,8 @@
   helpers (i.e. call graph, call graph with decls etc.).
 * Once the graph stuff is done well enough, can look at proving things and
   extracting predicates from TESLA assertions.
+* Worked out adding entry / exit nodes to a function graph, as well as releasing
+  all of the nodes in a graph. Next step will be to get a range from a function
+  graph with these additions, and to splice these ranges into a module graph as
+  appropriate. That can then all be wrapped up in a more convienient / less
+  low-level wrapper to get useful information out of (if needed).
