@@ -823,4 +823,9 @@
   reliably extract an entry / exit graph from a complete module.
 * The next thing to improve on is that entry / exit nodes aren't tagged uniquely
   - probably need to extend the instruction graph static constructor to allow
-  for a way of tagging them as such?
+  for a way of tagging them as such? Ahh - we only actually have a single
+  instance (every function graph only has a single entry / exit).
+* One solution would be to copy function graphs? Problem when doing this is
+  recursion depth - possible to generate an infinitely big graph! In fact the
+  iterate-until convergence loop I have is the recursion depth control (i.e. how
+  many times it runs!). So after a certain depth would just get to call nodes.
