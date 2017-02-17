@@ -816,3 +816,11 @@
   graph with these additions, and to splice these ranges into a module graph as
   appropriate. That can then all be wrapped up in a more convienient / less
   low-level wrapper to get useful information out of (if needed).
+
+# 17/2/2017
+
+* Improved the graph stuff quite a lot - almost at the point where I can
+  reliably extract an entry / exit graph from a complete module.
+* The next thing to improve on is that entry / exit nodes aren't tagged uniquely
+  - probably need to extend the instruction graph static constructor to allow
+  for a way of tagging them as such?
