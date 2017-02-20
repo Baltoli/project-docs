@@ -829,3 +829,15 @@
   recursion depth - possible to generate an infinitely big graph! In fact the
   iterate-until convergence loop I have is the recursion depth control (i.e. how
   many times it runs!). So after a certain depth would just get to call nodes.
+
+# 20/2/2017
+
+* Working on a clone implementation for events so that I can have different
+  paths for different instantiations.
+* Cloning turning out to be quite tricky...
+* Put this stuff on the back burner for now - looking at a call graph, what we
+  have is an overly permissive analysis. It still shows that there is a possible
+  path (for example) from `exit:lock_release` to `enter:lock_release`, which
+  isn't what we want at all.
+* Worked out that all the stuff about cloning was stupid - we had a way of
+  making copies available for free (rather than caching!)
