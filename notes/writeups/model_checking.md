@@ -303,6 +303,8 @@ What is our current notion of provability?
   * sequence is true if the first part matches and the second part
     matches at all successors, XOR if the whole sequence matches at the
     successor (as it doesn't make sense to have both).
+  * boolean expression just computes the truth value for each expression
+    in sequence, then reduces them appropriately.
   * others like repetition, optional can also be encoded
 
 So the core algorithm will take an `Event` and an `Expression` and

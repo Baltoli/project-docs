@@ -844,4 +844,10 @@
 
 # 21/2/2017
 
-* 
+* Extended the graph implementation so that it can extract assertion site events
+  as well as function entry / exit events.
+* Looked into the behaviour of TESLA wrt. external functions.
+* Wrote up what the model checking algorithm is actually going to have to do.
+* Some bug fixes etc. on the graph builder.
+* Started to implement the model checking algorithm for the subset of states
+  that we care about at the moment.
