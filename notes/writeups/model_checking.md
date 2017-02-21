@@ -257,3 +257,76 @@ point back?
 
 So now we have a more flexible way of handling graphs of events. Next logical
 step is a generic graph transformer I think.
+
+## Extracting Assertion Sites
+
+In order to check basic TESLA assertions I need to be able to extract
+assertion site events. These are (I think) represented as magic function
+calls - so need to possibly change call graphs before expanding into the
+module graph to capture these as assertion sites.
+
+In a module, we should extract assertion sites *before* doing any
+expansion of the call graph. Before instrumentation is done, we should
+extract the special call instances as assertion events. These will be
+calls to `tesla_inline_assertion`, and we can map back onto an automaton
+location by extracting the global string argument from the call.
+
+This will then give us an event graph that includes inline assertion
+events as well as function entry and exit. In particular, we can get a
+location precisely from arguments 2, 3 & 4 of these calls. Then to get
+the automaton, we'd have to take in the manifest file and look it up.
+
+## Checking Assertions
+
+So we want to check a particular TESLA assertion against an end graph.
+Need to define what it means to actually check something first - we
+would like to:
+
+* Take in a manifest and an event graph.
+* For each usage in the manifest, decide whether it can be statically
+  proven true or not.
+* If it can, delete the usage.
+
+What is our current notion of provability?
+
+* Assertions are sort-of LTL, which means that our notion of truth is an
+  all-paths type of notion. That is, we need to prove the assertion on
+  every path through the graph.
+* Unit to be checked against is a TESLA `Expression` (as defined by the
+  protobuf specification). These are the core units of logical
+  statement.
+* Use the formula-reduction sort of algorithm to check at a state:
+  * null events true in any state
+  * function call events true in a state that calls the function
+  * assertion site events true in a matching state
+  * subautomaton recurses
+  * sequence is true if the first part matches and the second part
+    matches at all successors, XOR if the whole sequence matches at the
+    successor (as it doesn't make sense to have both).
+  * others like repetition, optional can also be encoded
+
+So the core algorithm will take an `Event` and an `Expression` and
+attempt to check them against each other. Extend to a graph by checking
+from the entry nodes to the graph.
+
+Some expression types are not provable for now - field assignment etc.
+These are false in every state, so any TESLA assertion that uses them
+will be left alone.
+
+Things like value specification and arguments will need data flow
+analysis, but in the future we'll be able to add constraints of two
+kinds to them:
+
+* Argument restriction specifies that the value used as an argument must
+  have a particular value for the assertion to hold.
+* Return value specifies the same but for return values.
+
+From these we can build up a set of constraints that must hold in order
+for the assertion to be satisifed - all path constraints so this will
+hust be a big set union I think (i.e. if path A requires constraint α
+and path B requires constraint β for the assertion to hold, then for it
+to hold in general we need both to be true). Future work could then
+analyse these constraints to see when they can be true.
+
+Should also point out the state that fails an assertion (i.e. give the
+expression it should have satisfied and why it doesn't).
