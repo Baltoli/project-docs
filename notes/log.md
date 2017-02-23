@@ -851,3 +851,18 @@
 * Some bug fixes etc. on the graph builder.
 * Started to implement the model checking algorithm for the subset of states
   that we care about at the moment.
+
+# 23/2/2017
+
+* Implemented my template-hacky version of generic traversal of the successors
+  of a particular node.
+* Worked out why assertion site events were failing - for some reason the file
+  path my locations have is null terminated so prints equal to the TESLA
+  internal ones, but compares unequal.
+* The problem is that the strings are read including the null terminator, but
+  when written to disk, this obviously get stripped!
+* The strategy I've been taking so far doesn't seem to really be too viable
+  unfortunately - infinite loops etc. make everything very, very confusing.
+* What if I were to implement a *bounded* approach? Property checking on linear
+  paths is very simple.
+* Would need a way of generating paths of a given length through the graph.
