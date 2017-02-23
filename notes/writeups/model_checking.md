@@ -332,3 +332,25 @@ analyse these constraints to see when they can be true.
 
 Should also point out the state that fails an assertion (i.e. give the
 expression it should have satisfied and why it doesn't).
+
+## Bounded Model Checking
+
+We have loops so a traditional model checking algorithm seems to be
+basically not viable - what it's trying to verify gets *very* confusing,
+and traces were complex.
+
+New approach inspired by lit review is to generate paths of a given
+length through the graph. Then a property can be checked on paths up to
+a given length as an approximation of provability.
+
+Need to come up with a way of generating these paths. Basic idea is that
+a path is just a vector of events - because we know it's linear, we can
+just shove the events into a vector without worrying about graph
+ownership or successors.
+
+The paths of length 1 through the graph are just the entries, the
+recurse from there. Most natural thing is to have the function give
+paths of length *up to* n.
+
+Start from n-1, then for each path look at the last element and add a
+new path that's the same but with a successor on the end.
