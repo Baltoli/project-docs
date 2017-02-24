@@ -866,3 +866,20 @@
 * What if I were to implement a *bounded* approach? Property checking on linear
   paths is very simple.
 * Would need a way of generating paths of a given length through the graph.
+
+# 24/2/2017
+
+* Built a small tool to extract finite-length traces from an IR module.
+* Need to do some thinking about how to treat looping states - one possible way
+  is to look at Büchi automata together with a way of recognising a trace as
+  being an "infinite" loop (ie. if it cycles some subsequence all the way until
+  the end). Note: it's OK to have an infinite loop! If we loop infinitely
+  without ever violating an assertion, then the program is in a state where it
+  loops infinitely!
+* More generally, we won't be interested in a lot of traces. We basically only
+  want the ones that are a cycle or that traverse a whole range.
+* Checking an assertion will be semantically different between these two cases -
+  we need every terminating trace to match the assertion, and something else for
+  cycles.
+* So we want an algorithm that looks at terminating traces and checks them
+  against a TESLA automaton.

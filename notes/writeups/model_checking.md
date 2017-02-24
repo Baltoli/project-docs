@@ -354,3 +354,30 @@ paths of length *up to* n.
 
 Start from n-1, then for each path look at the last element and add a
 new path that's the same but with a successor on the end.
+
+Algorithm for checking a TESLA assertion against a *terminating* trace.
+Will operate similarly to the failed attempt at doing this on a general
+tree (i.e. for a given trace, check an expression recursively). Should
+maybe try to formalise the TESLA <-> logic mapping?
+
+The new checker interface needs to take a const reference to a trace,
+and an index into the trace.
+
+Problem: the new sequential checker is too permissive. It will accept
+invalid sequences because it just *ignores* events rather than failing
+an assertion.
+
+At any point while checking a sequence, we know what the current head of
+the sequence is. So instead of trying to match the head, we walk through
+the trace trying *every* assertion in the sequence:
+
+* If the head matches and none other do, match the tail from the next
+  spot.
+* If the head doesn't match and no others do, move on a spot.
+* If any others match, fail!
+
+Note that "others" has to mean any that are not equal to the head (suing
+the protobuf equality).
+
+Need to come up with a proper definition of the sequence matching
+algorithm - if I can do that then the checker will work I think.
