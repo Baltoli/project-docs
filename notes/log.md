@@ -883,3 +883,10 @@
   cycles.
 * So we want an algorithm that looks at terminating traces and checks them
   against a TESLA automaton.
+
+# 25/2/2017
+
+* Wrote up a bit about how the sequence checker should be working in practice,
+  as well as the subtleties involved with getting it right. I think the
+  `mult_acq` failures I was noticing are probably to do with the "forgotten
+  start" problem, but need to verify that.
