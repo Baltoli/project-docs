@@ -890,3 +890,17 @@
   as well as the subtleties involved with getting it right. I think the
   `mult_acq` failures I was noticing are probably to do with the "forgotten
   start" problem, but need to verify that.
+
+# 28/2/2017
+
+* Improved the API for the model checking algorithm.
+* Started to pick apart the sequence checking that we need to be doing to detect
+  failure events.
+* Realised some flaws with the way subautomata are handled.
+* Have an initial (but basically useless) implementation of the bounded model
+  checking algorithm. Next step is probably to get a more uniform tracing system
+  going so that it can be debugged - doing so at the moment is very hard and
+  ad-hoc.
+* Looked at adding tracing but it got complex very quickly - might have another
+  go later.
+* Worked out how repetition in a sequence will be handled.

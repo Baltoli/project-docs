@@ -85,3 +85,104 @@ formal notion of how they interact with this mechanism.
 Perhaps a better API design would be to have checkers return the index
 of the end of their match? Should investigate how this would work in the
 future.
+
+This makes more conceptual sense for the API design I think. The 'simple'
+matches like function entry / exit and assertions will match only a single
+state and return the next state, while subautomata and sequences will match a
+longer range.
+
+Boolean expressions present an interesting question - what should their matching
+range be? Sensible options are:
+
+* Match zero length (analogous to PEG combinators)
+* Match the longest length of a subexpression
+
+Additionally, individual checkers need to be able to return a failed result.
+This means that the type we're looking for is really `Maybe Length`. Have
+implemented this type as a simple wrapper around a length.
+
+Now want each individual checker function to use this type instead of bool,
+wrapping their results as appropriate.
+
+### Sequence Checking With New API
+
+We should now be able to check sequences properly with this new API. Problem
+before was that we were 'forgetting' the events that we didn't want to see, and
+that multiple events could be recognised at one time.
+
+How to resolve these properly?
+
+* The sequence checker function needs to take an extra parameter representing
+  the set of expressions we care about seeing. If this set is populated
+  initially, then we don't need to populate it again (as we're in a recursive
+  sequence check). If it's empty, then put every expression in the sequence into
+  it.
+* Then when checking, we make sure that we don't observe any extra events.
+
+The checking algorithm will iterate through the trace starting from the give
+index. When it finds a match for the head, get the length and recursively check
+the tail against it with the set of expressions we care about not seeing.
+
+We might need a slightly subtler notion of what these expressions are at some
+point in the future.
+
+Problem: the current approach to picking expressions that we want to ignore is
+too sensitive. Lots of things will match in lots of places (for example, the
+`lock_release` subautomaton matches `entry:main`, causing a failure - this isn't
+intuitively what we want at all!)
+
+The solution (I think) is to extract *basic* subexpressions from an expression
+recursively. That way we can exactly specify what subexpressions should be
+banned and which should not be checked for failure. Consequently, we will only
+experience a failure at a state if it is precisely one of the banned events.
+
+Problem I'm experiencing currently is caused by (as an example) us adding all
+the subexpressions for `acq_rel` into the set at the beginning. Then, when we
+finish checking `acquire`, we look to make sure that there are no future events
+BUT we have the ones from `release` so they get flagged as failures even though
+they will be picked up by a future check.
+
+The root cause (to an extent) is therefore the direct recursion into
+subautomata. Each individual subautomaton has a set of events it cares about,
+but this can overlap with others. The implication of this seems to be that model
+checking isn't necessarily as simple as model checking a formula...
+
+Idea: restrict lookahead to cases only where a subautomaton is the *last*
+subautomaton mentioned in a sequence **and** whose parent subautomaton meets the
+same condition.
+
+Need to work out how to map this into the checker. The idea is that 'future'
+failures for subautomata will be handled by the next ones along in the sequence
+if necessary, and by lookahead *only* at the end.
+
+## Repetitions
+
+Currently, the sequence checker is *not* adequate as it completely disregards
+the number of repetitions that a sequence is permitted to have. This means that
+things like looping on lock acquisition are just totally broken on longer
+traces.
+
+A sequence expression can be repeated between `minReps` and `maxReps` times. The
+sequence checker we have will check exactly one iteration of the sequence. What
+we probably want to do is have a new checking function (`sequenceRepeat`?) that
+also takes a sequence, but will respect the number of repetitions allowed. It
+will call the existing function repeatedly until failure OR it hits the maximum
+number of repetitions. If the number of successful repetitions is less than
+minreps, return a failure.
+
+Problem: we can't distinguish between a regular failure and one caused by
+lookahead. This means that there is effectively no difference between failing
+because the sequence stopped happening and because there were lookahead
+failures.
+
+Alternative: when checking a sequence once, ignore lookahead failures. Move the
+logic for handling them up a level into the repeated sequence checker. When we
+have matched as many sequence iterations as possible, then look at the events
+left.
+
+If we do this, we still need to work out *when* to actually do lookahead, as
+it's not always the right thing to do. Idea keeps coming back that we need to
+look at the ends of sequences somehow - I think I'm close to figuring out what
+the solution is. Key will be properly characterising when to perform the
+lookahead checking on future events (or a completely different formulation of
+the checking algorithm that makes things conceptually neater!).
