@@ -917,4 +917,8 @@
   `basic_indirect`, `no_*`, `mult_rel` all work correctly. The more complex
   examples (`mult_acq`, `other`) do not yet, as the current event graph
   structure is not expressive enough to check the properties they depend upon.
-* 
+* Begun to think about how constraint analysis on LLVM values might be
+  implemented for my current setup.
+* Wrote a script to time how long it takes to model check various programs - can
+  go into the writeup as a demonstration of worst case / best case performance
+  when using the tool.

@@ -134,4 +134,14 @@ implies that `lock_acquire(...)` must have returned `false`.
 A similar analysis might end up placing constraints on parameter values to the
 function, for example.
 
+## Implementation Design
+
+What actually is a constraint at its most fundamental? It expresses a
+relationship between *things* of some kind. For example, that two LLVM `Value`s
+are equal, or that all of a set of other constraints are satisfied, or that any
+of a set of other constraints are satisfied.
+
+We want to be able to simplify constraints (similarly to the example given
+above) into a minimal representation.
+
 ## Existing Tools
