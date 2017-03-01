@@ -186,3 +186,28 @@ look at the ends of sequences somehow - I think I'm close to figuring out what
 the solution is. Key will be properly characterising when to perform the
 lookahead checking on future events (or a completely different formulation of
 the checking algorithm that makes things conceptually neater!).
+
+## Correctness and Completeness
+
+Currently, the checker will determine whether or not the trace is *correct* with
+regard to the TESLA model. Correctness captures the idea that the trace can be
+described by the model (that is, some subset of the trace is validated by the
+model). Completeness will aim to capture the idea that every event in the trace
+is accounted for by an assertion - if we have an event that can occur without
+being accounted for, then there would be a runtime failure.
+
+To check completeness, what we need to implement is:
+* Tag each event in a trace with `false`
+* Compute the set of all subexpressions for the root expression being checked.
+* For each event in the trace, if it matches *any* of the subexpressions, then
+  keep it as `false`. Otherwise, it's a "don't care" expression that can be
+  marked as `true`.
+* Then in the correctness check, when we successfully match a basic
+  subexpression, tag the corresponding event as `true`.
+* If any events remain `false` after checking, then they are not accounted for
+  and the analysis is unsafe.
+
+Tagging mechanism seems to work, but need to roll back in the event of failure.
+Turns out that we didn't actually need to roll back - the solution was actually
+to just use a copy on the initial tagging phase (as it relied on `CheckState`
+itself).

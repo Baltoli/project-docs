@@ -904,3 +904,17 @@
 * Looked at adding tracing but it got complex very quickly - might have another
   go later.
 * Worked out how repetition in a sequence will be handled.
+
+# 1/3/2017
+
+* Realised yesterday evening that the solution to my problems is to separate out
+  completeness and correctness in the specification of my checker. The idea is
+  to ensure that every event is accounted for by an assertion *and* that the
+  trace satisfies the assertion. This abstracts the lookahead issues being
+  experienced yesterday.
+* Implemented the correct / complete mechanism for checking properties against
+  traces. The behaviour is now correct on the simple example programs - `basic`,
+  `basic_indirect`, `no_*`, `mult_rel` all work correctly. The more complex
+  examples (`mult_acq`, `other`) do not yet, as the current event graph
+  structure is not expressive enough to check the properties they depend upon.
+* 
