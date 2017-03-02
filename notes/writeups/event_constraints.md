@@ -142,6 +142,133 @@ are equal, or that all of a set of other constraints are satisfied, or that any
 of a set of other constraints are satisfied.
 
 We want to be able to simplify constraints (similarly to the example given
-above) into a minimal representation.
+above) into a minimal representation. This isn't really simplification I guess -
+it's more of a normalisation process that takes a constraint back to its root
+components.
+
+When do we want to emit constraints? Events specify a return value (i.e.
+`lock_acquire() == 0`). How should that be integrated into the model checking
+algorithm? We can compute (for any given event) the maximal set of constraints
+that hold at that event.
+
+Integration into the model checker - when we check an assertion against an
+event, it will specify return values etc. We can then associate a constraint
+*with that event* if necessary. Then, checking the model succeeds subject to
+the constraints on the events being satisfiable. For example, a satisfiable
+constaint in `basic` might specify that at the first n - 1 `exit:acquire`
+events, the return value was 0 etc. Then will need to design an algorithm that
+attempts to solve the system of constraints (or translates them into a format
+that an external solver can understand).
+
+So this process outputs the constraints that need to be satisfied for the model
+checking to be successful. The dual of this is generating the precondition model
+from the event graph! i.e. we know a constraint is satisfied if the constraint
+can be shown to be true in the model.
+
+Obviously not all constraints will actually be solvable - if they aren't, we can
+emit the minimal / fundamental requirements and show them some other way.
+
+In fact this isn't quite as simple - the initial constraints that we get from
+the assertion say things like `lock_acquire() == 0`. We then need to take this
+as an assumption and examine the model. We need to validate the constrained
+trace against the event graph, which is where things start to get very
+symbolic-executiony. Walking the event graph as dictated by the trace, when we
+encounter a constraint as below, what do we do to validate it?
+
+What if we were to add specific `Value`s to exit events that correspond to the
+return value of the function - so then we can possibly map constraints onto
+conditions?
+
+Maybe worth thinking about what we're actually trying to *prove* by using these
+constraints. We have:
+
+* Trace representing an execution path through the IR
+* Constraints on the return values of functions
+
+And what we want to *know* is:
+
+* Is the trace a valid execution path through the module, assuming the
+  constraints that we have?
+
+I guess that "is a valid path through the event graph" is an appropriate proxy
+for "is a valid path through the model".
+
+To show that a constrained trace is a valid path through the event graph, we
+need to compute the branch condition information and map it back to function
+return values with phi-node like info.
+
+Is it possible to map a constraint as shown below onto a specific `CallInst`? If
+so, then what we can extract is a sequence of `CallInst <-> return val`
+mappings. Then, we could look at the IR to check whether or not such a sequence
+is possible. So we are then validating a sequence of return values from a
+function against the IR module (however we choose to do that). Question of
+partial proof comes up again here I think.
+
+Implementation steps:
+
+* Add `CallInst` to exit events
+* Emit constraint sequence when checking every trace.
+* Compare constraint sequences to the IR and prove what we can.
+
+Problem when emitting constraints - we don't know which will be the 'right'
+constraint to emit when there are several possibilities. The simple / naïve way
+doesn't work (as each event is checked several times). We need some kind of
+notion of a "satisfying assignment".
+
+```
+✓ enter:main
+✓ assert:/home/test/tesla-static-analysis/experiments/locks/mock.c:29#0
+✓ enter:lock_init:0x8024b3ac0
+✓ exit:lock_init:0x8024b3ac0
+✓ enter:do_work:0x8024b6840
+✓ enter:lock_acquire:0x8024b8b20
+✓ exit:lock_acquire:0x8024b8b20 ( == 0 )
+✓ enter:lock_acquire:0x8024b8b20
+✓ exit:lock_acquire:0x8024b8b20 ( == 1 )
+✓ enter:lock_release:0x8024b8310
+✓ exit:lock_release:0x8024b8310
+✓ exit:do_work:0x8024b6840
+✓ enter:lock_free:0x8024b6c30
+✓ exit:lock_free:0x8024b6c30
+✓ exit:main
+```
 
 ## Existing Tools
+
+What this is trying to achieve is really a kind of symbolic execution - maybe
+worth investigating existing symbolic execution tools to see if they can be
+adapted to this use case. Primary contender in this space seems to be Klee.
+
+## Further Improvements to Interface
+
+It's clear that the model checking interface needs more careful thought - the
+current abstractions work OK for the very simple property checking, but it's
+proving hard to extract more information from them.
+
+Things I've thought about and realised need improvement:
+
+* Sequence checking algorithm being recursive is really a mistake - we can
+  probably do better with an iterative version.
+* We want to extract even more information when we check an expression
+  (motivated by trying to map function events onto the expressions matched).
+* Building on the idea of correctness and completeness, we want to know that
+  every event in the trace is checked by an expression - this means that the
+  shared mutable state approach I have currently is not viable, and we really
+  want to be recursively building up some kind of evidence as we go.
+* Root idea is that every function & assertion event needs to be *successfully*
+  checked by a corresponding expression. What if part of the return value from
+  every checker is a map from these events to expressions? So for example, a
+  sequence matches a subexpression and receives a map representing the checks
+  performed by the subexpression. If the sequence as a whole is successful, it
+  can merge together the maps for every subexpression. If it fails, anything
+  calling it recursively will not receive incorrect check information!
+* This means that every event is then associated directly with the expression
+  that it matched against *on the successful path*.
+* I think that no events should end up being checked twice, but I need to verify
+  this.
+* In summary:
+  * Root events matching successfully give back a single element map
+  * Sequences, boolean merge together the checks performed if successful
+  * Merge upwards to get full map of events to expressions
+  * Completeness: every 'care' event is matched
+  * Other return information: match index, length

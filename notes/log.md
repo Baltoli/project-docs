@@ -922,3 +922,21 @@
 * Wrote a script to time how long it takes to model check various programs - can
   go into the writeup as a demonstration of worst case / best case performance
   when using the tool.
+
+# 2/3/2017
+
+* Jon got back to me regarding build failures for the FreeBSD kernel - he has
+  been able to build it successfully so it sounds like I've probably been doing
+  something wrong that can be easily fixed.
+* Implemented a first stab at a variation of the checker for cyclic traces - the
+  idea of the algorithm used here is to allow for the assertion expression not
+  to fully match, as long as every event in the trace is checked by some part of
+  the assertion (i.e. relax correctness but still enforce completeness). Need to
+  formally justify this I think, but it seems to work.
+* Worked out that we probably do want to check off events inside the boolean
+  expression matcher (at least unless there are some subtle effects I haven't
+  thought of yet).
+* Got instructions from Jon on how to properly build the TESLA-instrumented
+  kernel.
+* Lots of thinking about what we're actually able to / want to show using a
+  constraint system on return values.

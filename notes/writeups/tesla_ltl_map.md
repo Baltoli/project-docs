@@ -211,3 +211,27 @@ Tagging mechanism seems to work, but need to roll back in the event of failure.
 Turns out that we didn't actually need to roll back - the solution was actually
 to just use a copy on the initial tagging phase (as it relied on `CheckState`
 itself).
+
+## Checking Cycles
+
+The algorithm will be different when checking cyclic traces (as opposed to the
+bounded traces so far), but I think the core logic will remain the same. A
+simple approach (not sure of correctness yet) would be to allow for the
+correctness part of the check to fail, but enforce completeness. The idea here
+is that the assertion might not be completely satisfied if we end up in a cycle,
+but if every event seen in the cycle has been validated by an assertion, things
+are OK.
+
+## Boolean Expressions
+
+Need to more concretely check how boolean statements interact with the checking
+algorithm. The core question is whether or not a boolean expression in an
+assertion should be able to mark an event as checked - that is, if we're
+checking a boolean expression, should we make a copy of the tags so that the
+changes don't get reflected globally? In the examples so far, it doesn't seem to
+matter, but there might be cases where it does (or is dependent on the operation
+in the boolean expression).
+
+Easy answer for now is that we want to check off events inside boolean
+expressions - demo is to copy `tr` in the boolean matcher, and the analysis is
+incorrect when running on `basic`.
