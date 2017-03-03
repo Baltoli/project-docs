@@ -940,3 +940,18 @@
   kernel.
 * Lots of thinking about what we're actually able to / want to show using a
   constraint system on return values.
+
+# 3/3/2017
+
+* Done some more thinking about how to improve the interface to the model
+  checker. The key point is that we want to recursively generate root checks,
+  and have them percolate back upwards *only when successful*. This improves on
+  the current approach of using shared state.
+* I've also realised that my approach to checking boolean expressions is wrong -
+  with the new approach, what we want is:
+  * `or`: return the matches from the first expression that matches
+  * `and`: all expressions need to match - question of multiple checks?
+  * `xor`: not clear here - ask Jon to clarify semantics
+* Implementing this means we won't need the tagged trace approach any more, and
+  that the return type from a checker will include a map from events to
+  expressions. Completeness follows easily from merging these maps.
