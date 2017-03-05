@@ -10,19 +10,34 @@
 
 \input{tex/cover.tex}
 
-\input{tex/abstract.tex}
-
-\clearpage
+\blankpage
 
 \input{tex/statement.tex}
 
+\afterpage{\blankpage}
+
+\input{tex/abstract.tex}
+
+\afterpage{\blankpage}
+
 \tableofcontents
+\listoffigures
 
 \clearpage
 
 \pagenumbering{arabic}
 
 \chapter{Introduction}
+
+\chapter{Background}
+
+\chapter{Related Work}
+
+\chapter{Design and Implementation}
+
+\chapter{Evaluation}
+
+\chapter{Conclusion}
 
 \printbibliography
 
