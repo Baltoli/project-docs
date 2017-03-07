@@ -955,3 +955,37 @@
 * Implementing this means we won't need the tagged trace approach any more, and
   that the return type from a checker will include a map from events to
   expressions. Completeness follows easily from merging these maps.
+
+# 7/3/2017
+
+* Begun to work on improving the model checking algorithm for sequences, though
+  it does remain quite complicated.
+* Might be worth coming up with a much smaller test harness that I can use to
+  work on the algorithm - running it on full program traces is unwieldy. Note
+  that this is not exactly trivial (need to build a mock event graph etc.)
+* Also noticed that traces can contain duplicates due to the way they are
+  generated - for example, we might have the `lock_acquire` event several times
+  *all with the same pointer*.
+* What this means is that we probably want to copy events before they go into a
+  trace, so that all the pointers to events in a trace are distinct (memory
+  usage will go up).
+* Maybe deduplicating will actually be more complicated than we need. Instead of
+  storing event pointers (which are not unique), we store indices of the
+  relevant events?
+* Key design problem: we may even need to backtrack in some situations!
+* The problem is that sequence repetitions are greedy - the initial repetition
+  will consume all of the events when it should leave the final one to be
+  consumed by the last part of the sequence.
+* Had an interesting idea - maybe worth prototyping algorithms in haskell before
+  going to the more complicated C++ environment?
+* A new algorithmic tack - discard "don't cares" from event sequences, then
+  generate sequences of delayed root expressions from the expression being
+  matched. Then look for simple root matches between sequences.
+* Noted that `BE_And` is actually unimplemented...
+* As I had sort of suspected, `BE_Xor` is really just inclusive or - as long as
+  one of the expressions matches, then the whole thing will do. Treat it as such
+  for now and revisit if we find breaking cases.
+
+# 8/3/2017
+
+* 

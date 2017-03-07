@@ -381,3 +381,16 @@ the protobuf equality).
 
 Need to come up with a proper definition of the sequence matching
 algorithm - if I can do that then the checker will work I think.
+
+## Non-Greedy Model Checking
+
+The greediness of the current algorithm is causing some problems. In short, the
+sequence checker consumes as many repetitions of an event as it can---this is a
+problem if a subsequent event needs to consume one as well.
+
+It's very easy to produce example TESLA code that demonstrates the ability of
+runtime instrumentation to deal with this kind of thing, but the model checking
+algorithm needs to be extended to deal with it properly somehow.
+
+Return value disambiguation won't work - the events can be completely identical
+and still show the same problem.
