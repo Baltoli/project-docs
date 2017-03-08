@@ -394,3 +394,7 @@ algorithm needs to be extended to deal with it properly somehow.
 
 Return value disambiguation won't work - the events can be completely identical
 and still show the same problem.
+
+Note: realised that for generating models, we don't need to be full-on lazy -
+because we're building a model for a particular trace, anything longer can just
+be discarded!

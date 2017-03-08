@@ -988,4 +988,23 @@
 
 # 8/3/2017
 
-* 
+* Investigating a library / app I can instrument with TESLA and then show
+  improvements when statically checked.
+* First investigation is SQLite - notoriously reliable software that's
+  distributed in such a way as to make it easy to compile. 
+* Got SQLite compiling against TESLA properly, but need to work out if it's the
+  right choice for trying to instrument and show the benefit of static analysis
+  on.
+* Looking at demos, the OpenSSL example from the paper is actually a minimal
+  example that verifies API usage rather than instrumenting the OpenSSL code
+  itself. Maybe worth looking into things on this model rather than trying to
+  instrument a whole library?
+* Question is how to come up with an example that focuses on performance while
+  also being statically checkable?
+* Running example has been locks - what if I were to write an application that
+  uses locks for something (and needs them to be verifiably correct). But should
+  also think about other kinds of things we might want to look into - for
+  example, the TESLA kernel instrumentation defines an assertion that verifies
+  we're in the call stack of a particular function.
+* What about some kind of server? Think up a task that could be achieved by a
+  server and work out some assertions that can go on hot code paths.
