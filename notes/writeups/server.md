@@ -63,12 +63,48 @@ sequence number as a 16-bit integer, and the remaining five are data.
   it.
 * Done packets should be zero except for the type.
 
-### Server Spec
+## State Machines & TESLA
 
-The server sets up a socket, binds to an address etc. It then runs a main loop
-where it accepts connections from clients and spawns off a thread that does
-something with the file descriptor for the connection.
+The current implementation of the client and server are neat from a
+software-engineering perspective - they both speak the same protocol so can both
+have the same interface, and are then implemented in terms of packet handlers.
+This means that the control flow through the implementation is *data-dependent*
+(nothing is known statically about the control flow other than that the generic
+packet handler can call each other possible handler with the appropriate
+arguments).
 
-Now we want to write the actual server code.
+TESLA is well suited to instrumenting this sort of thing, but to combine it with
+static analysis we need to make the idea of a state machine much more explicit.
+For example, the state diagram for the server looks something like:
+```
+             initial
+                +
+                |
+                v
+  +------+expect_request
+  v             +
+error           |   +----+
+  ^             v   v    |
+  +------+expect_data    |
+                +   +    |
+                |   +----+
+                v
+            +---+--+
+            | done |
+            +------+
+```
+In the current implementation, this is encoded dynamically when we would like it
+to be encoded statically. Then, TESLA assertions could be used to validate the
+transitions that the system undergoes statically (to make sure, for example,
+that `expect_request` is only ever called from the initial state).
 
-### Client Spec
+The potential issue that this design has is blowing the stack - if there is a
+loop in the state diagram then it's possible that recursion depth is reached and
+things go wrong. I think that this can be handled by careful design of the state
+space, compiler optimisations, or converting recursive loops to iterative ones.
+
+Current status is that the server implementation tends to segfault *a lot* under
+load (but also that adding a bunch of TESLA assertions did seem to make it slow
+down a bit).
+
+Now should look at the explicit-state version.

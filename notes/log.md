@@ -1008,3 +1008,50 @@
   we're in the call stack of a particular function.
 * What about some kind of server? Think up a task that could be achieved by a
   server and work out some assertions that can go on hot code paths.
+
+# 9/3/2017
+
+* Worked more on implementing basic stuff that will underpin the client / server
+  example. Will be at the point soon where a full protocol negotiation can take
+  place.
+* Design of what we have isn't quite what it could be - both ends speak the same
+  protocol, so what we want is a interface that anyone who implements the
+  protocol can implement. Then the main protocol implementation for the server
+  and the client will be similar (with the difference being that the client
+  starts by sending a message and the server by receiving).
+
+# 10/3/2017
+
+* So the current architecture for the embeddable server raises an interesting
+  demonstration of why TESLA is useful - control flow is *data dependent*.
+* Tinkering with how TESLA behaves on multiple threads - seems that the only
+  reliable way to get instrumentation to behave as expected is to have it run
+  over the whole thread lifetime (i.e. in the server example, this is
+  `write_to_fd`).
+* Worked on making control flow much more explicit in the client and server
+  implementations.
+* Started to add TESLA instrumentation to the examples.
+* Think I'm running into the struct-by-value calling convention problems again -
+  when trying to instrument the function `send_packet`, the instrumenter blows
+  up because there's an argument count mismatch. Should try converting this
+  function to take a pointer and see if that makes a difference.
+
+# 11/3/2017
+
+* Investigated the `send_packet` problem - it does seem to be a limitation in
+  TESLA when looking at pass-by-value structure types (as I've seen before in
+  other places).
+* Looking into the FreeBSD TCP implementation - there are lots of reasons why
+  instrumenting this code with TESLA isn't likely to be possible in the time I
+  have available:
+  * Lots of code to understand and instrument correctly
+  * Heavy use of macros, long functions
+  * Build process as part of the kernel is tricky
+* One possible option as a full evaluation would be to build a TUN program
+  implementing TCP, but instrumented with TESLA - this would be a decent-sized
+  piece of code to write, but would be very suitable for performance analysis as
+  it's a "real" protocol.
+* Possible problems with this approach are:
+  * Implementing TCP is complex - could be a big task just to get running
+  * Static analysis might be tricky (but impl. dependent)
+* 
