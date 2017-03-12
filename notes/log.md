@@ -1054,4 +1054,30 @@
 * Possible problems with this approach are:
   * Implementing TCP is complex - could be a big task just to get running
   * Static analysis might be tricky (but impl. dependent)
+* Evidence that this might be a good strategy is from the client-server
+  experiment implemented so far - have seen rough performance improvements in
+  the uninstrumented version (though the performance characteristics will be
+  different because of multithreaded load etc).
+* Even if static analysis doesn't turn out to be particularly useful in this
+  case, a TESLA-instrumented userspace TCP implementation is still a useful and
+  interesting artifact (along with an analysis of why the static analysis
+  failed, and what future work could do to resolve that problem).
+* Am able to produce microbenchmarks that show the server performs ~5% better
+  when not instrumented using TESLA (for 10-50 simultaneous connections) - good
+  motivating example for static analysis. Probably better than the spinlock
+  example - more 'real work' being done.
+* Worth noting the performance characteristics of this example - runtime is
+  linear in the number of connections (as would be expected, as all the blocking
+  tasks need to be serialised), but the runtime is 5% better regardless.
+    
+# 12/3/2017
+
+* Fixed up the git repo a bit as some branches with work in progress were a long
+  way behind master.
+* Have implemented a basic TUN program that can be given an interface and will
+  read packets successfully! tshark verifies that it sees TCP SYN packets
+  arriving at the interface.
+
+# 13/3/2017
+
 * 
