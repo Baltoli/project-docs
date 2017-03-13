@@ -1080,4 +1080,16 @@
 
 # 13/3/2017
 
-* 
+* Meeting with Robert - talked about the possibility of instrumenting a
+  user-mode network stack, and he agreed that it is a definite avenue for
+  progress & writeup. Recommended I have a look at LWIP as a prominent example
+  of an existing user-mode stack.
+* Additionally, he reckons that finding a "real" example of something that uses
+  locks would be a good idea (e.g. a concurrent sort implementation).
+* Also recommended I talk to Alan about the model-checking aspects of the
+  project.
+* At a first glance, LWIP looks to be less complicated than the FreeBSD
+  implementation of TCP/IP - problems with the BSD one include the pluggable
+  API etc.
+* Idea of LWIP seems to be that by providing hooks, you can attach the
+  implementation to whatever device driver you want.
