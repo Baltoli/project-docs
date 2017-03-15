@@ -1093,3 +1093,14 @@
   API etc.
 * Idea of LWIP seems to be that by providing hooks, you can attach the
   implementation to whatever device driver you want.
+
+# 14/3/2017
+
+* Worked on getting LWIP built with TESLA - eventually have managed to get it to
+  a point where the core LWIP static library can be built with TESLA enabled.
+  Next step is to build a small example application that uses LWIP and make sure
+  it will all run etc.
+
+# 15/3/2017
+
+* 

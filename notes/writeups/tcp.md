@@ -69,3 +69,30 @@ API.
 
 A useful first step might be to try to get LWIP compiling as a library (i.e.
 prod it and see what happens to the build process).
+
+Notes from this process:
+
+* Will probably have to think about how to integrate TESLA compilation into a
+  library. Looks like what I'll want to do is the existing TESLA build process,
+  but compile the whole thing into an object file, then call the CMake
+  `add_library` command to make that into a static library.
+* It also may be the case that we can't have cross-component instrumentation
+  (e.g. `netif` code can't reference anything contained in another component).
+* I think that the end result of this is that the internal libraries can each be
+  instrumented, and a user program can then be linked against the instrumented
+  libraries.
+* This is also a neat deliverable - an integration of LWIP with the TESLA build
+  system (and the subsequently with TESLA assertions added).
+* For now I think I need to just provide the platform abstractions etc - an
+  integration of LWIP would need to redefine them.
+
+## TESLA Library Build
+
+Need to figure out how to modify my TESLA build script to build a library in as
+compatible a way as possible. For the most part, the procedure I have already
+does the work needed - the main difference is that we want to compile to a
+library rather than to an executable.
+
+Mistake so far - we want to use an existing Unix port rather than try to provide
+ad-hoc versions of what we have to provide. FOund the stuff we need in the
+lwip-contrib repo.
