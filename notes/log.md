@@ -1103,4 +1103,32 @@
 
 # 15/3/2017
 
+* Running into mysterious compilation problems so have taken a step back and got
+  the unix suite up and running without TESLA - have verified that I can send
+  and receive TCP packets to an LWIP application.
+* Can now run a TESLA-instrumented version of the unix simhost application which
+  is neat - though to do performance benchmarking of any kind, I think what I
+  really need is a custom TCP app (because the simhost shell only allows for
+  manual control of sent / received data).
+* Used the same process to get a similar setup for a bespoke app.
+  TESLA-instrumented simhost remains around as the build process is generic.
+* Done some reading into the raw TCP API exposed by lwIP - seems like the way to
+  go.
+* Seems like I'm doing something gravely wrong in my app - it's causing the
+  whole network interface to die somehow so that I can only log in via the
+  serial console and need to reboot. My suspicion is that the app is binding to
+  *every* IP address, meaning that it kicks my mosh session off.
+* Noted that unreliablity in my simple TCP app seemed to be down to the
+  implementation being overly simple (as the raw echo app works just fine).
+* Next steps for this line of investigation are:
+* Work out an appropriate benchmark to use - seems like there are a few echo
+  benchmarks floating around online that I can base one on. General idea is to
+  fix a packet size, then use a bunch of threads to fire off packets as fast as
+  possible.
+* Then need to start digging into the internals of lwIP to see where
+  instrumentation can be added to the TCP stuff inside, and do comparative
+  benchmarking
+
+# 16/3/2017
+
 * 
