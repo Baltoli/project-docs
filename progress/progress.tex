@@ -1,0 +1,81 @@
+\documentclass[a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{mathpazo}
+
+\begin{document}
+
+\pagenumbering{gobble}
+
+\section*{Static Analysis for TESLA (Progress Report)}
+
+\subsection*{Familiarisation with TESLA}
+
+During the first phase of the project, I worked to develop a TESLA model of a
+simple mutex implementation. This allowed me to become familiar with the usage
+of TESLA from the perspective of a user, as well as with the implementation,
+build process and setup. The assertions I developed during this phase are able
+to validate important properties of the usage of a mutex (for example, that it
+is not released before being acquired or vice-versa). I also developed a suite
+of example programs that demonstrate the cases my assertions are able to cover.
+
+As well as developing these assertions, I made contributions to TESLA in a
+larger sense. I was able to discover and fix several bugs in the existing TESLA
+code, develop build scripts for integrating TESLA into a project, and collect a
+set of notes on using TESLA as a programmer.
+
+\subsection*{Hand-Coded Static Analysis}
+
+The next stage of the project involved the exploration of how the assertions
+developed previously could be checked statically (treating them as a special
+case, where the properties being asserted are known at development time). The
+focus at this step was on optimising TESLA performance by removing
+statically-provable assertions. I developed a set of LLVM passes, which aim to
+prove a program correct with respect to the properties of my TESLA assertions.
+
+I developed an extension to the TESLA instrumentation stage that runs LLVM
+passes, then makes changes to an automata manifest depending on the results (for
+example, an assertion can be removed if it is statically provable). The example
+programs developed previously were used to validate the correctness of applying
+static analysis to the mutex assertions. A reproducible performance improvement
+was found on a microbenchmark that caused contention on a TESLA-instrumented
+mutex.
+
+\subsection*{Model Checking}
+
+Moving on from checking properties of specific assertions, the next stage was to
+generalise to arbitrary assertions that are not known at development time. The
+approach I have taken at this stage is to extract an abstract model of program
+behaviour from the intermediate representation, then model-check this against a
+TESLA assertion.
+
+The algorithm I have implemented to this end falls broadly into the class of
+bounded model checking---finite traces of a given length are generated from the
+abstract interpretation of the IR, then properties are validated against
+individual traces. Because of the way in which TESLA assertions are structured,
+the algorithm is somewhat different to pedagogical examples that proceed by
+structural induction on a logical formula, and required a carefully considered
+design to ensure correctness with respect to the semantics of a TESLA assertion.
+As part of the development of this algorithm, I have produced a formalisation of
+the properties asserted by statically checkable TESLA assertions.
+
+Currently, the model checker is less powerful than the hand-coded mutex
+analyses---properties that rely on data-dependent control flow cannot be checked
+statically. However, 80\% of the mutex test programs yield correct results using
+the model checker. Adding analysis of data-dependent control flow is likely to
+cover the remaining 20\%.
+
+\subsection*{Applications}
+
+In order to find a suitable candidate to evaluate the model checker against, I
+developed a simple socket-based client / server protocol for exchanging
+messages. Instrumenting the internal state transitions of the server
+consistently decreased throughput by 5\%.
+
+Based on this motivating example, I have been working to integrate TESLA into
+lwIP (a user-mode network stack implementation). At the time of writing, I have
+a FreeBSD port of lwIP that can be compiled using TESLA. The next steps here are
+to instrument the library, and demonstrate the application of static analysis to
+this instrumentation through the use of a suitable benchmark application.
+
+\end{document}
