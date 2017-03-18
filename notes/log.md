@@ -1131,4 +1131,28 @@
 
 # 16/3/2017
 
-* 
+* Wrote mid-term project report and sent it off to Robert.
+* Emailed Mycroft enquiring about a meeting to discuss what I've been working on
+  so far.
+* Going back to the generative approach to model checking - we want to
+  recursively extract all the possible assertion traces from an assertion, with
+  the insight that we don't necessarily need to be lazy about it. We have a
+  length bound - an assertion trace that's longer than an event trace can't be
+  succesful as we're looking for a 1:1 match.
+* How do we want to go about doing this? Each type of assertion can have its
+  own way to extract a set of possible assertion traces up to a given length:
+  * Boolean or: union of all the disjunct cases
+  * Sequence: generate set for each sub-assertion up to a length, concat, filter
+  * Root exprs: singleton sets
+  * Null: empty set
+  * Subauto: recurse
+
+# 17/3/2017
+
+* I think my abstraction is slightly wrong on the model generation - sequences
+  and booleans can have multiple possibilities, so we need to return a
+  collection of generated models rather than just one.
+* So we need a way of turning a vector of sets of T into a vector of T by
+  choosing.
+* Type is: `vector<set<T>> -> set<vector<T>>`.
+* Trying to work this algorithm out but it's not going so well initially.
