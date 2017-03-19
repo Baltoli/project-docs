@@ -1156,3 +1156,37 @@
   choosing.
 * Type is: `vector<set<T>> -> set<vector<T>>`.
 * Trying to work this algorithm out but it's not going so well initially.
+
+# 18/3/2017
+
+* Got the basic form of the model generation algorithm working. Next step is to
+  add support for repeated sequences.
+* Can't check directly - need to filter traces for for the events that will
+  actually be checked by something in the automaton. Then we can compare traces
+  to models.
+* Basically we're back to the start now - we want to return a bool depending on
+  whether a root expression matches an event. This means we can simplify the
+  model-checking API by getting rid of recursion.
+* Need to double check my filtering idea for correctness.
+* Finished the generative model checking algorithm - at first glance it seems to
+  check the existing assertions just as effectively as the previous algorithm,
+  and (informally) seems to run a bit faster.
+* Possible problem when running on larger programs is that the generation of
+  models and traces consumes *a lot* of memory. For now I don't think this is a
+  problem, but it's worth noting as a future improvement. There should be some
+  decent avenues for improvement as we're very naive about how we generate the
+  sets.
+* Next thing to think about is the interface by which the static analyser can
+  call into the model checker. Currently the command line interface does it, but
+  it would probably be best to expose an actual API through a library that the
+  CLI tool and the static analyser can call into.
+* This API is just the same as what the command line tool does - it can just
+  instantiate a model checker and call the SafeUsages method to get the
+  information (need to construct an event graph and model checker for each usage
+  really).
+* The entry point problem is really an issue in the multithreaded context -
+  might be able to ignore it safely in a single threaded context (and just
+  choose `main` for a suitably high bound).
+* Also need to think about how we might go about picking bounds when running the
+  model checker (heuristic on the module or the assertions?).
+* Need to work out how to generalise to cyclic traces (prefix match?)
