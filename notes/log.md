@@ -1190,3 +1190,23 @@
 * Also need to think about how we might go about picking bounds when running the
   model checker (heuristic on the module or the assertions?).
 * Need to work out how to generalise to cyclic traces (prefix match?)
+
+# 19/3/2017
+
+* Looking at getting the static analyser hooked up to the model checking
+  interface.
+* Done lots of boilerplate code to get a new pass integrated into the static
+  analysis tool (note: would be nicer to have a base pass that allows subclasses
+  to implement `ShouldDelete(Usage *)`, and can then handle the boilerplate of
+  copying itself).
+* Have successfully managed to get the model checker running from within the
+  static analysis tool!
+* Implemented checking of cyclic traces (as a prefix matching check).
+* Ran the correctness test suite against the new generative model checker - it
+  has fixed the sequence bug, but the return constraint extension remains
+  important.
+* Next step is to try and work out how best to do return value constraints - it
+  is still holding back progress on completing the test suite.
+* Have done lots of thinking about return value constraints - arrived at what
+  seems like a solution involving strongest inferences for a basic block.
+* 
