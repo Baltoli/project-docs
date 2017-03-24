@@ -120,8 +120,53 @@ Then, the algorithm is basically:
 
 * Set the strongest inference for every block to `true` - this is the starting
   point for the algorithm, as it must underapproximate for every block.
-* Loop through every basic block in the function while changing:
-  * Set `changes` to false
-  * For each successor block, update the successor's inference:
-    * Logical or the current value with the branch constraint
-    * If this changed the successor, set `changes` to true
+* Loop through every basic block:
+  * Set the condition for the block to be `\/p. (branch(p->block) /\ cond(p))`
+  * How to get the branch condition?
+
+We get a terminator instruction by looping through the predicates of a basic
+block. Then, if we have one successor, the branch condition is const true. If we
+have two successors, then look at which one goes to the block we're interested
+in. If it's the first, then branch is true on the operand, else false.
+
+Don't do anything if we're looking at the entry block - its condition is const
+true whatever happens.
+
+## Comparing Conditions
+
+How do we decide if two conditions are actually equal? Obviously this is easy
+for ConstTrue and Branch conditions. For Or and And, I think a "stupid"
+quadratic algorithm will do the job well enough (on the assumption that there
+won't be that many conditions) - for each operand in one component, check if
+there exists an operand equal to it in the other.
+
+Maybe it would in fact be best to *normalise* rather than simplify an
+expression? Then we would have an easier time doing comparisons.
+
+## Conversion to CNF
+
+So we have a condition made up of propositions (ct, branches) that we want to
+convert into CNF. We can then simplify a CNF condition more easily because its
+structure is known.
+
+So how do we actually go about doing this conversion? Root propositions (branch,
+true) are already in CNF. 
+
+An AND expression is in CNF if:
+* There are no nested AND expressions - any that there are can be trivially
+  brought up to the top level recursively.
+* Every subexpression is in CNF
+
+An OR expression is in CNF if:
+* There are no nested OR expressions - again, they can be pulled out recursively
+  to the top level.
+* There are no AND subexpressions (i.e. it is a pure disjunction of roots)
+
+Then, an OR expression that *does* contain AND subexpressions can be converted
+into CNF by distributing over the AND. Of the structure of the OR, we know that
+each subexpression is either a root proposition or an AND. Then,
+* Convert each AND into CNF.
+* Then, generate a cartesian product over the ANDs (i.e. `(a&b) | (c&d)` will
+  become `(a|c) & (a|d) & (b|c) & (b|d)`.
+* Finally, distribute the non-AND OR terms over this cartesian product to get an
+  AND expression in CNF.

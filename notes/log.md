@@ -1209,4 +1209,26 @@
   is still holding back progress on completing the test suite.
 * Have done lots of thinking about return value constraints - arrived at what
   seems like a solution involving strongest inferences for a basic block.
-* 
+
+# 24/3/2017
+
+* Starting to work on building out the system for handling logical constraints
+  on function return values.
+* Now that the class hierarchy for conditions is fleshed out, the next step is
+  to compute the inference for a given function using the algorithm I worked out
+  previously.
+* It actually looks like I need to implement simplification and flattening
+  before I can implement the inference algorithm - this is because it requires
+  inferences to be simplified in order to deal with recursion (I think).
+* Note a further opportunity for simplification - splits on branch conditions.
+* Simplification could be taken further by moving to DNF / CNF, but this
+  involves introducing negation which I'm avoiding for now. Also, we can
+  eliminate any top-level const trues when simplifying ANDs.
+* Inference can be computed at the function-level, so we need to accept a
+  Function as a parameter and return a mapping from basic blocks to conditions.
+* The basic algorithm seems to be working fine - can get the results as expected
+  on simple graphs. The next step is probably to implement deduplication of
+  conditions so that the algorithm can actually iterate - at the moment you end
+  up with the same condition ANDed together with itself lots of times.
+* Note that this type of analysis loses a bunch of information about the
+  ordering of events - from `a=true /\ a=false`, what conclusions can we draw?
