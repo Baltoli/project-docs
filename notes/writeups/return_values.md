@@ -170,3 +170,10 @@ each subexpression is either a root proposition or an AND. Then,
   become `(a|c) & (a|d) & (b|c) & (b|d)`.
 * Finally, distribute the non-AND OR terms over this cartesian product to get an
   AND expression in CNF.
+
+So what extra parts do we need to add to the condition interface?
+
+* Methods for flattening AND / OR - no-op on every type except the named one.
+* Method for converting to CNF.
+* Get rid of simplified interface for now - once we have CNF, simplification is
+  much easier.

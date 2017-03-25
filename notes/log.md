@@ -1232,3 +1232,21 @@
   up with the same condition ANDed together with itself lots of times.
 * Note that this type of analysis loses a bunch of information about the
   ordering of events - from `a=true /\ a=false`, what conclusions can we draw?
+
+# 25/3/2017
+
+* Continuing to look at simplification and normalisation for stringest inference
+  terms.
+* Trying to find a betetr way of editing remotely - latency is killing me.
+* Worked out an rsync based workflow eventually - have also realised that
+  recording the CMake invocation I use to build TESLA is a good thing to record
+  somewhere.
+* Maybe worth noting that I seem to have found a fairly minimal incantation to
+  get TESLA to build properly - will be a useful jumping off point in the future
+  when I come to improve the documentation and portability.
+* Implemented conversion to CNF and some simplification - one last thing to do
+  is removing duplicates from ANDs, then equality can follow.
+
+# 26/3/2017
+
+* 
