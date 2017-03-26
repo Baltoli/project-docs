@@ -177,3 +177,36 @@ So what extra parts do we need to add to the condition interface?
 * Method for converting to CNF.
 * Get rid of simplified interface for now - once we have CNF, simplification is
   much easier.
+
+## Backwards Inference
+
+We want to map branch dependent values onto CallInsts by working backwards. For
+my test examples, the simplest version of this analysis will only allow
+backwards inference through binary logical operations where one operation is a
+constant (at least for now - the approach should be generalisable).
+
+The idea is that we start from a Value and a boolean constraint on its runtime
+value. Then, we examine the instruction and its operands to compute a constraint
+on another Value. If this is a CallInst, we're done. Otherwise, keep going
+backwards until the inference fails.
+
+I think this inference can only be considered within a single basic block, to
+avoid issues around the ordering of CallInsts.
+
+## Forward Propagation
+
+I think we would rather propagate constraints forwards to avoid situations like
+the block `%6` in `mult_acq` - the info from `%5` and `%9` reaches it at the
+same time and they get ORed together. We should start at the entry block and
+propagate forwards, maintaining a queue of successors to update (with some kind
+of loop threshold to control termination?)
+
+So with a suitable definition of equality and the right simplifications going
+in, I think that actually this forward propagation is the way to go (i.e. start
+at Or{} for each block, then Or your value onto each successor along with branch
+condition, and repeat until convergence).
+
+A key simplification is `A|A(&B) <=> A`, however best this can be implemented.
+This method will take us back away from conflating inferences with sequences
+(although maybe worth mentioning sequences in the writeup as another possible
+approach?)

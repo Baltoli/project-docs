@@ -1249,4 +1249,26 @@
 
 # 26/3/2017
 
+* Added some small things to the simplifier. Found a mysterious bug in which a
+  branch changes "polarity" when being simplified, but haven't managed to debug
+  it yet.
+* Looks like the problem is in the CNF conversion rather than simplification.
+* Fixed the frustrating bug - now need to re-examine the logical framwork in
+  which I'm examining this analysis (i.e. what AND / OR actually *mean*).
+* I think what I refer to as logical OR is really an accidental *ordering* on
+  events. As well as this, logical AND gives us a set of *possible* event
+  traces that could have happened. A sequence of TTT...F etc or just F.
+* The way the "CNF" simplification works, we end up sort of accidentally getting
+  length-n possible return sequences.
+* So how do we check these against a pairing of calls / return values?
+* The first step to work on here is to do backwards inference to map these
+  results back onto call return values. Start with the simple case of binary ops
+  with constants, then maybe do a speculative writeup of how it might be
+  extended.
+* Should also do some work to formalise what I've stumbled on here (i.e. write
+  it all down more precisely so that it can go into the dissertation).
+* Looking at an alternative propagation algorithm (forwards rather than
+  backwards) that should make ordering and tracing more explicit.
+* How to handle overlapping inferences? Maybe only allow backwards inference
+  within a basic block.
 * 
