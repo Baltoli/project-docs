@@ -210,3 +210,30 @@ A key simplification is `A|A(&B) <=> A`, however best this can be implemented.
 This method will take us back away from conflating inferences with sequences
 (although maybe worth mentioning sequences in the writeup as another possible
 approach?)
+
+How do we want to check for termination of the forwards propagation algorithm?
+The worked example I went through used a queue of blocks to recheck - maybe go
+until the queue is empty, only requeueing successor blocks if the value at a
+block has actually changed?
+
+So the algorithm steps are:
+* Initialize the entry block to `true`, as we know it is definitely reachable.
+  Then every other block is a "maybe" so we set them to `Or{}`.
+* Maintain a queue of blocks. Then loop until the queue is empty:
+  * Set each successor's inference to:
+    ```
+    previous_inf | (pred_inf & branch_cond)
+    ```
+  * Simplify the successor's inference
+  * If there has been a change to a successor block, enqueue it
+
+For the types of formulas we're getting out of this new algorithm, we should
+rethink how the simplification algorithm will work. What we get out of the
+current simplification step is something like:
+```
+(x | x | [x & y])
+```
+So the Shannon expansion algorithm is an actual deterministic way to simplify
+the inference expressions that we get out of the inference algorithm. In order
+to work with them efefctively, we need a bit more machinery for dealing with
+manipulations of boolean expressions.

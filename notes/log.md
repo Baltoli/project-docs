@@ -1271,4 +1271,27 @@
   backwards) that should make ordering and tracing more explicit.
 * How to handle overlapping inferences? Maybe only allow backwards inference
   within a basic block.
+
+# 27/3/2017
+
+* Starting to get the basic algorithm working for forward propagation of
+  inferences, but the simplifier needs some work. The ideal representation for
+  this kind of thing is obviously a BDD, but that's a lot of implementation
+  work. Worth noting as a future (summer?) improvement to this analysis.
+* What would a BDD version of these inferences look like? I think it would
+  probably require a major rewrite of the whole system unfortunately - probably
+  worth saving for future work.
+* Maybe looking at doing a Shannon expansion on the resulting inference? Then
+  once the variables are pulled out, the resulting expressions are just over
+  const true / false and can be simplified really easily.
+* Will need to implement mechanisms for substitution, free checking etc.
+* Implemented some of this stuff - next step is to fix up checking for const
+  expressions so that it actually works, and then to use that to automatically
+  simplify expressions when we split on them. Also need to implement
+  simplification of AND / OR when they contain opposing branches.
+* Worked on improving the simplifier some more. I think the opposing branches
+  improvement should knock it over the edge of being useful.
+
+# 28/3/2017
+
 * 
