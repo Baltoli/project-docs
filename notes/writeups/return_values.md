@@ -237,3 +237,85 @@ So the Shannon expansion algorithm is an actual deterministic way to simplify
 the inference expressions that we get out of the inference algorithm. In order
 to work with them efefctively, we need a bit more machinery for dealing with
 manipulations of boolean expressions.
+
+## Implication Checking
+
+Because doing arbitrary simplifications is quite hard, an alternative view of
+the problem is to *check* what a particular inference formula implies. For
+example, we might have the formula
+```
+([0x802446cb0=true & 0x802446ad0=false] | 
+ [0x802446cb0=false & [0x802446ad0=false & 0x802446cb0=false]])
+```
+which is obviously equivalent to
+```
+0x802446ad0=false
+```
+but a simplifier has a hard time actually getting there (without making the
+switch to a full BDD-based algorithm, which might be worthwhile for future work
+as previously noted). An implication check is driven by the fact we want to
+examine (which has been previously extracted from the model checker). For
+example, does:
+```
+([0x802446cb0=true & 0x802446ad0=false] | 
+ [0x802446cb0=false & [0x802446ad0=false & 0x802446cb0=false]])
+ ==> 0x802446ad0=false
+```
+The truth table for `x ==> y` is:
+```
+x | y | x ==> y
+---------------
+0 | 0 |   1
+1 | 0 |   0
+0 | 1 |   1
+1 | 1 |   1
+```
+How do we check this implication algorithmically? First thing I can think of is
+to eliminate variables we don't care about. Doing this will give us a set of
+formulae in which the only variable left is the one we're checking for
+implication. In the case of the formula given above, the two alternatives we get
+here are:
+```
+([true & 0x802446ad0=false] | [false & [0x802446ad0=false & false]])
+([false & 0x802446ad0=false] | [true & [0x802446ad0=false & true]])
+```
+This is exponential in the number of branch conditions we're checking, but that
+shouldn't be too terrible for now (and we can look at smarter ways if really
+necessary). Now, the implication check can be carried out by valuations on the
+remaining variable.
+
+I think the only important case is to check when `y=0` (i.e. substituting
+`false` into each valuation should always yield false). From above, this gives
+us:
+```
+([true & false] | [false & [false & false]])
+([false & false] | [true & [false & true]])
+```
+These both obviously evaluate to false, so the implication holds.
+
+Key steps:
+* Generate every possible valuation over the variables other than the one we're
+  interested in.
+* Check that every valuation evaluates to false when the variable we want is set
+  to false as well.
+
+What is this formally (i.e. rearranging variables?). I think what I'm doing is
+really checking:
+```
+(~y ==> ~x) ==> (x ==> y)
+```
+This is just taking the contrapositive and so it holds trivially. The algorithm
+is therefore true.
+
+## Checking against a model
+
+So how do we actually go about checking these inferences against the extracted
+requirements from the model checker?
+
+An inference on a basic block tells us that "previously, return value `x` *must*
+have been observed". A return value sequence constraint tells us that these
+return values must be observable. This return value sequence is extracted from a
+trace - so all we need to do is check that the basic blocks followed by that
+trace provide us with exactly the sequence of constraints that we need! All the
+information is there ready to use (don't even need to do a graph search, I don't
+think!).

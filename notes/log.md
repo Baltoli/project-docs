@@ -1294,4 +1294,28 @@
 
 # 28/3/2017
 
+* Made a templated, generic version of the simplification routine so that the
+  dual structure between AND / OR isn't left to copy / paste.
+* There are still some cases that don't get handled properly by this
+  simplification - maybe should look at the problem from a slightly different
+  angle. Doing arbitrary simplification will always be hard without completely
+  going down the canonicalisation / BDD route.
+* Worked out an implication checking algorithm that "answers a question".
+* I think the simplification check can be left as-is for now - simpler formulas
+  are better for debugging, even if they aren't quite normalised.
+* Need to also work out how best to do termination checking on the forwards
+  propagation - maybe a change in the implied branches?
+* Got the implication check working - can now enumerate the branch conditions
+  that are implied at each basic block.
+* This allows the iterate-to-convergence algorithm to work properly by comparing
+  implied sets. Additionally, simplification is now just an optimisation (as
+  without making at least an attempt to simplify at each step, the size of the
+  formula being examined becomes unwieldy).
+* One thing to look at in the writeup is a nicer formalisation of this stuff -
+  can I make it neater than looking at binary boolean operations?
+* Interesting question: what about "maybe" conditions that the implication holds
+  for sometimes but not always? I think the solution here is to separate the
+  sets into "must have" and "could have" (i.e. in all models / in some models).
+* Implemented the basic backwards inference to CallInsts. Could be extended in
+  the future.
 * 
