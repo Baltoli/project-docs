@@ -1318,4 +1318,22 @@
   sets into "must have" and "could have" (i.e. in all models / in some models).
 * Implemented the basic backwards inference to CallInsts. Could be extended in
   the future.
+
+# 29/3/2017
+
+* Begin to integrate inferences with the actual model checking implementation.
+  It probably makes sense to move the implication checking and backwards search
+  into the inference code so that the interface is a little clearer and we don't
+  have to expose the boolean formula stuff externally.
+* Starting to think about how to do the return value checking against a trace -
+  turning out to be a little bit trickier than I'd thought it would be.
+* Lots of working out how to get these pieces to fit together.
+* Should refactor the model checker constructor so that it builds the event
+  graph itself, rather than having it passed in.
+* Finished hacking together the basic block graph implementation and tying it
+  into the inference code. Next step is to add a graph search that looks to
+  match a sequence of inferences against the basic block graph.
+
+# 30/3/2017
+
 * 

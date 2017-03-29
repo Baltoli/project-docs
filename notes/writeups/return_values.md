@@ -319,3 +319,44 @@ trace - so all we need to do is check that the basic blocks followed by that
 trace provide us with exactly the sequence of constraints that we need! All the
 information is there ready to use (don't even need to do a graph search, I don't
 think!).
+
+Some thoughts on how this checking process will actually need to work. From the
+model generator we get a sequence of `Function`s associated with a return value.
+Similarly, from the inference mechanism, we can map a basic block onto the
+function return values that must have happened previously for execution to be in
+that basic block. The question is then how do we check the model's return value
+sequence against the possible assertions seen?
+
+So module graph generation goes `BB -> instructions -> module`. What if we added
+inference information to each basic block at the time it's constructed, then
+propagate that information as the graph is expanded?
+
+I think that all the information I need to check these properties is around
+somewhere in the system, it's just not in the right format or in the right
+place.
+
+Traces that we check are abstract of the particular instructions that generated
+the events (although modifications could be made in order to rectify that). This
+means that there's not an easy way to map events onto inferences as we'd like
+to.
+
+I think that entry and exit events need to be asociated with a CallInst rather
+than just a Function (for greater specificity). Done this.
+
+Let's construct the module basic block graph. This will give us the basic
+structure that we'll need to be checking things against I think - if we phrase
+the question as "is there a path such that these return values are certain" then
+I think we can check it.
+
+What do we want to put in this graph? We want to start with the basic block
+graph for the root function. Need to have entry and exit added to make these
+graphs spliceable. Now have spliceable basic block graphs - next step is to
+start at the root and build up to a specified depth.
+
+So now we have a slightly hacked-together implementation of the basic block
+graph that includes inferences on the basic blocks. The final step in putting
+this all together is to check the generated return value sequences against the
+basic block graph. To do this, we generate the expanded basic block graph from
+the bound function, then search it for a sequence of blocks whose assertions
+match the ones we care about seeing. Tomorrow, can start to work on the
+implementation of this.
