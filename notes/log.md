@@ -1,6 +1,6 @@
-# Part III Project Work Log & Notes
+# Part III Project Work Log & Notes
 
-## 24/11/16
+### 24/11/16
 
 * Build TESLA on both remote and local machines - it would be good to be able to
   work on both (if ssh is slow or compile times are a problem).
@@ -80,7 +80,7 @@
   * The instrumented files can then be compiled using `llc` into a binary as
     normal, with the TESLA functionality included.
 
-## 2/12/2016
+### 2/12/2016
 
 * Got set up on the development server by Khilan - managed to get TESLA building
   and installing into a home directory appropriately.
@@ -92,7 +92,7 @@
 * Begun to look into building some very simple TESLA assertions on a small
   program.
 
-## 3/12/2016
+### 3/12/2016
 
 * Continued to work on very simple examples learning to use TESLA. Found that
   the documentation is out of date in a number of places:
@@ -111,7 +111,7 @@
     extra parameter for the return value. Why can't you do
     `call(foo(ANY(int)))`? Ask Jon.
 
-## 5/12/2016
+### 5/12/2016
 
 * Did some more digging into why explicit automata descriptions aren't working
   for me. No real answers yet - the symptom is that I have an undefined name in
@@ -120,7 +120,7 @@
   emailed Jon for clarification / help but no answer yet. The next place to look
   is probably trying to find out what is meant to replace the global variable.
 
-## 15/12/2016
+### 15/12/2016
 
 * Still no reply from Jon. Should get Robert to prod him. Looking into why I get
   these linker errors with a much-simplified example. Seems that the
@@ -150,7 +150,7 @@
   working to get CMake not to break but now it works. Next step: modelling
   simple locks.
 
-## 16/12/2016
+### 16/12/2016
 
 * Begin to work on getting a very simple model of locks verified. Set up project
   structure etc. Convenience macro for TESLA struct field accesses (might be
@@ -168,7 +168,7 @@
 * Using two or more locks: I think strict mode might be a problem here. How to
   fix this?
 
-## 17/12/2016
+### 17/12/2016
 
 * Looking into how I can use `tesla-print` to get `.dot` files for debugging.
   Managed to get graphviz on OS X to output me a file. Workflow is a little bit
@@ -193,13 +193,13 @@
 * Also worth thinking about what properties (in a formal sense) this
   implementation allows me to verify.
 
-## 18/12/2016
+### 18/12/2016
 
 * Small amount of work looking into the lifetime automata but to no real
   progress - I can get them to compile but their definitions seem to somehow be
   different to regular 'in-function' automata. Shelving this for now.
 
-## 19/12/2016
+### 19/12/2016
 
 * Begin looking into how static analysis can be performed on TESLA automata,
   starting with the example of a single lock being acquired and released.
@@ -249,7 +249,7 @@
 * Implemented a few small misbehaving programs to demonstrate the kinds of
   behaviour that the lock automata attempt to catch.
 
-## 20/12/2016
+### 20/12/2016
 
 * Finished off writing example programs that show the behaviour of my simple
   lock automata (successful / good path as well as several 'failed' examples).
@@ -318,7 +318,7 @@
     program from a single .bc file (and analysis can be done on this
     individually).
 
-## 21/12/2016
+### 21/12/2016
 
 * Got the boilerplate set up for the static analysis tool (very similar to
   `tesla-instrument`). It is now able to load a manifest and an IR file from
@@ -354,7 +354,7 @@
   be done is walk the root automata for things that are `acq_rel` (if it's
   included), then delete (don't pass on) root automata if the analysis succeeds.
 
-## 22/12/2016
+### 22/12/2016
 
 * The `cat` tool generates a new file by directly writing the textual
   representation of a `ManifestFile` to disk. It seems to be valid to initialize
@@ -409,7 +409,7 @@
   * Then once we have a way of recognizing usages of `acq_rel`, the next step is
     to pick out the bounds of each usage and do the analysis on the IR.
 
-## 23/12/2016
+### 23/12/2016
 
 * Today: work on recognizing usages of `acq_rel` in an automaton root. Want a
   function that takes a root usage, and returns true if it is an instance of
@@ -458,7 +458,7 @@
     is *adding to* the manifest data to suggest approaches to the
     instrumentation pass.
 
-## 13/1/2017
+### 13/1/2017
 
 * Back working on TESLA after a break to do coursework post-christmas. Meeting
   with Robert earlier today in which we discussed the work that I've been doing
@@ -498,7 +498,7 @@
       manifest itself first. Should look at why the incorrect branch makes two
       goes round the function!
 
-## 14/1/2017
+### 14/1/2017
 
 * Fixed the parser regression identified yesterday. The solution was to add an
   extra parameter to the argument parsing methods so that they can be
@@ -516,7 +516,7 @@
   so that TESLA can be rebuilt and installed easily if the experiment build is
   broken, without having to change code.
 
-## 15/1/2017
+### 15/1/2017
 
 * Added the experimental on / off flags that allow TESLA to be rebuilt and
   installed if the experiments are breaking the build.
@@ -535,7 +535,7 @@
   usages of `acq_rel` are deleted).
 * Looked into the usage of field assignments as assertion bound events.
 
-## 16/1/2017
+### 16/1/2017
 
 * Looked into how the variable names in an assertion site are mapped onto LLVM
   `Value` objects. Found the mechanism that does this by searching all of the
@@ -546,7 +546,7 @@
   to get the appropriate information out of the usage and module.
 * Fixed that annoying CMake install problem for the experiments directory.
 
-## 17/1/2017
+### 17/1/2017
 
 * Next step is to rip out the part of the instrumenter that maps variable names
   onto an LLVM `Value`. Have implemented this and moved the appropriate parts
@@ -557,7 +557,7 @@
 * Realised that my pass construction interface isn't quite right, and I need to
   actually give an `Automata`.
 
-## 18/1/2017
+### 18/1/2017
 
 * Rewired stuff to pass an `Automaton` instance into the LLVM pass so that the
   argument information can be accessed.
@@ -573,14 +573,14 @@
   to the acquire and release functions *only* use the variable named in the
   assertion.
 
-## 19/1/2017
+### 19/1/2017
 
 *  Big achievement for the day is getting the project to build without errors on
    LLVM 3.4. It doesn't look like it'll be easy to get it updated further
    because of incompatibilities with the CMake system that I haven't been able
    to resolve yet.
 
-## 23/1/2017
+### 23/1/2017
 
 * Worked out how to get call graph information out of the corresponding LLVM
   pass.
@@ -593,7 +593,7 @@
 * Added some TODOs and questions about the static analysis methodology, and the
   `OtherLock` analysis.
 
-## 24/1/2017
+### 24/1/2017
 
 * Finished factoring out the "Other Lock Used" static analysis into its own
   self-contained implementation. The next step will be to write more of these
@@ -609,7 +609,7 @@
 * Added a failing example for the case when a lock is released before being
   acquired, and begun to work on the analysis of this behaviour.
 
-# 25/1/2017
+## 25/1/2017
 
 * Today working on the analysis that checks for release-before-acquire of a
   lock. Implemented this and seen it working on the example written yesterday to
@@ -624,14 +624,14 @@
   hassling the LLVM stuff to work.
 * Begun to work on this data structure to save on LLVM pain.
 
-# 26/1/2017
+## 26/1/2017
 
 * Implemented the simpler call graph structure and started to use it in the call
   order analysis.
 * Realised that my approach to this is actually a bit wrong and have had to
   think about how to improve it (problem is ordering, really).
 
-# 27/1/2017
+## 27/1/2017
 
 * Rethought some of the problems identified yesterday (with dominance vs. call
   graph analysis), and realised that it is possible to reconcile the two into a
@@ -640,7 +640,7 @@
   thoughts have been written up as notes.
 * Finalised the call order analysis with a useful warning message.
 
-# 28/1/2017
+## 28/1/2017
 
 * Noted that using a lock asserted about only once is covered by the RBA
   analysis.
@@ -651,7 +651,7 @@
   I've used so far.
 * Begun to implement a way of computing BB reachability within a function.
 
-# 29/1/2017
+## 29/1/2017
 
 * Implemented the reachability graph check for getting from one basic block to
   another.
@@ -665,7 +665,7 @@
   the optimised version. A next step would be to fix an actual benchmark and get
   some results into a graph etc.
 
-# 30/1/2017
+## 30/1/2017
 
 * Identified that the multiple acquire example actually does need the FF...T
   analysis example to be recognised (as before it was in a weaker form that
@@ -677,13 +677,13 @@
 * Started to think about benchmarking and profiling an example to show the
   benefit of removing locks.
 
-# 31/1/2017
+## 31/1/2017
 
 * Looked more into how callgrind can be used to get program costs - should
   confirm this with Robert as a viable benchmarking method. Collected the data
   from the callgrind runs for 10 threads.
 
-# 3/2/2017
+## 3/2/2017
 
 * Meeting with Robert - chatted about benchmarking strategies for synthetic
   examples for the mutex analysis. Callgrind seems viable for simple examples,
@@ -700,7 +700,7 @@
   instrument etc.
 * Ran into some errors when compiling FreeBSD.
 
-# 4/2/2017
+## 4/2/2017
 
 * Added methods to the Manifest class that allow for automata search that
   doesn't panic if they aren't found. Updated current code to use these new
@@ -709,7 +709,7 @@
   on the expected examples.
 * Started to think about call sequence analysis.
 
-# 5/2/2017
+## 5/2/2017
 
 * Trying to build the CADETS version of the kernel rather than the TESLA
   version. The problem I was experiencing yesterday seemed to be to do with
@@ -726,7 +726,7 @@
 * Did a lot more digging into the Makefile problems that are stopping me from
   being able to build the kernel with TESLA enabled.
 
-# 6/2/2017
+## 6/2/2017
 
 * Spent lots of time tracking down an annoyingly subtle bug in the code for
   transitive-once-calls.
@@ -735,7 +735,7 @@
   properties of the program? Has other benefits like counterexample generation
   etc. Definitely worth looking into in some detail.
 
-# 7/2/2017
+## 7/2/2017
 
 * Wrote up a starting note about the model-checking approach.
 * Started to do some background reading on model checking for C programs.
@@ -746,7 +746,7 @@
   faster than the instrumented version. Need to verify, but it seems like the
   difference increases with contention as would be expected.
 
-# 8/2/2017
+## 8/2/2017
 
 * Collected some actual performance data for the instrumented vs. uninstrumented
   versions of the acquire-release automaton.
@@ -755,7 +755,7 @@
 * Reviewed a few of the papers identified as possibly being relevant.
 * Fiddled with benchmarks to try to get better data.
 
-# 9/2/2017
+## 9/2/2017
 
 * More fiddling with benchmarks to try to get more compelling data.
 * Continued with lit review.
@@ -763,7 +763,7 @@
   to the locks benchmark.
 * Begun to work out what I want a model checking tool to be able to achieve.
 
-# 10/2/2017
+## 10/2/2017
 
 * Meeting with Robert. Worked out that Jon should be able to log into a CL login
   server, and from there take a look at my failing FreeBSD compilation. Should
@@ -784,12 +784,12 @@
   that only gets triggered on lock contention.
 * Have kicked off a larger benchmark.
 
-# 13/2/2017
+## 13/2/2017
 
 * Worked on model checking implementation - started to flesh out data structures
   and look at what format the data will be in.
 
-# 14/2/2017
+## 14/2/2017
 
 * Big chunk of work on model building - can extract a model from basic blocks
   and functions that shows event flow.
@@ -798,7 +798,7 @@
   techniques.
 * Written an instruction graph finder for an individual function.
 
-# 16/2/2017
+## 16/2/2017
 
 * Big chunk of work on the generic graph implementation - I now have a reliable
   (!) way of transforming instruction graphs depending on how they are required.
@@ -817,7 +817,7 @@
   appropriate. That can then all be wrapped up in a more convienient / less
   low-level wrapper to get useful information out of (if needed).
 
-# 17/2/2017
+## 17/2/2017
 
 * Improved the graph stuff quite a lot - almost at the point where I can
   reliably extract an entry / exit graph from a complete module.
@@ -830,7 +830,7 @@
   iterate-until convergence loop I have is the recursion depth control (i.e. how
   many times it runs!). So after a certain depth would just get to call nodes.
 
-# 20/2/2017
+## 20/2/2017
 
 * Working on a clone implementation for events so that I can have different
   paths for different instantiations.
@@ -842,7 +842,7 @@
 * Worked out that all the stuff about cloning was stupid - we had a way of
   making copies available for free (rather than caching!)
 
-# 21/2/2017
+## 21/2/2017
 
 * Extended the graph implementation so that it can extract assertion site events
   as well as function entry / exit events.
@@ -852,7 +852,7 @@
 * Started to implement the model checking algorithm for the subset of states
   that we care about at the moment.
 
-# 23/2/2017
+## 23/2/2017
 
 * Implemented my template-hacky version of generic traversal of the successors
   of a particular node.
@@ -867,11 +867,11 @@
   paths is very simple.
 * Would need a way of generating paths of a given length through the graph.
 
-# 24/2/2017
+## 24/2/2017
 
 * Built a small tool to extract finite-length traces from an IR module.
 * Need to do some thinking about how to treat looping states - one possible way
-  is to look at Büchi automata together with a way of recognising a trace as
+  is to look at B chi automata together with a way of recognising a trace as
   being an "infinite" loop (ie. if it cycles some subsequence all the way until
   the end). Note: it's OK to have an infinite loop! If we loop infinitely
   without ever violating an assertion, then the program is in a state where it
@@ -884,14 +884,14 @@
 * So we want an algorithm that looks at terminating traces and checks them
   against a TESLA automaton.
 
-# 25/2/2017
+## 25/2/2017
 
 * Wrote up a bit about how the sequence checker should be working in practice,
   as well as the subtleties involved with getting it right. I think the
   `mult_acq` failures I was noticing are probably to do with the "forgotten
   start" problem, but need to verify that.
 
-# 28/2/2017
+## 28/2/2017
 
 * Improved the API for the model checking algorithm.
 * Started to pick apart the sequence checking that we need to be doing to detect
@@ -905,7 +905,7 @@
   go later.
 * Worked out how repetition in a sequence will be handled.
 
-# 1/3/2017
+## 1/3/2017
 
 * Realised yesterday evening that the solution to my problems is to separate out
   completeness and correctness in the specification of my checker. The idea is
@@ -923,7 +923,7 @@
   go into the writeup as a demonstration of worst case / best case performance
   when using the tool.
 
-# 2/3/2017
+## 2/3/2017
 
 * Jon got back to me regarding build failures for the FreeBSD kernel - he has
   been able to build it successfully so it sounds like I've probably been doing
@@ -941,7 +941,7 @@
 * Lots of thinking about what we're actually able to / want to show using a
   constraint system on return values.
 
-# 3/3/2017
+## 3/3/2017
 
 * Done some more thinking about how to improve the interface to the model
   checker. The key point is that we want to recursively generate root checks,
@@ -956,7 +956,7 @@
   that the return type from a checker will include a map from events to
   expressions. Completeness follows easily from merging these maps.
 
-# 7/3/2017
+## 7/3/2017
 
 * Begun to work on improving the model checking algorithm for sequences, though
   it does remain quite complicated.
@@ -986,7 +986,7 @@
   one of the expressions matches, then the whole thing will do. Treat it as such
   for now and revisit if we find breaking cases.
 
-# 8/3/2017
+## 8/3/2017
 
 * Investigating a library / app I can instrument with TESLA and then show
   improvements when statically checked.
@@ -1009,7 +1009,7 @@
 * What about some kind of server? Think up a task that could be achieved by a
   server and work out some assertions that can go on hot code paths.
 
-# 9/3/2017
+## 9/3/2017
 
 * Worked more on implementing basic stuff that will underpin the client / server
   example. Will be at the point soon where a full protocol negotiation can take
@@ -1020,7 +1020,7 @@
   and the client will be similar (with the difference being that the client
   starts by sending a message and the server by receiving).
 
-# 10/3/2017
+## 10/3/2017
 
 * So the current architecture for the embeddable server raises an interesting
   demonstration of why TESLA is useful - control flow is *data dependent*.
@@ -1036,7 +1036,7 @@
   up because there's an argument count mismatch. Should try converting this
   function to take a pointer and see if that makes a difference.
 
-# 11/3/2017
+## 11/3/2017
 
 * Investigated the `send_packet` problem - it does seem to be a limitation in
   TESLA when looking at pass-by-value structure types (as I've seen before in
@@ -1070,7 +1070,7 @@
   linear in the number of connections (as would be expected, as all the blocking
   tasks need to be serialised), but the runtime is 5% better regardless.
     
-# 12/3/2017
+## 12/3/2017
 
 * Fixed up the git repo a bit as some branches with work in progress were a long
   way behind master.
@@ -1078,7 +1078,7 @@
   read packets successfully! tshark verifies that it sees TCP SYN packets
   arriving at the interface.
 
-# 13/3/2017
+## 13/3/2017
 
 * Meeting with Robert - talked about the possibility of instrumenting a
   user-mode network stack, and he agreed that it is a definite avenue for
@@ -1094,14 +1094,14 @@
 * Idea of LWIP seems to be that by providing hooks, you can attach the
   implementation to whatever device driver you want.
 
-# 14/3/2017
+## 14/3/2017
 
 * Worked on getting LWIP built with TESLA - eventually have managed to get it to
   a point where the core LWIP static library can be built with TESLA enabled.
   Next step is to build a small example application that uses LWIP and make sure
   it will all run etc.
 
-# 15/3/2017
+## 15/3/2017
 
 * Running into mysterious compilation problems so have taken a step back and got
   the unix suite up and running without TESLA - have verified that I can send
@@ -1129,7 +1129,7 @@
   instrumentation can be added to the TCP stuff inside, and do comparative
   benchmarking
 
-# 16/3/2017
+## 16/3/2017
 
 * Wrote mid-term project report and sent it off to Robert.
 * Emailed Mycroft enquiring about a meeting to discuss what I've been working on
@@ -1147,7 +1147,7 @@
   * Null: empty set
   * Subauto: recurse
 
-# 17/3/2017
+## 17/3/2017
 
 * I think my abstraction is slightly wrong on the model generation - sequences
   and booleans can have multiple possibilities, so we need to return a
@@ -1157,7 +1157,7 @@
 * Type is: `vector<set<T>> -> set<vector<T>>`.
 * Trying to work this algorithm out but it's not going so well initially.
 
-# 18/3/2017
+## 18/3/2017
 
 * Got the basic form of the model generation algorithm working. Next step is to
   add support for repeated sequences.
@@ -1191,7 +1191,7 @@
   model checker (heuristic on the module or the assertions?).
 * Need to work out how to generalise to cyclic traces (prefix match?)
 
-# 19/3/2017
+## 19/3/2017
 
 * Looking at getting the static analyser hooked up to the model checking
   interface.
@@ -1210,7 +1210,7 @@
 * Have done lots of thinking about return value constraints - arrived at what
   seems like a solution involving strongest inferences for a basic block.
 
-# 24/3/2017
+## 24/3/2017
 
 * Starting to work on building out the system for handling logical constraints
   on function return values.
@@ -1233,7 +1233,7 @@
 * Note that this type of analysis loses a bunch of information about the
   ordering of events - from `a=true /\ a=false`, what conclusions can we draw?
 
-# 25/3/2017
+## 25/3/2017
 
 * Continuing to look at simplification and normalisation for stringest inference
   terms.
@@ -1247,7 +1247,7 @@
 * Implemented conversion to CNF and some simplification - one last thing to do
   is removing duplicates from ANDs, then equality can follow.
 
-# 26/3/2017
+## 26/3/2017
 
 * Added some small things to the simplifier. Found a mysterious bug in which a
   branch changes "polarity" when being simplified, but haven't managed to debug
@@ -1272,7 +1272,7 @@
 * How to handle overlapping inferences? Maybe only allow backwards inference
   within a basic block.
 
-# 27/3/2017
+## 27/3/2017
 
 * Starting to get the basic algorithm working for forward propagation of
   inferences, but the simplifier needs some work. The ideal representation for
@@ -1292,7 +1292,7 @@
 * Worked on improving the simplifier some more. I think the opposing branches
   improvement should knock it over the edge of being useful.
 
-# 28/3/2017
+## 28/3/2017
 
 * Made a templated, generic version of the simplification routine so that the
   dual structure between AND / OR isn't left to copy / paste.
@@ -1319,7 +1319,7 @@
 * Implemented the basic backwards inference to CallInsts. Could be extended in
   the future.
 
-# 29/3/2017
+## 29/3/2017
 
 * Begin to integrate inferences with the actual model checking implementation.
   It probably makes sense to move the implication checking and backwards search
@@ -1334,7 +1334,7 @@
   into the inference code. Next step is to add a graph search that looks to
   match a sequence of inferences against the basic block graph.
 
-# 30/3/2017
+## 30/3/2017
 
 * Finished implementing a basic version of the return value sequence check. It's
   very, very slow but is able to check return value constraints properly
