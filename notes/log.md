@@ -1336,4 +1336,26 @@
 
 # 30/3/2017
 
+* Finished implementing a basic version of the return value sequence check. It's
+  very, very slow but is able to check return value constraints properly
+  (finally feature-complete with respect to the hand-coded analyses).
+* Now that the model checker works with respect to the test suite, possible next
+  steps to take are:
+  * Investigate adding TESLA assertions to LWIP / parallel sort
+  * Begin to properly formalise the algorithms in the model checker
+  * Think of a better way to prove a sequence isn't observable (SMT?)
+  * Characterise model-checker performance
+  * Try to make the model checker faster
+  * Lit review to try and find interesting material
+* Worked on fixing the catastrophic exponential performance - using a disproof
+  method that aims to find impossible assertion bigrams in the basic block
+  graph. I think there is still room for improvement here as there's a lot of
+  recomputation.
+* Hoisted the bigram computation out of the checking function. This makes things
+  a little faster again.
+* While I'm at home and the latency isn't good enough for interactive usage of
+  `nikola02`, I think a useful next step would be to start to look at formally
+  stating what I've done to check the TESLA assertions, and try to poke holes
+  in it from a theoretical standpoint. As well as that, a bit of reading to get
+  context and terminology sorted out would be a good idea.
 * 

@@ -360,3 +360,22 @@ basic block graph. To do this, we generate the expanded basic block graph from
 the bound function, then search it for a sequence of blocks whose assertions
 match the ones we care about seeing. Tomorrow, can start to work on the
 implementation of this.
+
+How do we want to actually do this graph search? We have the sequence of
+inferences that we want to match. We know that the entry to the basic block
+graph is at the bound function, so we just start there and walk through the
+graph looking for nodes in order that match our predicates.
+
+We have an algorithm that works, but is exponential in performance. This means
+that checking models with lengths > ~40 becomes totally infeasible. We need a
+better way of doing this. Can we take advantage of the fact that there's only a
+few different assertions in the graph?
+
+Better approach: the constraint sequence is *strict*: it specifies for a set of
+`CallInst`s, exactly the return values we expect to observe. So we can
+*disprove* such a sequence by finding an impossible bigram in the constraint
+sequence, where one is impossible if the first element does not have the second
+element in its following-set (the set of inferences that can become true after
+the block we're looking at).
+
+Also need the occurrence check.
