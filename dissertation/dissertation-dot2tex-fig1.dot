@@ -1,0 +1,10 @@
+      digraph G  {
+        node[style=n]
+        secret [style=invis]
+        subgraph cluster_accept {
+          accept [style=m]
+          start -> accept
+        }
+        secret -> start
+      }
+    
