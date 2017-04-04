@@ -1377,10 +1377,20 @@
 * Doing a bit of LaTeX setup so that I can get this stuff down into an
   approximation of a section.
 
-# 3/1/2017
+# 3/4/2017
 
 * Looking to try and implement an FSM library that I can use to improve the
   initial model checking algorithm - we don't need to generate every possible
   accepting sequence, just check whether or not a trace is accepted by the
   machine.
-* 
+* Implemented a big chunk of the FSM algorithms (NFA -> DFA etc.).
+
+# 4/4/2017
+
+* Worked on integrating the FSM library into TESLA - can now construct a DFA
+  with edges labelled by TESLA root assertions. The next step is to check input
+  sequences against these machines, and to add a transducer method that allows
+  us to output a sequence of constraints as a trace is checked against the
+  machine.
+* Should look into Buchi automata now that we have a more explicit notion of
+  cycles.
