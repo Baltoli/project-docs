@@ -36,4 +36,33 @@
     \newpage}
 
 \usepackage{tikz}
-\usetikzlibrary{arrows,automata,positioning,fit}
+\usetikzlibrary{arrows,automata,positioning,fit,calc}
+
+\usepackage{csquotes}
+
+\tikzstyle{sourcefile}=[%
+draw,
+align=center,
+color=black,
+minimum width=10mm,
+minimum height=14.1mm,
+shape=rectangle
+]
+
+\makeatletter
+\newcommand{\settowidthofnode}[2]{%
+  \pgfpointanchor{#2}{center}%
+  \unskip
+  \setlength{#1}{\pgf@x}%
+  \pgfpointanchor{#2}{text}
+  \unskip
+  \addtolength{#1}{-\pgf@x}%
+  \addtolength{#1}{#1}%
+}%
+\newcommand{\shrinktowidthofnode}[2]{%
+  \begingroup
+  \settowidthofnode{\pgf@xb}{#2}%
+  \resizebox{\pgf@xb}{!}{#1}%
+  \endgroup
+}%
+\makeatother

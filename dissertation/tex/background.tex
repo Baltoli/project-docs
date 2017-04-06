@@ -1,6 +1,138 @@
-\section{Original Paper}
+In this chapter I give a summary of previous work related to TESLA on which this
+project builds, a short overview of the practical issues associated with using
+TESLA and an introduction to the TESLA assertion language used throughout this
+report. I also give an overview of the theoretical background to important
+techniques used in the implementation of this project.
 
-\section{TESLA Assertions}
+\section{Summary of Existing Work}
+
+\begin{displaycquote}[p. 1]{anderson_tesla:_2014}
+TESLA is a description, analysis, and validation tool that allows systems
+  programmers to describe expected temporal behaviour in low-level languages
+  such as C.
+\end{displaycquote}
+
+\textcite{anderson_tesla:_2014} introduce TESLA as a tool for validating
+safety\footnote{A \emph{safety} property asserts that ``bad things'' do not
+happen during the execution of a program, while a \emph{liveness} property
+asserts that ``good things'' do eventually happen
+\cite{lamport_proving_1977,alpern_defining_1984}.} properties of systems code.
+These safety properties are written inline to the program they describe, and are
+checked at runtime by means of an extended compilation process that adds
+instrumentation to the intermediate representation of a program.
+
+In this paper, the authors contribute a toolchain for adding TESLA
+instrumentation to a program (and the associated runtime implementation), a
+number of case studies to which TESLA was fruitfully applied and a discussion of
+the runtime and compile-time performance impact of TESLA.
+
+\section{Programming with TESLA}
+
+\subsection{Build Process}
+
+Using TESLA to instrument a program requires that the build process for the
+program is modified in order to produce the intermediate products required by
+the TESLA toolchain. \autoref{fig:c-compilation} shows the traditional
+compilation model for C programs, while \autoref{fig:c-tesla-compilation} shows
+the additional steps required by TESLA.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \node [sourcefile] (source1) {\texttt{.c}};
+
+    \node [sourcefile, right=3em of source1] (obj1) {\texttt{.o}};
+
+    \draw[-latex] (source1.east) -- (obj1.west);
+
+    \node [right=3em of obj1] (exe) {executable};
+
+    \draw[-latex] (obj1.east) -- (exe.west);
+  \end{tikzpicture}
+  \caption{The traditional C compilation model}
+  \label{fig:c-compilation}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \node [sourcefile] (source1) {\texttt{.c}};
+
+    \node [right=5em of source1] (mid) {};
+    \node [sourcefile, above=1em of mid] (bc1) {\texttt{.bc}};
+    \node [sourcefile, below=1em of mid] (tesla1) {\texttt{.tesla}};
+
+    \draw[-latex] (source1.east) to [out=0,in=180] (bc1.west);
+    \draw[-latex] (source1.east) to [out=0,in=180] (tesla1.west);
+
+    \node [sourcefile,right=5em of mid] (bc2) {\texttt{.bc}};
+
+    \draw[-latex] (bc1.east) to [out=0,in=180] (bc2.west);
+    \draw[-latex] (tesla1.east) to [out=0,in=180] (bc2.west);
+
+    \node [right=3em of bc2] (exe) {executable};
+
+    \draw[-latex] (bc2.east) -- (exe.west);
+  \end{tikzpicture}
+  \caption{The C compilation model with TESLA integrated}
+  \label{fig:c-tesla-compilation}
+\end{figure}
+
+A \texttt{.bc} file contains LLVM intermediate code in its stable binary format,
+and a \texttt{.tesla} file contains a binary representation of the TESLA
+assertions parsed from the source file (formatted using Google's protocol
+buffers\footnote{\url{https://developers.google.com/protocol-buffers/}}).
+
+The TESLA toolchain is used together with the Clang / LLVM compiler
+infrastructure to generate these intermediate artifacts. A brief summary of the
+individual TESLA tools used is:
+
+\begin{description}
+  \item[\texttt{analyze}] parses TESLA assertions from a C source file and
+    outputs them to a \texttt{.tesla} manifest file.
+  \item[\texttt{instrument}] adds instrumentation code to a program in LLVM IR
+    format based on the data in a TESLA manifest file.
+  \item[\texttt{cat}] combines several TESLA assertion manifests together,
+    checking for consistency and eliminating redundant definitions.
+\end{description}
+
+Using these tools as described in the context of an automated build system
+imposes some configuration overhead on the programmer. However, this can be
+alleviated somewhat by developing generic scripts for the build systems in
+question (for example, GNU
+Make\footnote{\url{https://www.gnu.org/software/make/}} or
+CMake\footnote{\url{https://cmake.org/}}).
+
+\subsection{Writing Assertions}
+
+Once a project has been set up to build against TESLA, assertions can be written
+using the included set of preprocessor macros. These macros provide a convenient
+wrapper interface over the TESLA marker functions.\footnote{These marker
+functions have no definitions---their only use is to appear as the target of a
+function call that will be replaced in a later compilation phase}
+
+\section{The TESLA Assertion Language} \label{sec:assertions}
+
+TESLA assertions express temporal logic properties, although for implementation
+reasons they are in fact less expressive than LTL.\footnote{Linear Temporal
+Logic} In particular, the ``until'' LTL construct \cite{pnueli_temporal_1977} is
+not expressible in TESLA because of the requirement that TESLA automata have
+bounded lifetimes \cite{anderson_tesla:_2014}. However, despite their decreased
+expressivity, TESLA assertions are still capable of expressing many useful
+properties of program behaviour.
+
+Assertions specify temporal relations between \emph{program events}, within a
+specified bounding interval. These events can be function calls or returns (with
+argument or return values specified), assertion sites or structure field
+assignments. An assertion site event occurs when program execution reaches the
+location where the assertion was originally written.
+
+The assertion language allows for temporal relations between these events to be
+specified. For example,
+
+\section{Bounded Model Checking}
+
+\iffalse
 
 \begin{figure}[ht]
   \centering
@@ -38,3 +170,5 @@
   \caption{Single Event Automaton}
   \label{fig:gv}
 \end{figure}
+
+\fi

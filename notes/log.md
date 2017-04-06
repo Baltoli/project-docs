@@ -1394,3 +1394,22 @@
   machine.
 * Should look into Buchi automata now that we have a more explicit notion of
   cycles.
+
+# 6/4/2017
+
+* Adding a transducer method to the FSM library that will allow a new sequence
+  of values to be generated. This is similar to the accept methods - what it
+  will do is accept an input E, and if it's accepted by the edge, apply another
+  function to get an output value.
+* Meeting with Alan to talk about the project in general terms.
+* Have realised that the model generation approach is here to stay, at least for
+  now. A finite state machine built using my template library isn't quite a
+  drop-in solution, as we don't have a good notion of determinism for events -
+  to push a trace through the machine would require us to have a precomputed
+  notion of what return values are needed. Interesting for the writeup.
+* Found an interesting paper on safety vs. liveness that mentions Buchi
+  automata. Could be a useful one for formalising TESLA.
+* These automata accept a string by stipulating that the last state loops
+  infinitely - this is a bit like what my definition of cyclic traces is like.
+* Begun to work on writeup in earnest, looking at the background section on
+  TESLA first of all.
