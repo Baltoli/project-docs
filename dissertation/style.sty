@@ -17,7 +17,8 @@
 \usepackage{blindtext}
 
 \usepackage[T1]{fontenc}
-\usepackage{titlesec, blindtext, xcolor}
+\usepackage{titlesec, blindtext}
+\usepackage[usenames,dvipsnames]{xcolor}
 \definecolor{gray75}{gray}{0.75}
 \newcommand{\hsp}{\hspace{20pt}}
 \titleformat{\chapter}[hang]
@@ -66,3 +67,20 @@ shape=rectangle
   \endgroup
 }%
 \makeatother
+
+\usepackage{listings}
+\lstset{
+  basicstyle=\small\ttfamily,
+  breaklines=true,
+  frame=single,
+  keywordstyle=\color{Mahogany},
+  language=C,
+}
+
+\usepackage{minted}
+\usemintedstyle{friendly}
+\setminted{
+  breaklines=true,
+  linenos=true,
+  samepage=true,
+}

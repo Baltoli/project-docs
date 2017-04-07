@@ -107,15 +107,16 @@ CMake\footnote{\url{https://cmake.org/}}).
 
 Once a project has been set up to build against TESLA, assertions can be written
 using the included set of preprocessor macros. These macros provide a convenient
-wrapper interface over the TESLA marker functions.\footnote{These marker
+wrapper interface over the TESLA marker functions\footnote{These marker
 functions have no definitions---their only use is to appear as the target of a
-function call that will be replaced in a later compilation phase}
+function call that will be replaced with instrumentation code in a later
+compilation phase.}.
 
 \section{The TESLA Assertion Language} \label{sec:assertions}
 
 TESLA assertions express temporal logic properties, although for implementation
-reasons they are in fact less expressive than LTL.\footnote{Linear Temporal
-Logic} In particular, the ``until'' LTL construct \cite{pnueli_temporal_1977} is
+reasons they are in fact less expressive than LTL\footnote{Linear Temporal
+Logic}. In particular, the ``until'' LTL construct \cite{pnueli_temporal_1977} is
 not expressible in TESLA because of the requirement that TESLA automata have
 bounded lifetimes \cite{anderson_tesla:_2014}. However, despite their decreased
 expressivity, TESLA assertions are still capable of expressing many useful
@@ -128,7 +129,15 @@ assignments. An assertion site event occurs when program execution reaches the
 location where the assertion was originally written.
 
 The assertion language allows for temporal relations between these events to be
-specified. For example,
+specified. For example, it is possible to assert that \textquote{Bounded by
+function \texttt{g}, function \texttt{f} is called exactly once after this
+assertion site}. Written using the TESLA macros, this could be expressed as:
+
+\begin{minted}{c}
+TESLA_WITHIN(g, TSEQUENCE(
+  TESLA_ASSERTION_SITE,
+  call(f)));
+\end{minted}
 
 \section{Bounded Model Checking}
 
@@ -142,19 +151,6 @@ specified. For example,
     \node [draw,dashed,fit=(only),inner sep=0.3cm] {};
   \end{tikzpicture}
   \caption{Null Assertion}
-  \label{fig:gv}
-\end{figure}
-
-\begin{figure}[ht]
-  \centering
-  \begin{tikzpicture}[>=latex',initial text={},
-                      node distance=3cm,on grid,auto]
-    \node[state,initial] (start) [] {};
-    \node[state,accepting] (end) [right=of start] {};
-    \node[draw,dashed,fit=(start) (end), inner sep=0.3cm] {};
-    \path[->] (start) edge node {event} (end);
-  \end{tikzpicture}
-  \caption{Single Event Automaton}
   \label{fig:gv}
 \end{figure}
 
