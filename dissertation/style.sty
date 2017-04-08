@@ -50,6 +50,14 @@ minimum height=14.1mm,
 shape=rectangle
 ]
 
+\tikzstyle{instr}=[%
+draw,
+align=center,
+color=black,
+inner sep=1em,
+rounded corners
+]
+
 \makeatletter
 \newcommand{\settowidthofnode}[2]{%
   \pgfpointanchor{#2}{center}%
@@ -77,13 +85,14 @@ shape=rectangle
   language=C,
 }
 
-\usepackage{minted}
+\usepackage[chapter]{minted}
 \usemintedstyle{friendly}
 \setminted{
   breaklines=true,
   linenos=true,
   samepage=true,
 }
+\providecommand*{\listingautorefname}{Listing}
 
 \usepackage{tabularx}
 \usepackage{booktabs}

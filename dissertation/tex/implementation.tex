@@ -1,4 +1,4 @@
-\section{Modelling Locks with TESLA}
+\section{Modelling Locks with TESLA} \label{sec:locks}
 
 \begin{displaycquote}[p. 1]{anderson_tesla:_2014}
 TESLA exposes run-time behaviour using program instrumentation, illuminating
@@ -37,7 +37,8 @@ on these structures.
 
   bool lock_acquire(lock_t *lock) {
     bool f = false;
-    return atomic_compare_exchange_strong(&(lock->locked), &f, true);
+    return atomic_compare_exchange_strong(
+            &(lock->locked), &f, true);
   }
 
   void lock_release(lock_t *lock) {
@@ -187,12 +188,22 @@ problems are:
     duplicated and spread across multiple passes.
 \end{description}
 
-\section{Formalising TESLA Assertions}
+In order to address these issues, we require a system of analysis that can be
+built once \textquote{up front}, can be applied to any TESLA assertions
+regardless of the properties that they encode and that does not rely on any
+specific knowledge of the assertion being checked.
 
-In order to generalise this analysis to arbitrary assertions (rather than
-specific instances where the relevant properties and failure conditions are
-known ahead of time), it is necessary to define a more abstract model of the
-semantics of TESLA assertions and the programs to which they are applied.
+\section{Formalising TESLA Assertions} \label{sec:formal}
+
+In order to generalise the hand-coded analysis style to arbitrary assertions
+(rather than specific instances where the relevant properties and failure
+conditions are known ahead of time), it is necessary to define a more abstract
+model of the semantics of TESLA assertions and the programs to which they are
+applied.
+
+The hand-coded analysis relied on developer-supplied knowledge of the failure
+conditions for the assertion being checked, which could then be translated into
+analysis passes to be run on the program's intermediate representation.
 
 TESLA assertions \textcquote[p. 3]{anderson_tesla:_2014}{have a natural
 expression as finite-state automata that can be mechanically woven into a
@@ -248,7 +259,7 @@ and \mintinline{c}{||} respectively). The TESLA source code does in fact make
 reference to a conjunction operation on automata, but it is not fully
 implemented.\footnote{The protocol buffer format for assertions makes provision
 for the extra boolean operation type, but using it in an assertion is
-unsupported} Assertions of these types have recursive structure (i.e. they
+unsupported.} Assertions of these types have recursive structure (i.e. they
 contain other automata), and so their constructed automata are defined as
 compositions of other automata.
 
@@ -373,3 +384,109 @@ subautomata, but the construction generalises to any number).
 \end{figure}
 
 \section{Model Checking TESLA} \label{sec:checking}
+
+Previously (in \autoref{sec:formal}) I gave a translation from TESLA assertions
+to nondeterministic finite automata with transitions labeled with program event
+assertions. This automaton can be seen as a \emph{specification} for a program,
+expressed in a form of temporal logic. To check whether a program is correct
+with regard to this specification can now be seen as a model checking problem in
+the style of \textcite{clarke_design_1982}:
+
+\begin{displaycquote}[p. 2]{clarke_design_1982}
+  ...mechanically determine if the system meets a specification expressed in
+  propositional temporal logic.
+\end{displaycquote}
+
+In this section I will describe the techniques used to check a program against a
+TESLA assertion. I describe an abstract structure derivable from LLVM IR that
+represents a program, as well as a set of algorithms that check whether a
+particular structure is a model for a specification automata. Finally, I discuss
+the limitations and potential improvements that could be made to this approach.
+
+\subsection{Program Event Graphs}
+
+From its position in the TESLA toolchain, the inputs available to the model
+checking tool are:
+\begin{itemize}
+  \item The manifest file containing all assertions and usages thereof from the
+    program.
+  \item A single LLVM bitcode file (obtained using
+    \texttt{llvm-link}\footnote{\url{http://releases.llvm.org/3.4/docs/CommandGuide/llvm-link.html}})
+    that has not yet been instrumented or optimised.
+\end{itemize}
+In order to define a model checking algorithm, we must first define a
+\emph{structure} that will be checked against the specification. Because our
+specification automata are defined in terms of program events (function calls,
+returns, assertion sites and field assignments), it is natural that the
+structure extracted from the LLVM IR represents these events in some form.
+
+\autoref{lst:ir-example} shows an example LLVM IR function that uses a lock from
+\autoref{sec:locks} correctly. Some of the structure we are interested in is
+already apparent---calls to \mintinline{c}{lock_acquire} and
+\mintinline{c}{lock_release} are made in the function along with the appropriate
+checks on the return values. However, using the LLVM IR as the model-checking
+structure directly is not convenient (it contains a great deal of redundant
+information and indirection through function calls makes analysis more
+difficult).
+
+\begin{listing}
+  \begin{minted}{llvm}
+define void @do_work() #0 {
+  br label %1
+
+  ; <label>:1 ; preds = %4, %0
+  %2 = call zeroext i1 @lock_acquire(%struct.lock_st* @lock)
+  %3 = xor i1 %2, true
+  br i1 %3, label %4, label %5
+
+  ; <label>:4 ; preds = %1
+  br label %1
+
+  ; <label>:5 ; preds = %1
+  call void @lock_release(%struct.lock_st* @lock)
+  ret void
+}
+  \end{minted}
+  \caption{LLVM IR with correct lock usage}
+  \label{lst:ir-example}
+\end{listing}
+
+The solution chosen is to convert the IR module into an \emph{event graph} that
+contains only the program events we are interested in and that makes control
+flow between these events more explicit.
+
+To construct such an event graph, I used a variation of function
+inlining. Every function in the module can be converted to a directed graph
+with instructions as vertices and control flow determining the
+edges.\footnote{This step is purely a conversion between representations; a
+function is a graph of basic blocks that already encodes the same information
+about control flow.}
+
+Next, every instruction that is not a function call is removed from the graph
+(preserving transitive control flow edges).\footnote{Assertion site events are
+preserved by this step because of their representation as calls to a marker
+function.} The function graphs are then \textquote{bookended} with an entry and
+exit vertex such that there is a unique node with no predecessors, and similarly
+a unique node with no successors. The event graph extracted from the IR in
+\autoref{lst:ir-example} is shown in \autoref{fig:event-graph-single}.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \node[instr] (entry) {Entry};
+    \node[instr,below=of entry] (1) {\mintinline{llvm}{call @lock_acquire(...)}};
+    \node[instr,below=of 1] (5) {\mintinline{llvm}{call @lock_release(...)}};
+    \node[instr,below=of 5] (exit) {Exit};
+
+    \draw[-latex] (entry) -- (1);
+    \path[-latex] (1.8) edge  [out=8,in=352,distance=1.5cm] node[anchor=west] {}
+    (1.352);
+    \draw[-latex] (1) to (5);
+    \draw[-latex] (5) to (exit);
+  \end{tikzpicture}
+  \caption{Program event graph for a single function}
+  \label{fig:event-graph-single}
+\end{figure}
+
+Finally, every call instruction is replaced by the event graph for the call's
+target.
