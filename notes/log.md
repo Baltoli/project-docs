@@ -1431,4 +1431,10 @@
   less important (one or two good examples is probably enough).
 * Can then extend the evaluation with a detailed study of what makes it hard to
   actually do the static analysis (with code examples from LWIP).
+* More work on the writeup, making a start to the implementation section.
+  Chapter titles could probably do with some work.
+
+# 8/4/2017
+
+* Getting through more writing on the implementation section.
 * 

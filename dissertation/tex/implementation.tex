@@ -116,7 +116,7 @@ limitation in the TESLA instrumenter code that prevents
 \mintinline{c}{ATLEAST(0, ...)} from compiling. The semantics in both cases are
 the same, so this is not a major issue.
 
-\section{Hand-Coded Static Analysis}
+\section{Hand-Coded Static Analysis} \label{sec:hand-coded}
 
 The first approach taken to static analysis of TESLA assertions was to develop
 \textquote{special-cased} assertions that attempt to prove properties only for a
@@ -569,7 +569,7 @@ acceptance check described previously. A na\"ive translation of the
 specification given above (i.e.\ quantifying over \emph{all} paths
 through the bounding interval) is clearly not viable---even the
 small single-function graph in \autoref{fig:event-graph-single} has an
-infinite\footnote{To be more precise, the number of paths is
+infinite\footnote{To be more precise, the number of paths is only
 \emph{countably} infinite, by a simple argument on the number of times
 the looping state is visited.} number of paths from entry to exit!
 
@@ -580,4 +580,143 @@ perhaps not appealing from a theoretical standpoint, it is well studied
 in the context of systems software (see
 \autoref{sec:bounded-model-checking} for a full review of related work).
 
+To implement the definition given previously, the notion of
+\textquote{infinite loop} must be sensibly defined in the context of
+bounded paths. To do this, we generate every path through the event
+graph of length $\leq k$, classifying each as either terminating,
+looping or incomplete:
+\begin{description}
+  \item[Terminating] paths are those that reach the end of the bounding
+    interval in $k$ or fewer steps.
+  \item[Looping] paths have a suffix made up of more than one
+    repetition of a shorter suffix (this characterises infinite loops
+    because if the shorter suffix can be repeated more than once, it can
+    be repeated any number of times).
+  \item[Incomplete] paths are not terminating or looping.
+\end{description}
+
+Then to check whether the specification automaton is a model for the
+event graph, each terminating and looping path is checked against the
+automaton using the acceptance criteria given above. If every path is
+accepted by the automaton, then the assertion always holds---the
+instrumentation for the assertion can therefore be safely removed from
+the program.
+
 \subsection{Return Value Constraints} \label{sec:rvc}
+
+The bounded model checking algorithm described in the previous section
+is in fact unsound with respect to one particular class of
+assertions---if the assertion has constraints on the return value of
+some function calls, then the model checker may report that an unsafe
+program is actually safe. This is clearly a more serious issue than the
+converse---safe programs being reported as unsafe is simply
+\emph{imprecision} in the algorithm, and affects performance rather than
+correctness.
+
+In this section I describe an algorithm that can be applied to resolve
+this unsoundness, along with a discussion on how the techniques used
+could be extended to permit a less conservative analysis than is
+implemented here.
+
+\subsubsection{A Failing Example}
+
+To motivate the rest of this section, I describe a program that suffers
+from the unsoundess characterised above. The program is taken from the
+test suite implemented in \autoref{sec:hand-coded}, and the relevant
+parts of its source code are given in \autoref{lst:mult-acq}.
+
+\begin{listing}[ht]
+  \begin{minted}{c}
+lock_t lock;
+
+void do_work() {
+  while(!lock_acquire(&lock)) {}
+  while(!lock_acquire(&lock)) {}
+  lock_release(&lock);
+}
+
+int main(void) {
+  TESLA_WITHIN(main, eventually(
+    acq_rel(&lock)
+  ));
+
+  do_work();
+  return 0;
+}
+  \end{minted}
+  \caption{An unsafe program incorrectly reported as safe}
+  \label{lst:mult-acq}
+\end{listing}
+
+It is easy to intuit why the program in \autoref{lst:mult-acq} is
+incorrect---when the second \mintinline{c}{while} loop is reached, the
+lock must have been acquired, and so the second loop is always invalid
+behaviour. More precisely, we can examine the transition sequence that
+must be taken through the specification automaton for this program to be
+accepted. A general representation of the transition sequence is given
+in \autoref{fig:impossible}, with the two call sites for
+\mintinline{c}{lock_acquire} disambiguated as \mintinline{llvm}{call (1)
+...} and \mintinline{llvm}{call (2) ...} respectively.\footnote{These
+call sites are separate objects in the LLVM in-memory representation,
+and are disambiguated in this way purely for reading convenience.}
+Dashed edges between events abbreviate potential repetition of the event
+from which the edge originates.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \node[instr] (assert) {\texttt{assertion site [line 10]}};
+    \node[instr,below=of assert] (1) {\mintinline{llvm}{call (1) @lock_acquire(...) == false}};
+    \node[instr,below=of 1] (2) {\mintinline{llvm}{call (1) @lock_acquire(...) == false}};
+    \node[instr,below=of 2] (3) {\mintinline{llvm}{call (2) @lock_acquire(...) == false}};
+    \node[instr,below=of 3] (4) {\mintinline{llvm}{call (2) @lock_acquire(...) == true}};
+
+    \draw[-latex] (assert) -- (1);
+    \draw[-latex,dashed] (1) -- (2);
+    \draw[-latex] (2) -- (3);
+    \draw[-latex,dashed] (3) -- (4);
+  \end{tikzpicture}
+  \caption{Sequence of program events in an unsafe program}
+  \label{fig:impossible}
+\end{figure}
+
+The key problem with the transition sequence in \autoref{fig:impossible}
+is that the first call at the second call site \emph{must} have been
+preceded with a call at the first call site that returned
+\mintinline{c}{false}. However, we have already noted (at least
+informally) that this cannot happen---in the remainder of this section I
+present an analysis that formalises this result.
+
+\subsubsection{Path-sensitive Value Inference}
+
+I now describe a classical data-flow analysis in the style introduced by
+\textcite{kildall_unified_1973} (that is, one where the analysis
+computes a function at each node of the control flow graph, iterating
+until a convergent solution is reached).
+
+The function we compute at each control flow node is the strongest
+possible inference that can be made about the value taken by variables
+in the IR before reaching the node.
+
+\begin{listing}[ht]
+  \begin{minted}{llvm}
+define void @branch(i1 zeroext) #0 {
+  br i1 %0, label %6, label %7
+
+; <label>:6: ; preds = %1
+  br label %8
+
+; <label>:7: ; preds = %1
+  br label %8
+
+; <label>:8: ; preds = %7, %6
+  ret void
+}
+  \end{minted}
+  \caption{LLVM IR example demonstrating control flow value inference}
+  \label{lst:control-flow}
+\end{listing}
+
+\subsection{Results}
+
+\subsection{Limitations and Improvements}
