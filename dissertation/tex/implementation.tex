@@ -479,8 +479,8 @@ a unique node with no successors. The event graph extracted from the IR in
     \node[instr,below=of 5] (exit) {Exit};
 
     \draw[-latex] (entry) -- (1);
-    \path[-latex] (1.8) edge  [out=8,in=352,distance=1.5cm] node[anchor=west] {}
-    (1.352);
+    \path[-latex] (1.4) edge  [out=30,in=330,distance=1cm] node[anchor=west] {}
+    (1.356);
     \draw[-latex] (1) to (5);
     \draw[-latex] (5) to (exit);
   \end{tikzpicture}
@@ -488,5 +488,96 @@ a unique node with no successors. The event graph extracted from the IR in
   \label{fig:event-graph-single}
 \end{figure}
 
-Finally, every call instruction is replaced by the event graph for the call's
-target.
+Finally, every call instruction is replaced by a copy of the event graph for the
+call's target (or by an appropriate assertion site event, if the function call
+is to the assertion marker function). Note that any loops in the call graph
+arising from recursive calls will never be fully inlined---this is a limitation
+of the approach, and is not easily resolved. 
+
+A partial solution in the context of the TESLA model checker is to inline
+recursive calls up to a specified call depth, and no further. There is no
+simple, general solution to this problem, supported by similar instances in the
+literature---\textcite{henry_pagai:_2012} apply inlining to avoid the problem of
+interprocedural analysis, but do not address the problem of recursive calls,
+while \textcite{wang_function_2009} disallow recursion entirely in programs they
+analyse.
+
+From this inlining step we obtain a whole-program graph of program events, with
+edges representing control flow between these events.
+
+\subsection{Model Checking Algorithm}
+
+Now that the structure and specification for the TESLA model checking problem
+are defined, the next step is to implement an algorithm by which satisfaction
+can be checked mechanically.
+
+\subsubsection{Single-Edge Acceptance}
+
+First, we define a single-edge acceptance criterion that defines when a program
+event is accepted by an edge in the specification automaton (this is required
+because edges in the specification automaton have attached metadata that program
+events do not). This acceptance criterion is defined to be equality over all
+metdadata fields that program events carry. In more detail, these are:
+\begin{description}
+  \item[Function Events] The associated function, direction and parameters
+  \item[Assertion Site Events] The assertion site location
+\end{description}
+Note that this criterion does not discriminate on function return values---this
+is a deliberate choice, and the resulting imprecision is addressed in
+\autoref{sec:rvc}. Another consequence of not discriminating on function return
+values is that previously deterministic specification automata are no longer
+deterministic---if there are multiple transitions for the same function and
+parameter combination, each will accept the same events regardless of the
+constraints placed on their return values.
+
+\subsubsection{Graph Acceptance}
+
+Given a criterion for single-edge acceptance of a program event, the next step
+is to define when a program event graph is accepted by a specification
+automaton.
+
+An initial (and partially inadequate) definition is to say that a graph is
+accepted by an automaton if and only if every path of events through the graph
+from entry to exit reaches an accepting state in the specification automaton.
+This definition is reminiscent of the definition of satisfaction for LTL, where
+a formula is satisfied over a structure if and only if it is on all possible
+linear paths in that structure. However, this fails to capture two important
+features of TESLA assertions:
+\begin{description}
+  \item[Boundedness] For a given specification automaton, we are not interested
+    in events that fall outside of its bounding interval.
+  \item[Non-termination] Programs with TESLA assertions may never
+    terminate. This is perfectly valid---as long as the program never
+    performs an event not permitted by an automaton, it will not fail
+    its TESLA assertions.
+\end{description}
+
+To capture the boundedness criterion, we refine our original definition to
+quantify over all paths over the bounding interval (for example, all paths from
+a call event to a matching return event).
+
+Non-termination is added to this definition by including all paths that begin at
+the start of the bounding interval and enter an infinite loop. These
+paths may not include an accepting state, and so a path with an infinite
+loop satisfies the specification as long as the path does not contain an
+event forbidden by the automaton.
+
+\subsubsection{Implementation}
+
+I now describe an implementation of an algorithm that performs the graph
+acceptance check described previously. A na\"ive translation of the
+specification given above (i.e.\ quantifying over \emph{all} paths
+through the bounding interval) is clearly not viable---even the
+small single-function graph in \autoref{fig:event-graph-single} has an
+infinite\footnote{To be more precise, the number of paths is
+\emph{countably} infinite, by a simple argument on the number of times
+the looping state is visited.} number of paths from entry to exit!
+
+A pragmatic solution to this problem is to employ \emph{bounded} model
+checking, where only paths through the graph of length $ \leq k $ (where
+$k$ is an arbitrary constant) are considered. While this method is
+perhaps not appealing from a theoretical standpoint, it is well studied
+in the context of systems software (see
+\autoref{sec:bounded-model-checking} for a full review of related work).
+
+\subsection{Return Value Constraints} \label{sec:rvc}

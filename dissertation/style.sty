@@ -3,7 +3,7 @@
 \usepackage[
   backend=biber,
   style=alphabetic,
-  sorting=ynt
+  sorting=nyt
 ]{biblatex}
 
 \usepackage{hyperref}
@@ -54,7 +54,7 @@ shape=rectangle
 draw,
 align=center,
 color=black,
-inner sep=1em,
+inner sep=0.5em,
 rounded corners
 ]
 
@@ -98,3 +98,5 @@ rounded corners
 \usepackage{booktabs}
 \usepackage{array}
 \newcolumntype{Z}{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}X}
+
+\newtheorem{definition}{Definition}[chapter]
