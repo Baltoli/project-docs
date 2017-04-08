@@ -1413,3 +1413,22 @@
   infinitely - this is a bit like what my definition of cyclic traces is like.
 * Begun to work on writeup in earnest, looking at the background section on
   TESLA first of all.
+* Looking again at LWIP - doesn't look so promising after all. The
+  callback-styled API means that it's unlikely I'll find a hot code path that's
+  also amenable to useful TESLA instrumentation.
+* The other problem is that functions are large, have deep nested branches, and
+  don't often call other functions.
+* This all adds up to a reasonable case study on "what makes static analysis
+  difficult".
+* Should look into exporting counterexample traces when model checking fails -
+  makes this all a bit better if we can do that.
+
+# 7/4/2017
+
+* Thought on instrumenting LWIP - as long as I can get *some* assertions into a
+  hot path, it should be enough that I can demonstrate a use case (i.e. that
+  they are statically analysable). The actual properties asserted are in a sense
+  less important (one or two good examples is probably enough).
+* Can then extend the evaluation with a detailed study of what makes it hard to
+  actually do the static analysis (with code examples from LWIP).
+* 

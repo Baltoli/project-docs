@@ -1,0 +1,375 @@
+\section{Modelling Locks with TESLA}
+
+\begin{displaycquote}[p. 1]{anderson_tesla:_2014}
+TESLA exposes run-time behaviour using program instrumentation, illuminating
+coverage of complex state machines and detecting violations of specifications.
+\end{displaycquote}
+
+\textcite{anderson_tesla:_2014} draw attention to the suitability of TELSA for
+modelling and verifying \emph{state machines} within a program. In this section,
+I describe a set of TESLA assertions that ensure the safe usage of a simple
+mutual-exclusion lock---these assertions will act as a running example
+throughout the rest of the chapter to provide context to the analyses developed
+and demonstrate an application of static analysis to TESLA assertions.
+
+Mutual exclusion locks were chosen as the structure to model in this section
+because while the number of states and associated operations is small, the state
+machine has properties that are non-trivial to analyse statically.
+
+\subsection{Lock Structure}
+
+The lock structure to be modelled in this section is a simple structure wrapper
+around a C11 atomic boolean value, together with a set of functions that operate
+on these structures.
+
+\begin{listing}[ht]
+  \begin{minted}{c}
+  #include <stdatomic.h>
+  #include <stdbool.h>
+
+  typedef struct lock_st {
+    _Atomic(bool) locked
+  } lock_t;
+
+  void lock_init(lock_t *lock) {
+    atomic_init(&(lock->locked), false);
+  }
+
+  bool lock_acquire(lock_t *lock) {
+    bool f = false;
+    return atomic_compare_exchange_strong(&(lock->locked), &f, true);
+  }
+
+  void lock_release(lock_t *lock) {
+    lock->locked = false;
+  }
+
+  void lock_free(lock_t *lock) {
+  }
+  \end{minted}
+  \caption{Implementation of a mutual exclusion lock with C11 atomics}
+  \label{lst:mutex}
+\end{listing}
+
+The four operations provided by this interface are initialisation,
+deinitialisation (for the given lock implementation this is a no-op, but it may
+not be for more complex variants), non-blocking acquisition and release. Lock
+acquisition is implemented using atomic compare-and-swap, returning
+\mintinline{c}{false} if the lock is being held by another user or \mintinline{c}{true}
+if the acquisition was successful.
+
+\subsection{Lock Usage}
+
+Using the non-blocking acquisition function described previously, it is possible
+to implement a blocking spin-lock in terms of a lock structure:
+
+\begin{minted}{c}
+while(!lock_acquire(lock)) {}
+\end{minted}
+
+The usage of the lock structure that I have developed assertions to verify is in
+fact this spin-lock (i.e.\ where users of the lock repeatedly attempt to acquire
+it, execute their critical section, then release it).
+
+Correct usage of the lock in this way can be summarised informally by a set of
+invariants:
+\begin{itemize}
+  \item Consumers can fail to acquire the lock any number of times
+  \item Once the lock is acquired, no more attempts to acquire can be made
+  \item The lock is released exactly once after being successfully acquired
+\end{itemize}
+
+\subsection{TESLA Assertions}
+
+The properties described previously are well-suited to being expressed as TESLA
+assertions---they express temporal relationships between program events (calls
+to the functions \mintinline{c}{lock_acquire} and \mintinline{c}{lock_release}).
+
+Expressed as TESLA assertions using the explicit automaton style, the properties
+are:
+\begin{listing}[ht]
+  \begin{minted}{c}
+  automaton(acq_rel, lock_t *lock) {
+    acquire(lock);
+    release(lock);
+    tesla_done;
+  }
+
+  automaton(acquire, lock_t *lock) {
+    optional(ATLEAST(1, lock_acquire(lock) == false));
+    lock_acquire(lock) == true;
+    tesla_done;
+  }
+
+  automaton(release, lock_t *lock) {
+    returnfrom(lock_release(lock));
+    tesla_done;
+  }
+  \end{minted}
+  \caption{Mutex lock properties expressed using TESLA}
+  \label{lst:mutex-tesla}
+\end{listing}
+
+Writing \mintinline{c}{optional(ATLEAST(1, ...))} is required to work around a
+limitation in the TESLA instrumenter code that prevents
+\mintinline{c}{ATLEAST(0, ...)} from compiling. The semantics in both cases are
+the same, so this is not a major issue.
+
+\section{Hand-Coded Static Analysis}
+
+The first approach taken to static analysis of TESLA assertions was to develop
+\textquote{special-cased} assertions that attempt to prove properties only for a
+single assertion (in this case, \mintinline{c}{acq_rel}).
+
+Because TESLA assertions describe safety properties of programs, the approach
+taken is to examine each individual usage of the assertion in question for
+possible \textquote{bad things} that could cause the assertion to fail. If none
+are found, then the assertion will always succeed at compile time and the
+corresponding instrumentation code can be removed safely.
+
+To implement this analysis, a set of cases in which the invariants described
+previously could possibly fail was compiled. Some of the simpler possible safety
+violations for \mintinline{c}{acq_rel} are:
+\begin{itemize}
+  \item Either of the lock interface functions have their address taken
+  \item One or both of the functions are not called at all
+  \item There is no branch on the result of a call to
+  \mintinline{c}{lock_acquire}
+\end{itemize}
+
+In order to check that these safety properties are not violated, I implemented a
+collection of LLVM \cite{lattner_llvm:_2002} analysis passes that each check a
+single safety property. As well as these passes, I implemented a small test
+suite of programs that use the lock interface (adapted somewhat to allow for
+consistent testing).
+
+\begin{table}[ht]
+  \centering
+  \begin{tabularx}{\textwidth}{Z | Z}
+    \toprule
+    \textbf{Test Name} & \textbf{Correct?} \\
+    \midrule
+    address & No \\
+    basic & Yes \\
+    basic\_indirect & Yes \\
+    more\_usage & No \\
+    mult\_acq & No \\
+    mult\_rel & No \\
+    no\_acq\_rel & No \\
+    no\_acq & No \\
+    no\_rel & No \\
+    one\_acq & No \\
+    other & No \\
+    rel\_before & No \\
+    rel\_before\_indirect & No \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Summary of \mintinline{c}{acq_rel} test programs}
+\end{table}
+
+The aim of these test cases is to provide a minimal set of test cases
+against which the correctness of the analyses can be checked. Each
+potential safety violation identified occurs at least once in the test
+suite.
+
+\subsection{Results}
+
+While there are some advantages to writing assertion safety analyses in
+this way, it is far from an ideal approach to the problem. The key
+problems are:
+\begin{description}
+  \item[Development Time] Developing the LLVM analysis passes takes a
+    long time (even allowing for the time spent developing
+    \textquote{infrastructure} code).
+  \item[Inflexibility] Even a small change to the assertions being
+    analysed can mean a large change to the analysis being applied.
+  \item[Duplicate Logic] The assumptions made in the assertions must be
+    duplicated and spread across multiple passes.
+\end{description}
+
+\section{Formalising TESLA Assertions}
+
+In order to generalise this analysis to arbitrary assertions (rather than
+specific instances where the relevant properties and failure conditions are
+known ahead of time), it is necessary to define a more abstract model of the
+semantics of TESLA assertions and the programs to which they are applied.
+
+TESLA assertions \textcquote[p. 3]{anderson_tesla:_2014}{have a natural
+expression as finite-state automata that can be mechanically woven into a
+program}. However, the exact manner in which these automata are constructed is
+only touched upon briefly in the paper. In this section, I provide a formal
+translation of TESLA automata into corresponding finite state automata.
+
+The automata constructions given in this section are nondeterministic, with
+$\varepsilon$-transitions in some places. It is worth noting the well-known
+result that a non-deterministic automaton with $n$ states can always be
+converted to an equivalent deterministic automaton with up to $2^n$ states
+\cite{rabin_finite_1959}. However, in practice the automata constructed using
+the methods described in this section do not experience this exponential
+increase in size.
+
+\subsection{Program Events}
+
+As described in \autoref{sec:assertions}, TESLA allows temporal relationships
+between function calls or returns, assertion sites and structure field
+assignments to be expressed. These events are the \textquote{building blocks}
+from which an automaton is constructed.
+
+These events have no recursive structure---they only define a program event to
+be matched. As a result, the automata they define are very simple.
+\autoref{fig:event-auto} shows the constructed automaton for an arbitrary program event
+$e$---it has a single transition from the initial state to the accepting state,
+labelled by the event $e$.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[>=latex',initial text={},
+                      node distance=3cm,on grid,auto]
+    \node[state,initial] (start) [] {$q_0$};
+    \node[state,accepting] (end) [right=of start] {$q_1$};
+    %\node[draw,dashed,fit=(start) (end), inner sep=0.3cm] {};
+    \path[->] (start) edge node {$e$} (end);
+  \end{tikzpicture}
+  \caption{Program event automaton}
+  \label{fig:event-auto}
+\end{figure}
+
+The structure of this automaton is the same no matter what event $e$ it was
+constructed for, and it implicitly captures all the properties $e$ may have
+(e.g.\ function name, return value or assertion site location). In
+\autoref{sec:checking} I give a full description of how these properties are
+used to check properties of a program.
+
+\subsection{Composition}
+
+There are two ways in which TESLA automata may be composed---sequential ordering
+and disjunction (corresponding to the concrete syntax \mintinline{c}{TSEQUENCE}
+and \mintinline{c}{||} respectively). The TESLA source code does in fact make
+reference to a conjunction operation on automata, but it is not fully
+implemented.\footnote{The protocol buffer format for assertions makes provision
+for the extra boolean operation type, but using it in an assertion is
+unsupported} Assertions of these types have recursive structure (i.e. they
+contain other automata), and so their constructed automata are defined as
+compositions of other automata.
+
+By convention, sub-automata are shown inside dashed boxes. Accepting states
+inside these boxes are the accepting states of the sub-automaton, and dotted
+lines indicate transitions that are internal to the subautomaton.
+
+\subsubsection{Sequential Ordering}
+
+The simplest temporal relationship TESLA enforces is sequential ordering
+(\textquote{event $a$ happens, then event $b$ happens...}). Sequence assertions
+may be repeated, and have attributes specifying the minimum and maximum number
+of repetitions that are permitted (with the maximum number being potentially
+infinite). Sequences may contain any number of sub-assertions.
+
+The cases where exactly one repetition or an infinite number of repetitions is
+allowed are easy to define in terms of the sub-automata. The examples given in
+\autoref{fig:seq-one-auto} and \autoref{fig:seq-inf-auto} have two subautomata,
+but the construction generalises simply to any number.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[>=latex',initial text={},
+                      node distance=3cm,on grid,auto]
+    \node[state,initial] (realstart) [] {$q_0$};
+    \node[state] (start) [right=of realstart] {$q_{0,0}$};
+    \node[state,accepting] (end) [right=of start] {$q_{1,0}$};
+
+    \node[state] [below=of start] (start2) {$q_{0,1}$};
+    \node[state,accepting] [right=of start2] (end2) {$q_{1,1}$};
+
+    \node[draw,dashed,fit=(start) (end), inner sep=0.3cm] {};
+    \node[draw,dashed,fit=(start2) (end2), inner sep=0.3cm] {};
+
+    \node[state,accepting] [right=of end2] (realend) {$q1$};
+
+    \path[dotted,->] (start) edge node {} (end);
+    \path[dotted,->] (start2) edge node {} (end2);
+
+    \path[->] (realstart) edge node {$\varepsilon$} (start);
+    \path[->] (end2) edge node {$\varepsilon$} (realend);
+    \draw[->,out=270,in=90] (end.south) to node[above]{$\varepsilon$} (start2.north);
+  \end{tikzpicture}
+  \caption{Single repetition sequence automaton}
+  \label{fig:seq-one-auto}
+\end{figure}
+
+From a single repetition, an automata that can recognise an infinite number is
+obtained by adding an $\varepsilon$-transition back from the accepting state to
+the initial state.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[>=latex',initial text={},
+                      node distance=3cm,on grid,auto]
+    \node[state,initial] (realstart) [] {$q_0$};
+    \node[state] (start) [right=of realstart] {$q_{0,0}$};
+    \node[state,accepting] (end) [right=of start] {$q_{1,0}$};
+
+    \node[state] [below=of start] (start2) {$q_{0,1}$};
+    \node[state,accepting] [right=of start2] (end2) {$q_{1,1}$};
+
+    \node[draw,dashed,fit=(start) (end), inner sep=0.3cm] {};
+    \node[draw,dashed,fit=(start2) (end2), inner sep=0.3cm] {};
+
+    \node[state,accepting] [right=of end2] (realend) {$q_1$};
+
+    \path[dotted,->] (start) edge node {} (end);
+    \path[dotted,->] (start2) edge node {} (end2);
+
+    \path[->] (realstart) edge node {$\varepsilon$} (start);
+    \path[->] (end2) edge node {$\varepsilon$} (realend);
+    \draw[->,out=270,in=90] (end.south) to node[above]{$\varepsilon$} (start2.north);
+
+    \draw[->,looseness=1.2,out=90,in=45] (realend.north) to node[above]{$\varepsilon$} (realstart.north east);
+  \end{tikzpicture}
+  \caption{Infinite repetition sequence automaton}
+  \label{fig:seq-inf-auto}
+\end{figure}
+
+If the sequence is not exactly-once or infinite, then a copy of the entire
+sequence automaton (as in \autoref{fig:seq-one-auto}) must be constructed for
+each repetition. The copies in the valid range (between the minimum and the
+maximum number of repetitions) have an $\varepsilon$-transition from their
+accepting state to the overall accepting state. As a consequence of this, the
+size of the constructed automata is directly proportional to the maximum number
+of repetitions (if the maximum is finite).
+
+\subsubsection{Disjunction}
+
+A disjunction automaton will accept if \emph{any} of its subautomata do (i.e.\
+it implements logical or over its subautomata), and can therefore be constructed
+as shown in \autoref{fig:disj-auto} (again, the diagram shows the case for two
+subautomata, but the construction generalises to any number).
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[>=latex',initial text={},
+                      node distance=3cm,on grid,auto]
+    \node[state,initial] (realstart) [] {$q_0$};
+    \node[state] (start) [above right=of realstart] {$q_{0,0}$};
+    \node[state,accepting] (end) [right=of start] {$q_{1,0}$};
+
+    \node[state] [below right=of realstart] (start2) {$q_{0,1}$};
+    \node[state,accepting] [right=of start2] (end2) {$q_{1,1}$};
+
+    \node[draw,dashed,fit=(start) (end), inner sep=0.3cm] {};
+    \node[draw,dashed,fit=(start2) (end2), inner sep=0.3cm] {};
+
+    \node[state,accepting] [above right=of end2] (realend) {$q1$};
+
+    \path[dotted,->] (start) edge node {} (end);
+    \path[dotted,->] (start2) edge node {} (end2);
+
+    \path[->] (realstart) edge node {$\varepsilon$} (start);
+    \path[->] (realstart) edge node[below left] {$\varepsilon$} (start2);
+    \path[->] (end) edge node {$\varepsilon$} (realend);
+    \path[->] (end2) edge node[below right] {$\varepsilon$} (realend);
+  \end{tikzpicture}
+  \caption{Disjunction automaton}
+  \label{fig:disj-auto}
+\end{figure}
+
+\section{Model Checking TESLA} \label{sec:checking}
