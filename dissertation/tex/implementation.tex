@@ -704,9 +704,11 @@ define void @branch(i1 zeroext) #0 {
   br i1 %0, label %6, label %7
 
 ; <label>:6: ; preds = %1
+  ; ... code ...
   br label %8
 
 ; <label>:7: ; preds = %1
+  ; ... other code ...
   br label %8
 
 ; <label>:8: ; preds = %7, %6
@@ -717,6 +719,169 @@ define void @branch(i1 zeroext) #0 {
   \label{lst:control-flow}
 \end{listing}
 
+\autoref{lst:control-flow} contains a simplified function written in
+LLVM IR that can be used as an example of this analysis. There are two
+possible execution paths through this function---one where block
+\mintinline{llvm}{%6} is visited, and one where \mintinline{llvm}{%7} is
+visited. If control reaches \mintinline{llvm}{%6}, then it is easy to
+see that the value of \mintinline{llvm}{%0} must have been
+\mintinline{llvm}{true} (and conversely for \mintinline{llvm}{%7}).
+The aim of our analysis is to infer these constraints generically for
+any function, even in the presence of more complex control flow
+structures.
+
+\subsubsection{Algorithm}
+
+Our aim is to compute the strongest possible inference on IR variables
+(an inference $A$ is stronger than an inference $B$ if $A \implies B
+\land B \notimplies A$).
+
+We first consider the \textquote{single step} version of the analysis.
+Control flow may enter a basic block through any of its predecessors.
+Each predecessor block has a strongest inference associated with it, as
+well as a branch leading to the block in consideration. Therefore for
+control flow to move from the predecessor to the current block, the
+predecessor's strongest inference must hold, together with the
+associated branch condition. Stated more formally, the strongest
+inference at a basic block $n$ is defined as:
+\[
+  \mathrm{inf}(n) = \bigvee_{p \in \mathrm{preds}(n)}
+    \mathrm{inf}(p) \land \mathrm{branch}(p,n)
+\]
+
+Initially, the inference at the entry block is $true$, and at every
+other block it is $false$. This is because there is no possible
+inference to be made from control flow reaching the entry block, and
+every other block is assumed to be unreachable until the iteration
+reaches them (an unreachable block has the strongest possible
+inference---if control reaches such a block, then we can infer anything
+about the previous execution state).
+
+The algorithm to run the analysis on a single function is given as
+pseudocode in \autoref{lst:infs-pseudo}.
+
+\begin{listing}[ht]
+  \begin{minted}[escapeinside=||]{s}
+infs = [ false, ... ]
+infs[entry] = true
+while infs changes:
+  for every basic block i:
+    infs[i] = |$\bigvee_{\mathtt{p} \in \mathtt{preds(i)}}$| infs[p] |$\land$| branch(p,i)
+  \end{minted}
+  \caption{Strongest inference algorithm as pseudocode}
+  \label{lst:infs-pseudo}
+\end{listing}
+
+\subsubsection{Application to the Model Checker}
+
+The problem to be addressed by this data flow algorithm is that return
+value constraints in assertions are ignored by the model checker.
+However, what we have computed so far (inferences on the boolean values
+taken by branch conditions) is not yet a solution. The final step is to
+determine whether we can determine a relevant function return value
+based on these inferences.
+
+\begin{listing}[ht]
+  \begin{minted}{llvm}
+; ... preceding code ...
+%2 = call i1 @lock_acquire(%struct.lock_st* @lock)
+%3 = xor i1 %2, true
+br i1 %3, label %4, label %5
+  \end{minted}
+  \caption{Branch value computed from function return value}
+  \label{lst:branch-compute}
+\end{listing}
+
+The LLVM IR extract in \autoref{lst:branch-compute} is taken from one of
+the programs in the test suite implemented in \autoref{sec:hand-coded}.
+It shows an example of how a branch value can be computed from a
+function return value of interest. Using the data flow algorithm on the
+function this extract is taken from yields inferences on the value
+\mintinline{llvm}{%3}. Given these inferences, we can then trace the
+execution back through the basic block by hand to see that the branch
+value is determined fully by the return value of \mintinline{llvm}{call
+i1 @lock_acquire(...)}.
+
+To integrate the data flow analysis into the model checker, I added a
+basic implementation of this backwards tracing from the basic block
+inferences. As implemented, only simple boolean operations are followed
+(e.g.\ the \mintinline{llvm}{xor} instruction in
+\autoref{lst:branch-compute}). In \autoref{sec:model-limits}, I discuss
+how this approach could be extended to provide a less conservative
+analysis.
+
+Finally, the unsoundness described at the beginning of this section can
+be addressed. When a path through the event graph is checked against a
+specification automaton successfully, the transitions taken are
+recorded. From these, a sequence of function return constraints is
+extracted. If the path through the event graph passes through basic
+blocks with exactly that sequence of observable inferences, then the
+analysis is safe. If return values cannot be inferred, or the path does
+not observe the exact sequence of inferences, then the analysis is
+unsafe.
+
 \subsection{Results}
 
-\subsection{Limitations and Improvements}
+When extended with the data flow analysis described in
+\autoref{sec:rvc}, the model checker is able to successfully check a
+large subset of TESLA assertions. As a concrete reference, it is able to
+produce the same results as the hand-coded lock usage analyses from
+\autoref{sec:hand-coded}.
+
+The model checker will produce imprecise results on any assertion that
+contains a field assignment event, and on an assertion with return value
+constraints if the function return values are not inferrable from static
+control flow. However, it is worth noting that the result of an
+imprecise result is simply to leave the original TESLA assertions in
+place---they can still be checked at runtime.
+
+\subsection{Limitations and Improvements} \label{sec:model-limits}
+
+\subsubsection{Performance}
+
+Running the model checker is computationally expensive, especially when
+the path length in the bounded model checker is high or when there is a
+high branching factor in the event graph being checked. For example,
+model checking a small, correct example from the lock usage test suite
+with a length bound of 2000 instructions takes around 2 minutes on my
+development machine.
+
+However, there are a number of opportunities for optimisation (both to
+the code and to the algorithms as they are implemented) that could
+potentially speed up the model checker. From a practical perspective,
+there is a degree of futility in these optimisations as the model
+checker is unlikely to ever be fast enough to run at compile time
+(except perhaps on very small programs with few assertions).
+
+\subsubsection{Function Return Inference}
+
+The implementation used to infer function return values from branch
+conditions (as described in \autoref{sec:rvc}) is limited in scope---it
+will only infer function return values that within the same basic block
+as the branch condition in question, and only then if the dependence
+between them is composed only of boolean operations.
+
+However, it would be possible for this inference to be extended. One
+possible avenue for this improvement would be to allow the inference of
+non-boolean function return values. For example, a symbolic execution
+system such as KLEE \cite{cadar_klee:_2008} could be used to explore the
+range of function return values that lead to a particular branch.
+Alternatively, an SMT\footnote{Satisfiability modulo theories}-based
+approach such as LAV \cite{vujosevic-janicic_development_2012} could be
+applied to express the relevant inferences as an instance of an SMT
+problem.
+
+\subsubsection{Field Assignments}
+
+As noted previously, the model checker cannot check any assertion that
+contains a structure field assignment. This limitation arises because
+field assignments are inherently \emph{value-dependent}---locating the
+IR instruction that assigns to a structure field is easily done, but
+computing the value assigned is not easy (in the general case).
+
+A TESLA-specific solution to this issue would be to devise a way of
+splitting assertions such that statically provable components are proved
+where possible, leaving behind components of the assertion that must be
+instrumented dynamically. This approach would require major changes to
+some TESLA internals, and was found not to be feasible within the scope
+of this project (allowing for the work already done).
