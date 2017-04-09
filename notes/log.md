@@ -1437,4 +1437,15 @@
 # 8/4/2017
 
 * Getting through more writing on the implementation section.
-* 
+
+# 9/4/2017
+
+* Plan is to keep going on the writing, ideally finishing a first rough draft of
+  the implementation chapter.
+* Worked on parallelising the parallelisable part of the model checker to see
+  how much extra performance that will squeeze out (run into subtle bugs -
+  probably not worth carrying on. Should do a full rewrite).
+* ModelGenerator is the really bad part with regard to performance - any future
+  work would really need to do that refactoring to use the FSM stuff instead.
+  Part of the problem is that it consumes so much memory.
+* Started lit review and to look at counterexample outputs.
