@@ -1449,3 +1449,29 @@
   work would really need to do that refactoring to use the FSM stuff instead.
   Part of the problem is that it consumes so much memory.
 * Started lit review and to look at counterexample outputs.
+
+# 10/4/2017
+
+* Finished adding a hacky counterexample output to the model checker - to be
+  more strictly useful, the internal printing functions I use would have to be
+  improved somewhat.
+* My thought that model generation is the limiting factor is wrong - trace
+  generation is the killer. A more efficient approach than computing them all up
+  front would be a good idea.
+* Moved over to checking bounds incrementally - for every length at which it is
+  possible to terminate, generate models and traces then.
+* The general hypothesis is that it can detect failures really, really fast (but
+  you can run it for a long time on successful cases to be sure).
+* Checked the incremental adaptation of the algorithm - still correct on the
+  acq_rel test suite.
+* More opportunities for parallelism arise - why not have a thread pool pick up
+  work from a queue (work here being a depth to check). I think that as long as
+  the cache is guarded appropriately in the trace generator, everything *should*
+  be pretty parallelisable.
+* Looking to see how much (if any at larger depths) of an advantage we get from
+  parallelising the model checker aggressively.
+* Seems to be that it does help quite a lot (although more important are the
+  changes to stop early on failure!)
+* Next logical step would be some kind of minimisation / smarter search. i.e. if
+  we see that the model doesn't leave state x when executing a loop, don't go
+  through that loop again?

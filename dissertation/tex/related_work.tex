@@ -1,8 +1,39 @@
 In this chapter I provide an overview of related work in areas relevant
-to this project, along with a summary of how my work on TESLA brings new
-ideas and developments.
+to this project, along with a summary of how my work on TESLA
+contributes new ideas and developments.
 
-\section{Bounded Model Checking} \label{sec:bounded-model-checking}
+\section{Temporal Logic Assertions} \label{sec:bounded-model-checking}
+
+There exists a good deal of prior research related to program
+verification using temporal logic assertions and model checking. In this
+section I give a summary of the important work in this area.
+
+\subsection{Bounded Model Checking}
+
+\textcite{biere_symbolic_1999} introduce the concept of bounded model
+checking, building upon the earlier idea of \emph{symbolic} model
+checking due to \textcite{mcmillan_symbolic_1992} while removing the
+need to construct BDDs\footnote{Binary Decision Diagrams}. Their
+implementation of a bounded model checker, BMC, used the state
+description language SMV described by
+\citeauthor{mcmillan_symbolic_1992} and was able to show significant
+performance improvements over previous work.
+
+At the heart of symbolic model checking is the idea of counterexample
+generation---if a state is found to satisfy the negation of a formula,
+then that state is a counterexample for the original formula. The model
+checking process can then be undertaken as a satisfiability problem.
+Bounded model checking builds on this idea by searching for
+counterexamples with an upper bound on the length of such examples.
+
+Searching for counterexamples by length has a number of benefits---for
+example, they are easier for users of the system to understand and are
+faster to generate.
+
+\subsection{CBMC}
+
+\citeauthor{clarke_behavioral_2003}'s CBMC \cite{clarke_behavioral_2003}
+is perhaps the first instance of 
 
 \section{Path Sensitive Dataflow Analysis}
 
