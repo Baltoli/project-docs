@@ -839,19 +839,19 @@ place---they can still be checked at runtime.
 
 \subsubsection{Performance}
 
-Running the model checker is computationally expensive, especially when
-the path length in the bounded model checker is high or when there is a
-high branching factor in the event graph being checked. For example,
-model checking a small, correct example from the lock usage test suite
-with a length bound of 2000 instructions takes around 2 minutes on my
-development machine.
+Generally speaking, running the model checker is computationally
+expensive. However, it is designed to check shorter event paths first,
+such that a counterexample can be generated as soon as possible if one
+exists (the other benefit of this approach is that shorter
+counterexamples are easier for the user to understand).
 
-However, there are a number of opportunities for optimisation (both to
-the code and to the algorithms as they are implemented) that could
-potentially speed up the model checker. From a practical perspective,
-there is a degree of futility in these optimisations as the model
-checker is unlikely to ever be fast enough to run at compile time
-(except perhaps on very small programs with few assertions).
+In practical terms, this means that assertions that have a
+counterexample can be checked a great deal faster than those that do
+not---if there is no counterexample, then every path shorter than the
+bounding length must be checked. For example, checking any incorrect
+test case from \autoref{sec:hand-coded} with a bound of 5000
+instructions takes approximately 15 seconds, while the successful test
+cases take around 90 seconds.
 
 \subsubsection{Function Return Inference}
 
