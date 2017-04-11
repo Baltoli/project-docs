@@ -1482,3 +1482,5 @@
 * Improved some figures in the background section of the writeup.
 * Added a performance overhead section to the lock modelling part of the
   implementation writeup.
+* More tinkering with LWIP in a way that isn't entirely promising---definitely
+  worth a writeup as "why static analysis on real code is *hard*".
