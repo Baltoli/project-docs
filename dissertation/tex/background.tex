@@ -39,9 +39,9 @@ the additional steps required by TESLA.
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}
-    \node [sourcefile] (source1) {\texttt{.c}};
+    \node [msourcefile] (source1) {\texttt{.c}};
 
-    \node [sourcefile, right=3em of source1] (obj1) {\texttt{.o}};
+    \node [msourcefile, right=3em of source1] (obj1) {\texttt{.o}};
 
     \draw[-latex] (source1.east) -- (obj1.west);
 
@@ -56,23 +56,29 @@ the additional steps required by TESLA.
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}
-    \node [sourcefile] (source1) {\texttt{.c}};
+    \node [msourcefile] (source1) {\texttt{.c}};
 
     \node [right=5em of source1] (mid) {};
-    \node [sourcefile, above=1em of mid] (bc1) {\texttt{.bc}};
-    \node [sourcefile, below=1em of mid] (tesla1) {\texttt{.tesla}};
+    \node [msourcefile, above=1em of mid] (bc1) {\texttt{.bc}};
+    \node [msourcefile, below=1em of mid] (tesla1) {\texttt{.tesla}};
 
     \draw[-latex] (source1.east) to [out=0,in=180] (bc1.west);
     \draw[-latex] (source1.east) to [out=0,in=180] (tesla1.west);
 
-    \node [sourcefile,right=5em of mid] (bc2) {\texttt{.bc}};
+    \node [sourcefile,right=3em of tesla1] (tesla2) {\texttt{.manifest}};
+    \node [sourcefile] at (bc1 -| tesla2) (bc2) {\texttt{.bc}};
 
     \draw[-latex] (bc1.east) to [out=0,in=180] (bc2.west);
-    \draw[-latex] (tesla1.east) to [out=0,in=180] (bc2.west);
+    \draw[-latex] (tesla1.east) to [out=0,in=180] (tesla2.west);
 
-    \node [right=3em of bc2] (exe) {executable};
+    \node [sourcefile,right=12em of mid] (instr) {\texttt{.instr.bc}};
 
-    \draw[-latex] (bc2.east) -- (exe.west);
+    \draw[-latex] (bc2.east) to [out=0,in=180] (instr.west);
+    \draw[-latex] (tesla2.east) to [out=0,in=180] (instr.west);
+
+    \node [right=3em of instr] (exe) {executable};
+
+    \draw[-latex] (instr) -- (exe);
   \end{tikzpicture}
   \caption{The C compilation model with TESLA integrated}
   \label{fig:c-tesla-compilation}

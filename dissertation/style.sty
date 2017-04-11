@@ -47,9 +47,23 @@
     \newpage}
 
 \usepackage{tikz}
-\usetikzlibrary{arrows,automata,positioning,fit,calc}
+\usetikzlibrary{arrows,automata,positioning,fit,calc,shadows}
 
 \usepackage{csquotes}
+
+\tikzstyle{msourcefile}=[%
+draw,
+align=center,
+color=black,
+minimum width=10mm,
+minimum height=14.1mm,
+shape=rectangle,
+double copy shadow={shadow xshift=0.5ex,shadow yshift=-0.5ex,draw=black!30},
+fill=white,
+draw=black,
+thick,
+font=\footnotesize
+]
 
 \tikzstyle{sourcefile}=[%
 draw,
@@ -57,7 +71,11 @@ align=center,
 color=black,
 minimum width=10mm,
 minimum height=14.1mm,
-shape=rectangle
+shape=rectangle,
+fill=white,
+draw=black,
+thick,
+font=\footnotesize
 ]
 
 \tikzstyle{instr}=[%
@@ -67,6 +85,14 @@ color=black,
 inner sep=0.5em,
 rounded corners
 ]
+
+\tikzstyle{multiple}=[%
+]
+
+\tikzset{multiple/.style = {double copy shadow={shadow xshift=1ex,shadow
+         yshift=-1.5ex,draw=black!30},fill=white,draw=black,thick,minimum height = 1cm,minimum
+           width=2cm},
+         ordinary/.style = {rectangle,draw,thick,minimum height = 1cm,minimum width=2cm}}
 
 \makeatletter
 \newcommand{\settowidthofnode}[2]{%
