@@ -10,12 +10,22 @@ section I give a summary of the important work in this area.
 
 \subsection{Bounded Model Checking}
 
+In this section I give a sumamry of previous work in the area of bounded
+model checking, with particular emphasis on where it has been applied to
+check C programs. I also note key differences between these previous
+works and my implementation of a TESLA model checker---namely the style
+of assertion supported, and the use of non-symbolic checking in my
+implementation.
+
+\subsubsection{BMC}
+
 \textcite{biere_symbolic_1999} introduce the concept of bounded model
 checking, building upon the earlier idea of \emph{symbolic} model
 checking due to \textcite{mcmillan_symbolic_1992} while removing the
 need to construct BDDs\footnote{Binary Decision Diagrams}. Their
 implementation of a bounded model checker, BMC, used the state
-description language SMV described by
+description language SMV\footnote{In fact, SMV describes both the state
+structure and the assertions made of it.} described by
 \citeauthor{mcmillan_symbolic_1992} and was able to show significant
 performance improvements over previous work.
 
@@ -24,16 +34,91 @@ generation---if a state is found to satisfy the negation of a formula,
 then that state is a counterexample for the original formula. The model
 checking process can then be undertaken as a satisfiability problem.
 Bounded model checking builds on this idea by searching for
-counterexamples with an upper bound on the length of such examples.
+counterexamples with an upper bound on the allowable length. This means
+that the counterexamples discovered are of minimal length, and are
+discovered faster.
 
-Searching for counterexamples by length has a number of benefits---for
-example, they are easier for users of the system to understand and are
-faster to generate.
+While the implementation strategies and analysis goals of BMC and my
+model checker are quite different (BMC is a symbolic model checker for
+SMV, my model checker is a non-symbolic model checker for TESLA
+assertions embedded in C programs), the strategy of searching for
+counterexamples using an iterative-deepening method is derived in part
+from the original work on bounded model checking.
 
-\subsection{CBMC}
+\subsubsection{CBMC}
 
 \citeauthor{clarke_behavioral_2003}'s CBMC \cite{clarke_behavioral_2003}
-is perhaps the first instance of 
+is perhaps the first instance of bounded model checking being applied to
+C programs (rather than to a state description language such as SMV).
+The focus of the CBMC tool was to allow for C programs to be written as
+executable specifications for synchronous Verilog hardware designs
+without prohibiting the use of any C programming construct (use of
+pointers, memory allocations and recursive calls are all permitted).
+
+Ideas from previous work on BMC together with the new idea of
+\emph{unwinding assertions}\footnote{An assertion that captures the idea
+that a loop has been unrolled \textquote{enough} times.} allowed C
+programs and assertions to be translated into boolean formulae, which
+could then be checked using a SAT solver.
+
+Although CBMC is an example of model checking being applied to C
+programs, the assertions that can be checked are only local assertions
+(albeit with some temporal information available by supplying the value
+of Verilog signals to the C program). In this sense, the scope and
+target of TESLA assertions is different to those of CBMC---TESLA
+assertions are written to verify the behaviour of a program, while CBMC
+uses a C program with assertions to verify that a hardware
+implementation is behaviourally equivalent to that program.
+
+\subsubsection{LLBMC}
+
+CBMC operates at the level of C source code (the translation to a
+boolean formula is specified using syntactic transformations).
+\textcite{merz_llbmc:_2012} identified a potential avenue for
+improvement upon this model---their LLBMC operates on LLVM
+\cite{lattner_llvm:_2002} intermediate representation. The benefits of
+this approach include broader language support, assistance from compiler
+optimisations for code simplification, and an improved memory model. The
+assertions supported by LLBMC are a combination of user-supplied local
+assertions, and a set of built-in safety assertions (arithmetic
+overflow, memory safety etc.).
+
+Empirically, LLBMC represents an improvement over previous work in the
+area it is compared to---it is able to detect more assertion failures in
+a larger set of programs than both CBMC and an extended implementation
+thereof (ESBMC \cite{cordeiro_smt-based_2009}).
+
+The use of a compiler intermediate representation to simplify model
+checking is similar in concept to TESLA (modulo the differences between
+symbolic and non-symbolic model checking).
+
+\subsubsection{Context-bounded LTL Checking}
+
+More recent work by \textcite{morse_context-bounded_2011,
+morse_model_2015-1} uses bounded model checking to verify more complex
+LTL assertions made of a C program. Their approach involves the
+translation of an LTL formula into a B\"uchi automaton, which is then
+itself converted to C code and woven into the program to be checked.
+
+This approach is reminiscent of TESLA instrumentation, but has some key
+differences. The automaton code here has its own thread of execution
+rather than being inlined as TESLA instrumentation is, and instead of
+producing a modified executable that exhibits runtime failures on
+assertion violations, the combined program is checked statically using
+ESMBC to check for violations.
+
+Although the development of this work was partly contemporaneous with
+the initial work on TESLA, and the implementation strategies were
+similar in some respects, the LTL assertions checkable by this system
+are closer to those asserted by CBMC than to those asserted by TESLA.
+
+\subsection{Other Approaches}
+
+While there has been a great deal of work derived from BMC on verifying
+systems software, there are also other approaches that do not share the
+same lineage.
+
+\subsubsection{MOPS}
 
 \section{Path Sensitive Dataflow Analysis}
 
