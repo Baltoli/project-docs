@@ -9,7 +9,7 @@ S_BENCH="$LOCK_DIR/locks_bench_static"
 I_BENCH="$LOCK_DIR/locks_bench"
 
 N=15000
-RUNS=30
+RUNS=5
 THREADS=(8 10 12 14 16 20 24 28 32 36 40)
 for th in ${THREADS[@]}; do
   echo "Running static at $th..."
