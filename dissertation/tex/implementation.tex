@@ -116,6 +116,83 @@ limitation in the TESLA instrumenter code that prevents
 \mintinline{c}{ATLEAST(0, ...)} from compiling. The semantics in both cases are
 the same, so this is not a major issue.
 
+\subsection{Performance Overhead}
+
+The lock assertions can be used to provide an example of the performance
+overhead imposed by instrumenting code with TESLA (and consequently, the
+potential benefits of removing safe assertions at compile time).
+
+\subsubsection{Experimental Setup}
+
+The benchmark code used in this demonstration creates a number of
+threads, each of which attempts to sort a randomly chosen interval of a
+large shared array. Threads access the array under mutual exclusion,
+protected by a lock as described in \autoref{lst:mutex}---this creates
+contention on the lock, dependent on the number of executing threads.
+
+A single TESLA assertion is added to the benchmark to assert the correct
+usage of the mutual exclusion lock on the shared array. Two versions of
+the program are generated---one with the TESLA instrumentation left in
+place, and another with the instrumentation elided using the model
+checker described in \autoref{sec:checking}. Both versions are compiled
+using release build settings.
+
+Both programs were run with the same parameters (threads sort an
+interval of size \num{15000} from a larger array of size \num{500000},
+and the number of threads was varied from 8 to 40), with results
+averaged over 5 runs of the program.
+
+The benchmarks were run on my development machine (Intel Xeon E5-1620
+\SI{3.6}{\GHz}, 8 cores, 64GB of RAM) running FreeBSD 11.
+
+\subsubsection{Results}
+
+Before the two benchmark programs are even run, one benefit of removing
+instrumentation is clear---the binary with its assertions removed is 25\%
+smaller than the instrumented binary (\num{19.1} KiB vs. \num{25.3}
+KiB).
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      title={Effect of contention on benchmark runtime},
+      xlabel={No. of Threads},
+      ylabel={Runtime (s)},
+      xmin=5,xmax=43,
+      ymin=0,ymax=70,
+      xtick={8,16,24,32,40},
+      legend pos=north west,
+      ymajorgrids=true,
+      grid style=dashed,
+    ]
+      \addplot[color=blue, mark=x]
+      table [x =x, y =sy, y error =se]{data/locks_bench.dat};
+
+      \addplot[color=red, mark=x]
+      table [x =x, y =iy, y error =ie]{data/locks_bench.dat};
+      \legend{Uninstrumented,Instrumented}
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Runtime of instrumented and uninstrumented benchmarks at
+  varying levels of lock contention}
+  \label{fig:locks-bench}
+\end{figure}
+
+The results from running the two benchmark programs as described above
+are shown in \autoref{fig:locks-bench}. At low levels of contention
+there is little difference between the programs---this is because the
+TESLA instrumentation code is only executed during lock acquisition and
+releasing. However, at higher levels of contention more time is spent in
+the TESLA instrumentation code, and the instrumented version shows a
+slowdown relative to the uninstrumented version.
+
+From these results the benefits of performing static analysis on TESLA
+assertions can be seen---if the assertions lie on a frequently executed code
+path, then a runtime performance improvement is likely. A decrease in
+binary size is also likely, even if the assertions are executed only
+infrequently.
+
 \section{Hand-Coded Static Analysis} \label{sec:hand-coded}
 
 The first approach taken to static analysis of TESLA assertions was to develop

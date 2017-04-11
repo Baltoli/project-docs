@@ -1475,3 +1475,10 @@
 * Next logical step would be some kind of minimisation / smarter search. i.e. if
   we see that the model doesn't leave state x when executing a loop, don't go
   through that loop again?
+
+# 11/4/2017
+
+* Wrote up part of the lit review on bounded model checking.
+* Improved some figures in the background section of the writeup.
+* Added a performance overhead section to the lock modelling part of the
+  implementation writeup.
