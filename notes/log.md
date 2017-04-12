@@ -1484,3 +1484,49 @@
   implementation writeup.
 * More tinkering with LWIP in a way that isn't entirely promising---definitely
   worth a writeup as "why static analysis on real code is *hard*".
+
+# 12/4/2017
+
+* What to look at today? Dissertation is at 6700 words with case study, partial
+  lit review, intro and conclusion to come. Things to look at doing just now are
+  a look at why it's hard to instrument LWIP, more lit review or trying to find
+  a more "security" oriented property that I can assert. Background section
+  could maybe also do with a bit of work, but less important.
+* MOPS paper gives some potential applications of security automata - should
+  look at these and find a similar one that lies on a "hot" code path in some
+  tool.
+* Why can't TESLA express "the program *does not* do something" - these are
+  safety properties after all? So far as I can tell, TESLA is not actually
+  capable of expressing these properties.
+* Question is what properties can I assert and check, and can I find somewhere
+  to put them on hot code paths?
+* Things to think about:
+  * TESLA changes the build system - hard to integrate into existing projects
+  * Assertions are written by the programmer - assertion libraries?
+  * Coding style is an obstacle to using TESLA
+  * Why not use TESLA+static as a security guidance tool?
+* Idea: write a reusable library that attempts to stop programmers from using
+  setuid wrong in new projects. Maybe not setuid specifically, but a library of
+  checked implementations of things that could easily go wrong when writing C
+  programs.
+* What kind of things can TESLA assert?
+  * Assertions state that on this code path, something holds
+  * Bounded previously / eventually.
+  * Good for managing resources of some kind - file descriptors, locks etc.
+* Typically users are responsible for cleaning up their own resources - what if
+  the library contains TESLA assertions that mandate the user does so?
+* So this library should be easy to integrate and provide (ideally) zero-cost
+  checked abstractions.
+* Another TODO is to fix how the model cheker handles arguments (so that it
+  actually does)
+* The general idea of this seems to be sound - library functions are able to
+  describe their own safe behaviour within the TESLA bounds.
+* There's an interesting point to be made about abstraction layers within a
+  system - TESLA asssertion style allows the programmer to protect
+  *well-defined* access points and to protect the use of those. Can then
+  restrict usage of "dangerous" functions.
+* This style is really defensive coding, and would ideally be supported by
+  another pass that prevents the consumer of the library from doing unsafe
+  things (e.g. unprotected calls to fopen etc.)
+* Fixed a small bug in the model checker that caused it to report a lot of false
+  positives when assertion site events weren't reached at all.

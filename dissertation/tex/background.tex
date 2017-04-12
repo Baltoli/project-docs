@@ -144,33 +144,3 @@ TESLA_WITHIN(g, TSEQUENCE(
   TESLA_ASSERTION_SITE,
   call(f)));
 \end{minted}
-
-\section{Bounded Model Checking}
-
-\iffalse
-
-\begin{figure}[ht]
-  \centering
-  \begin{tikzpicture}[>=latex',initial text={},
-                      node distance=3cm,on grid,auto]
-    \node[state,initial,accepting] (only) [] {};
-    \node [draw,dashed,fit=(only),inner sep=0.3cm] {};
-  \end{tikzpicture}
-  \caption{Null Assertion}
-  \label{fig:gv}
-\end{figure}
-
-\begin{figure}[ht]
-  \centering
-  \begin{tikzpicture}[>=latex',initial text={},
-                      node distance=3cm,on grid,auto]
-    \node[state,initial] (start) [] {};
-    \node[state,accepting] (end) [right=of start] {};
-    \node[draw,dashed,fit=(start) (end), inner sep=0.3cm] {};
-    \path[->] (start) edge node {event} (end);
-  \end{tikzpicture}
-  \caption{Single Event Automaton}
-  \label{fig:gv}
-\end{figure}
-
-\fi
