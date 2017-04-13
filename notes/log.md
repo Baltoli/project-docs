@@ -1530,3 +1530,25 @@
   things (e.g. unprotected calls to fopen etc.)
 * Fixed a small bug in the model checker that caused it to report a lot of false
   positives when assertion site events weren't reached at all.
+
+# 13/4/2017
+
+* Continuing on the idea of a "safe" plugin / library interface that exposes
+  operations with associated temporal invariants.
+* Found a bug bug in my implementation - function calls across translation unit
+  boundaries weren't being preserved. Fixed by adding a safe getCalledFunction
+  wrapper.
+* Weird issue in libtesla - fixed by linking against a freshly built one. Not
+  sure what the problem would have been as I have never modified that code.
+* Interesting thought for plugin stuff - it would be possible to distribute a
+  bitcode file together with a TESLA manifest as one compiled file (to avoid
+  source stuff).
+* Put together a really small benchmark for the normal / TESLA / static
+  comparison on the KV store - able to show very big performance degradation
+  when using TESLA, but static analysed version is as good as nothing at all!
+  Protocol is still kind of broken, but the idea still holds water.
+* Figured out that the LLVM bitcode wrapper for embedded manifests is actually
+  really simple, and the resulting file can be compiled as normal! What would a
+  tool to work with these files look like? It would be possible to get the
+  library (preinstr) bitcode and distribute it as a single file with a manifest.
+  That could then be compiled wih the plugin code to build the whole app.
