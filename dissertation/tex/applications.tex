@@ -1,0 +1,202 @@
+In this chapter I discuss potential applications of statically checked
+TESLA to practical software engineering scenarios. I provide an analysis
+of how coding style can make writing TESLA assertions for a system more
+difficult, with reference to a large open-source library. Finally, I
+contribute a framework for using TESLA with static analysis to enforce
+temporal invariants imposed by library code on users of the library.
+
+\section{LWIP} \label{sec:lwip}
+
+An initial goal of the project was to investigate how TESLA might be
+applied to verify the behaviour of a larger state machine such as that
+of TCP. However, this verification proved to be more difficult than
+anticipated for a number of reasons.
+
+In this section I investigate the application of TESLA to LWIP
+\cite{dunkels_design_2001}, a widely used, portable implementation of
+the IP protocol stack. I describe difficulties encountered in this
+process with reference to the LWIP source, as well as an analysis of how
+code written from scratch with TESLA instrumentation in mind could
+mitigate these issues.
+
+\subsection{Structure}
+
+LWIP is distributed as a configurable library so that it can be built on
+virtually any platform with a C compiler---interfaces to network
+buffers, timers and other platform-specific code are abstracted so that
+their implementation can be specified by users. Configurations for
+widely used operating systems (generic Unix, Windows etc.) are
+distributed as a secondary library together with example applications.
+
+The core networking code of LWIP is around 57K lines of C.\footnote{Not
+including header files or tests.} This code includes implementations of
+IPV4, IPV6, TCP, UDP and a number of application-layer protocols. The
+secondary library has around 13K lines of C, mostly contained in
+implementations of executable server applications (HTTP, Telnet, SMTP
+etc.).
+
+\subsection{Investigation}
+
+The goal of my investigation into LWIP was to instrument the core TCP
+implementation with useful TESLA assertions, then to demonstrate that
+performance improvements were attainable by applying static analysis to
+this instrumentation.
+
+\subsubsection{Building LWIP}
+
+Before any TESLA assertions could be written, a version of LWIP built
+using the TESLA compilation model described in \autoref{sec:build-tesla}
+was required.
+
+Each of the LWIP-based server applications is built using a Makefile
+that compiles the core library separately, then links the
+application-specific code with the core library. Modifying this build
+system to use the TESLA infrastructure was not difficult, as much of the
+setup (flags, includes, linking etc.) was in place already---the only
+changes needed were to add the extra TESLA-specific rules and to compile
+to bitcode instead of object files.
+
+The end result of this modification was an application implementing the
+TCP Echo protocol \cite{RFC0862}, built from sources that could be
+instrumented using TESLA.
+
+I now provide an analysis of the LWIP TCP source code features that make
+TESLA instrumentation more difficult.
+
+\subsubsection{TCP State Implementation}
+
+At the core of the TCP protocol implementation is a structure
+representing a single TCP connection (\mintinline{c}{struct tcp_pcb}).
+Almost all of the TCP protocol implementation is expressed in terms of
+these structures---\autoref{lst:tcp-decls} contains some function
+declarations taken from the source code that use the structure.
+
+\begin{listing}
+  \begin{minted}{c}
+err_t tcp_bind(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port);
+
+err_t tcp_close(struct tcp_pcb *pcb);
+
+struct tcp_pcb * tcp_listen_with_backlog(struct tcp_pcb *pcb, u8_t backlog)
+  \end{minted}
+  \caption{Function declarations from the LWIP TCP implementation.}
+  \label{lst:tcp-decls}
+\end{listing}
+
+Such heavy reliance on structure fields is obviously less than ideal
+from the perspective of static analysis, although checking assignments
+to structure fields is within the capabilities of TESLA without static
+analysis. However, a further complication is that the implementation is
+not consistent in its use of PCB structures---some functions modify a
+structure passed to them, while others return an entirely new structure.
+The latter style of function is far more difficult to instrument
+effectively in TESLA.
+
+\subsubsection{Macro Usage}
+
+In order for LWIP to be universally portable, it makes heavy use of the
+C preprocessor for a number of reasons. For example:
+\begin{description}
+  \item[Platform-specific implementations] The implementation of some
+  functions can vary from system to system (e.g.\ endianness conversion
+  functions). Macros are used to select the correct implementation of
+  these functions without the overhead of a function call. This means
+  that any TESLA assertions added to these functions would become
+  platform-specific, and potentially duplicated between implementations.
+
+  \item[Conditional Compilation] Almost every feature of LWIP can be
+  enabled, disabled or modified at compile-time by setting the correct
+  preprocessor definitions (this is what allows LWIP to be used so
+  effectively on systems with limited resources). In LWIP, this feature
+  is used in places to conditionally change the fields contained in a
+  structure---any assertions written about that field must then be aware
+  of the required \mintinline{c}{#ifdef} context.
+
+  \item[Inlined Functions] Some simple ``functions'' in LWIP are
+  expressed using macros to guarantee that there is no function call
+  overhead, rather than relying on the compiler to inline
+  them.\footnote{It is perhaps worth noting that LWIP was first released
+  in 2001---the performance of optimising C compilers has improved a
+  great deal since then.} These function-like macros cannot be asserted
+  about by TESLA, and are difficult to distinguish in source code.
+\end{description}
+
+Taken together, these uses of the macro system make TESLA
+instrumentation far more difficult to add to the LWIP source.
+
+\subsubsection{Control Flow}
+
+TESLA assertions are most useful (especially when using static analysis)
+for asserting properties related to control flow events. However, the
+style in which LWIP code is written means that there is little explicit
+control flow within the protocol implementation itself---many functions
+perform complicated work on a PCB structure, then call only a single
+other function to send a packet.
+
+In addition to the long functions and shallow call graph in the TCP
+implementation, applying TESLA becomes even more difficult because of
+the way users of the TCP implementation call into it---code that uses
+the TCP implementation must register a set of callback functions that
+are called at specified points in the protocol's execution.
+\autoref{lst:callbacks} shows an extract from the TCP echo server in
+which these callbacks are registered.
+
+\begin{listing}
+  \begin{minted}{c}
+tcp_recv(newpcb, tcpecho_raw_recv);
+tcp_err(newpcb, tcpecho_raw_error);
+tcp_poll(newpcb, tcpecho_raw_poll, 0);
+tcp_sent(newpcb, tcpecho_raw_sent);
+  \end{minted}
+  \caption{Callback registration for a user of the LWIP TCP implementation}
+  \label{lst:callbacks}
+\end{listing}
+
+Registered callbacks are stored as members of a PCB structure. This
+behaviour defeats TESLA instrumentation (both static and
+dynamic)---there is currently no way to express \textquote{the function
+\texttt{pcb.member} is eventually called} in the assertion language.
+Unfortunately, these callback functions contain much of the behaviour
+that would be well-served by TESLA instrumentation. For example, the
+LWIP
+documentation\footnote{\url{http://lwip.wikia.com/wiki/Raw/TCP\#Receiving_TCP_data}}
+describes the mandated behaviour of a particular callback function:
+
+\begin{displayquote}[LWIP Wiki]
+When the application has processed the incoming data, it must call the
+\mintinline{c}{tcp_recved()} function to indicate that TCP can increase
+the receive window.
+\end{displayquote}
+
+Because of the callback interface, instrumenting the invariants of this
+function could only be done by the consumer of the library (rather than
+the author of the library). This means that the author of the library
+can do little beyond documentation to ensure correct usage of the API
+functions.
+
+\subsection{Conclusion}
+
+The LWIP TCP library presents an interesting target for verification
+with TESLA. However, the style in which the library is written means
+that applying TESLA assertions to the internal code is both difficult
+and unlikely to yield any useful insight into the behaviour of the
+library. Additionally, the use of a callback-based API for users of the
+library means that TESLA cannot be applied in the situation where it
+would be most useful (enforcing temporal assertions on user-supplied
+code).
+
+\section{Safer Library Interfaces with TESLA}
+
+In this section I describe the implementation of a mechanism by which a
+library can use TESLA assertions to verify correct usage of the library
+by clients. First, I relate the problem to the difficulties encountered
+when attempting to apply TESLA to LWIP in \autoref{sec:lwip}. Then, I
+describe the construction of such an interface using TESLA. Finally, I
+present an application developed using this method and show the
+performance benefits available by applying static analysis.
+
+\subsection{Motivation}
+
+\subsection{Implementation Strategy}
+
+\subsection{Results}

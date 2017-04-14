@@ -1552,3 +1552,13 @@
   tool to work with these files look like? It would be possible to get the
   library (preinstr) bitcode and distribute it as a single file with a manifest.
   That could then be compiled wih the plugin code to build the whole app.
+
+# 14/4/2017
+
+* Should start to put together the case study section of the evaluation so that
+  I can have a full rough draft ready soon.
+* Wrote up my findings on "static analysis is hard" with respect to LWIP.
+* Started to put together a skeleton of the the section on safe plugin
+  interfaces.
+* A bit of reading Zobel.
+* First draft of introduction.
