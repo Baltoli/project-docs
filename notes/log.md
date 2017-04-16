@@ -1562,3 +1562,76 @@
   interfaces.
 * A bit of reading Zobel.
 * First draft of introduction.
+* Short investigation into how separate compilation could be applied to plugins
+  by minimising compilation overhead - ran into an issue with assertion
+  locations (not compiling plugin.c with TESLA properly?)
+
+# 15/4/2017
+
+* Things to start looking at:
+  * Fixing argument handling in the model checker
+  * Writing conclusion
+  * Thinking up a more realistic library interface for checking
+* Managed to get arguments handled properly in the model checker, and added an
+  example test case to show that it does work. Hacked a solution to an assertion
+  failure that isn't really correct but works for now.
+* Interesting idea is weak functions to simulate function pointers at compile
+  time---can say `if(func) ...` for a function with the correct interface.
+  Library would do this to let the user optionally declare their own hooks, and
+  so that the user doesn't have to stub everything!
+* Looked through the FreeBSD TESLA assertions a bit - maybe worth noting
+  somewhere that these aren't amenable to static analysis for whatever reason
+  (isolated, indirection, large code, ...)
+* So it is possible to compile a library ahead of time - errors yesterday were
+  me being daft. Should make a tool that can inject a manifest into a bitcode
+  file wrapper. The wrapped bitcode files can behave just like any other bitcode
+  file, but can have their manifest extracted to allow for instrumentation.
+
+# 16/4/2017
+
+* Worked out a reasonably reliable way to compile apps against a precompiled,
+  archived library built using TESLA - the app depends on the .m.bc file, then
+  compiles / extracts as appropriate.
+* Should now start to look at how TESLA behaves in the presence of weak linkage,
+  and to build a more reasonable example.
+* Idea is that the library obviously shouldn't have to supply `main`, but can
+  give interface functions that make safe calls to weak user callbacks.
+* Need to fix my argument checking logic - breaking on simple cases from the
+  server app testing.
+* Fixed the argument checking logic (properly this time!) - constant and
+  wildcard arguments are correctly handled.
+* Here's an interesting idea - why not interpose *between* LWIP and client code?
+  Write a wrapper library that registers callbacks but is able to maintain TESLA
+  invariants! This would be the best of both worlds - applicability to real
+  code, while still on the idea of safer library interfaces! Why not even modify
+  the actual tcpecho_raw example? Good for benchmarking!
+* So what we're looking at is a sort of shim layer / reimplementation of the
+  tcpecho_raw app? Sort of - it'll verify usage of the API in a more general
+  sense. Users of the API supply implementations of the callback functions, and
+  the wrapper is responsible for initialisation using those functions only. The
+  initialisation function needs to be concrete so that there's a place to hang
+  assertions from.
+* The API wrapper declares the weak functions, and links with an implementation
+  to make them work. I think that to make instrumentation work, we need a
+  further layer of indirection:
+```
+actual_cb_func()
+{
+  if(user_cb_func) { 
+    TESLA_WITHIN(actual_cb_func, ...);
+    user_cb_func(); 
+  }
+}
+```
+* Then, the initialisation function would register `actual_cb_func` as a
+  callback.
+* Benchmarking - measure throughput for this version compared w/wo static
+  analysis and compare to the actual version?
+* Can build the tesla app example against a copied-in version of the raw echo
+  application code. Next step is to split off a wrapper, removing app-specific
+  code as we go. Need to probably give user hooks into the fixed init / accept
+  functions. Have a functioning echo server built using the weak function
+  interface - the next step is to build the wrapper implementation against
+  TESLA.
+* Problem faced is that the virtual interface is *much* slower than making real
+  function call - but why should that be so much worse than previously?
