@@ -56,9 +56,8 @@ setup (flags, includes, linking etc.) was in place already---the only
 changes needed were to add the extra TESLA-specific rules and to compile
 to bitcode instead of object files.
 
-The end result of this modification was an application implementing the
-TCP Echo protocol \cite{RFC0862}, built from sources that could be
-instrumented using TESLA.
+The end result of this modification was that any of the example applications
+distributed with LWIP could be instrumented and built against TESLA.
 
 I now provide an analysis of the LWIP TCP source code features that make
 TESLA instrumentation more difficult.
@@ -172,20 +171,20 @@ Because of the callback interface, instrumenting the invariants of this
 function could only be done by the consumer of the library (rather than
 the author of the library). This means that the author of the library
 can do little beyond documentation to ensure correct usage of the API
-functions.
+functions. In \autoref{sec:safer-libs} I show how this problem can be partially
+solved using TESLA.
 
-\subsection{Conclusion}
+\subsection{Summary}
 
-The LWIP TCP library presents an interesting target for verification
-with TESLA. However, the style in which the library is written means
-that applying TESLA assertions to the internal code is both difficult
-and unlikely to yield any useful insight into the behaviour of the
-library. Additionally, the use of a callback-based API for users of the
-library means that TESLA cannot be applied in the situation where it
-would be most useful (enforcing temporal assertions on user-supplied
-code).
+The LWIP TCP library presents an interesting target for verification with TESLA.
+However, the style in which the library is written means that applying TESLA
+assertions to the internal code is both difficult and unlikely to yield any
+useful insight into the behaviour of the library. Additionally, the use of a
+callback-based API for users of the library means that TESLA cannot be directly
+applied in the situation where it would be most useful (enforcing temporal
+assertions on user-supplied code).
 
-\section{Safer Library Interfaces with TESLA}
+\section{Safer Library Interfaces with TESLA} \label{sec:safer-libs}
 
 In this section I describe the implementation of a mechanism by which a
 library can use TESLA assertions to verify correct usage of the library
@@ -197,6 +196,177 @@ performance benefits available by applying static analysis.
 
 \subsection{Motivation}
 
+In \autoref{sec:lwip} I investigated how TESLA instrumentation could be applied
+to the internal implementation of LWIP, concluding that the most useful place
+for instrumentation is actually at the boundary between user and library code.
+However, the use of user-registered callbacks means that the library cannot use
+TESLA to make assertions on user behaviour.
+
+A solution to this problem should allow users to consume the LWIP libraries as
+they would when using the callback API, while also allowing the library to add
+TESLA assertions about the behaviour of user code. This would mean the library
+is able to enforce temporal safety properties of user programs without any prior
+knowledge of the programs.
+
 \subsection{Implementation Strategy}
 
-\subsection{Results}
+LWIP distributes a number of example applications that consume the internal TCP
+API by using callbacks as described previously---the simplest of these is an
+implementation of the echo protocol \cite{RFC0862}. In this section I describe a
+modified version of this application that includes TESLA assertions specified by
+the library.
+
+In normal usage, a program using the LWIP TCP library calls a particular library
+function with a function pointer argument to register their application-specific
+callbacks. This is a very flexible approach that gives the program fine-grained
+control over how it interacts with the library. \autoref{fig:callbacks} shows
+how the program interacts with the library under this usage model.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \node[draw] (call1) {\texttt{callback\textsubscript{1}}};
+    \node[draw,below=of call1] (call2) {\texttt{callback\textsubscript{2}}};
+    \node[below=of call2] (calletc) {...};
+    \node[draw,below=of calletc] (calln) {\texttt{callback\textsubscript{n}}};
+    \node[above=of call1] (req) {};
+    \node[draw,right=of |(req)(calln),span vertical=(req)(calln)] (lib) {\texttt{liblwip}};
+    \node[draw,left=of |(req)(calln),span vertical=(req)(calln)] (prog) {\texttt{program}};
+
+    \draw[-latex] (prog.east |- req.south) -- (req.south -| lib.west);
+
+    \draw[latex-latex] (call1) -- (call1 -| lib.west);
+    \draw[latex-latex] (call2) -- (call2 -| lib.west);
+    \draw[latex-latex] (calln) -- (calln -| lib.west);
+
+    \draw[-latex] (call1) -- (call1 -| prog.east);
+    \draw[-latex] (call2) -- (call2 -| prog.east);
+    \draw[-latex] (calln) -- (calln -| prog.east);
+  \end{tikzpicture}
+  \caption{Default usage of the LWIP callback API}
+  \label{fig:callbacks}
+\end{figure}
+
+To add TESLA assertions, some of this dynamic behaviour and flexibility must be
+forgone. Instead of registering callbacks, user programs must implement a
+particular static interface (by implementing functions with names specified by
+the library). These functions can then be automatically registered as callbacks
+by the library.
+
+However, this is not yet a complete solution. Each TESLA assertion must be
+placed at a source location on the execution path it asserts over---intuitively,
+this would be within the user-supplied interface functions themselves. Because
+the definitions of these functions are not available to the library ahead of time, it must
+implement wrapper functions. These wrappers call through to the user-supplied
+interface functions, as well as containing the library TESLA assertions.
+\autoref{fig:callbacks-tesla} shows how a program interacts with this modified
+usage model.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \node[draw] (call1) {\texttt{interface\textsubscript{1}}};
+    \node[draw,below=of call1] (call2) {\texttt{interface\textsubscript{2}}};
+    \node[below=of call2] (calletc) {...};
+    \node[draw,below=of calletc] (calln) {\texttt{interface\textsubscript{n}}};
+    \node[above=of call1] (req) {};
+
+    \node[draw,right=of call1] (wrap1) {\texttt{wrapper\textsubscript{1}}};
+    \node[draw,right=of call2] (wrap2) {\texttt{wrapper\textsubscript{2}}};
+    \node[below=of wrap2] (wrapetc) {...};
+    \node[draw,right=of calln] (wrapn) {\texttt{wrapper\textsubscript{n}}};
+
+    \node[draw,dashed,inner sep=0.8em,fit=(wrap1)(wrapn)] (tesla) {};
+
+    \node[draw,right=of |(req)(wrapn),span vertical=(req)(tesla)] (lib) {\texttt{liblwip}};
+    \node[draw,left=5em of |(req)(calln),span vertical=(req)(tesla)] (prog) {\texttt{program}};
+
+    \draw[-latex] (prog.east |- req.south) -- (req.south -| lib.west);
+
+    \draw[latex-latex] (call1) -- (wrap1);
+    \draw[latex-latex] (call2) -- (wrap2);
+    \draw[latex-latex] (calln) -- (wrapn);
+
+    \draw[latex-latex] (wrap1) -- (call1 -| lib.west);
+    \draw[latex-latex] (wrap2) -- (call2 -| lib.west);
+    \draw[latex-latex] (wrapn) -- (calln -| lib.west);
+
+    \draw[-latex] (call1) -- (call1 -| prog.east);
+    \draw[-latex] (call2) -- (call2 -| prog.east);
+    \draw[-latex] (calln) -- (calln -| prog.east);
+
+  \end{tikzpicture}
+  \caption{Usage of the LWIP callback API with TESLA instrumentation}
+  \label{fig:callbacks-tesla}
+\end{figure}
+
+Adapting the echo server application to use this model required only that the
+wrapper functions and corresponding assertions were written---almost no
+modification of the application code was required beyond removing the callback
+registration calls.
+
+The result of this adaptation is two further echo server executables---one where
+static analysis has been applied to the library assertions, and one where it has
+not been.
+
+\subsection{Performance}
+
+I now provide benchmark results for the three different versions of the echo
+server (unmodified, instrumented and statically analysed) in order to
+demonstrate the performance overhead of both the adapted library interface, and
+of TESLA instrumentation.
+
+\subsubsection{Experimental Setup}
+
+A simple benchmark for an echo server is to measure how many requests of a fixed
+size it can handle in a fixed time period. To benchmark the three echo server
+implementations, an existing benchmarking tool by \textcite{hoyer_rust_2016} was
+used. The tool runs for a fixed length of time, sending as many messages to a
+server as it can (on a configurable number of threads).
+
+The benchmarks were run on my development machine (Intel Xeon E5-1620
+\SI{3.6}{\GHz}, 8 cores, 64GB of RAM) running FreeBSD 11. The benchmarking tool
+was run for \SI{60}{\s} with a message size of 512 bytes in every case, and the
+number of sending threads was varied from 1 to 10.
+
+For the instrumented and statically analysed versions, the library wrapper code
+contained five TESLA assertions covering the possible library calls that the
+user code could make. All of these were reported as safe by the model checker.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \pgfplotsset{scaled y ticks=false}
+    \begin{axis}[
+      title={Throughput vs. number of sending threads},
+      xlabel={No. of Threads},
+      ylabel={Throughput (messages/s)},
+      xmin=0,xmax=11,
+      ymin=0,ymax=140000,
+      legend pos=south east,
+      ymajorgrids=true,
+      grid style=dashed,
+      cycle list/Dark2,
+    ]
+      \addplot +[mark=x]
+      table [x =n, y =unmod]{data/echo_bench.dat};
+
+      \addplot +[mark=x]
+      table [x =n, y =static]{data/echo_bench.dat};
+
+      \addplot +[mark=x]
+      table [x =n, y =instr]{data/echo_bench.dat};
+      \legend{Unmodified,Static,Instrumented}
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Effect of TESLA instrumentation and library interface adaptation on
+  echo server throughput}
+  \label{fig:locks-bench}
+\end{figure}
+
+\subsubsection{Results}
+
+In all three echo servers, throughput was saturated when sending on two or more
+threads---using more threads to send data had no effect on throughput.
+
+\subsection{Summary}

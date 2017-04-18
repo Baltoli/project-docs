@@ -1635,3 +1635,50 @@ actual_cb_func()
   TESLA.
 * Problem faced is that the virtual interface is *much* slower than making real
   function call - but why should that be so much worse than previously?
+
+# 17/4/2017
+
+* Fixed the mysterious performance issue - the wrapper wasn't registering a
+  whole callback! This meant that polling was the only way it could ever be
+  sending data.
+* Should probably build the core of LWIP as standard (as we're instrumenting the
+  user code interface).
+* Core now no longer being built against TESLA. The next step is to build the
+  wrapper library and app files *with* TESLA.
+* The inference checker needs some work - generated conditions are way too
+  complex. Fixed this by taking implications inside the simplifier itself (if
+  simplification isn't trivial).
+* Fixed a small bug in the called / cast function trick.
+* Realising that the model generation approach isn't working for optionals - the
+  subtlety is in what a null event should be able to check. Should finally get
+  around to introducing the FSM code.
+* Trying to figure out the subtleties of extracting a sequence of return value
+  constraints from an accepting trace through the FSM. Problem is
+  nondeterminism, so we need to have a way of getting at all the possible
+  accepting traces through the machine.
+* The other approach to this is to try to compute RVC *ahead* of time - so that
+  we can get determinism back. Not easy.
+* Otherwise we're back to a slightly improved model trace generator.
+
+# 18/4/2017
+
+* Continuing to work on fixing up the model checker. Idea late yesterday was
+  that we can reuse the bigram checking idea by keeping track of what we saw
+  last.
+* Lots of improvements etc. to the model checker - fixed the issues with
+  optionals from yesterday, and can now run successfully on the assertions
+  placed in the LWIP shim interface.
+* Doing some benchmarking with an echo server benchmark found online shows
+  definite speedups for the statically analysed version when compared to the
+  instrumented version.
+* Should also build an example that uses the unmodified LWIP raw TCP echo server
+  to see how much overhead we introduce with the library interface.
+* Promising results! The instrumented version seems to run at ~61% performance
+  compared to an unmodified example, while the statically analysed version comes
+  in at 87% performance.
+* There's a definite overhead to doing things this way, but it could be argued
+  that you can eliminate a bit of this by designing the library to support the
+  style from the start (so that you don't need to always go through indirect
+  calls).
+* Running the examples for longer to get more reliable data.
+* Started to write up section on safer library interfaces.

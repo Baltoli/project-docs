@@ -165,11 +165,12 @@ KiB).
       legend pos=north west,
       ymajorgrids=true,
       grid style=dashed,
+      cycle list/Dark2,
     ]
-      \addplot[color=blue, mark=x]
+      \addplot+[mark=x]
       table [x =x, y =sy, y error =se]{data/locks_bench.dat};
 
-      \addplot[color=red, mark=x]
+      \addplot+[mark=x]
       table [x =x, y =iy, y error =ie]{data/locks_bench.dat};
       \legend{Uninstrumented,Instrumented}
     \end{axis}
