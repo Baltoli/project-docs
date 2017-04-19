@@ -1682,3 +1682,16 @@ actual_cb_func()
   calls).
 * Running the examples for longer to get more reliable data.
 * Started to write up section on safer library interfaces.
+
+# 19/4/2017
+
+* Worked out what I've been doing wrong all this time for caller-context
+  instrumentation. Should extend the checker to work with it.
+* Finished writing up the applications section and started to finish up the
+  background work.
+* Writing evaluation section.
+* Should also look into optimising instrumentation in the case where we don't
+  have any undeleted usages - special mode to bypass instrumentation altogether?
+  Not quite that easy, I don't think - needs to do stuff like deleting magic
+  function calls.
+* Got to a very rough first draft stage.

@@ -333,6 +333,14 @@ For the instrumented and statically analysed versions, the library wrapper code
 contained five TESLA assertions covering the possible library calls that the
 user code could make. All of these were reported as safe by the model checker.
 
+\subsubsection{Results}
+
+In all three echo servers, throughput was saturated when sending on two or more
+threads---using more threads to send data had no effect on throughput. The mean
+throughput over 2--10 sending threads was therefore used as a measure of the
+maximum possible performance of each server. \autoref{fig:locks-bench} compares
+the throughput for each implementation.
+
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}
@@ -364,9 +372,53 @@ user code could make. All of these were reported as safe by the model checker.
   \label{fig:locks-bench}
 \end{figure}
 
-\subsubsection{Results}
+The server with runtime TESLA instrumentation achieves only 60\% throughput when
+compared to the unmodified version, while the version with static analysis
+applied achieves 84\% throughput. There is a significant performance penalty
+incurred from using even a small number of TESLA assertions, which can be
+improved significantly by applying static analysis to check assertions at
+compile time.
 
-In all three echo servers, throughput was saturated when sending on two or more
-threads---using more threads to send data had no effect on throughput.
+Even though all TESLA automata have been removed from the statically analysed
+binary, some TESLA code remains in the binary. Using Callgrind
+\cite{weidendorfer_tool_2004} (a simulation-based profiling tool) shows that the
+number of instructions executed in the TESLA runtime library is approximately
+proportional to the throughput performance decreases observed. While this is an
+imprecise analysis (running Callgrind on a program affects performance
+significantly), it gives an indication that the overhead observed in the
+statically analysed server is due to imperfections in the optimisation process
+rather than the API wrapper functions.
 
 \subsection{Summary}
+
+In this section I have shown how TESLA can be used by library developers to
+apply temporal assertions to users of the library without prior knowledge of the
+user code. Additionally, I have demonstrated a method for adapting library
+interfaces not explicitly designed with TESLA instrumentation in mind. This
+technique was applied to an application using the LWIP TCP library,
+demonstrating the performance improvements achievable by using static analysis
+(as well as further improvements that could be made to the optimisation
+process).
+
+The methods developed have some shortcomings when compared to typical C library
+development:
+\begin{description}
+  \item[Distribution] A library developed using these methods must be
+    distributed as LLVM bitcode together with the associated TESLA
+    manifest---this means that users must install the TESLA toolchain and adapt
+    their build process to use the library.
+
+  \item[Safety] TESLA has no way of preventing users from performing unsafe
+    operations outsidof the library code. For example, if a library asserts that
+    a lock is held before a logging function is called, nothing stops the user
+    from making calls to \mintinline{c}{fprintf} without holding the lock.
+
+  \item[Performance] If the user code is amenable to static analysis, then the
+    performance impact of TESLA should be minimal. However, it is easily
+    conceivable that users will not write code in this way (possibly leading to
+    performance issues).
+\end{description}
+
+Despite these issues, this is still a useful tool available to library
+developers for preventing bugs in user code. Additionally, it represents a more
+general use of TESLA than previous work.

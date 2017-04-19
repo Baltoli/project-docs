@@ -1,0 +1,88 @@
+In this chapter I evaluate the success of the project with respect to its
+initial goals, and examine how future work could improve on what has been
+achieved.
+
+\section{Static Analysis of Assertions}
+
+The primary goal of this research project was to investigate to what extent
+TESLA assertions can be checked at compile time, with a view to performing
+optimisation of instrumented programs by omitting provable assertions. With
+respect to this goal, the project has been successful.
+
+My implementation of a model checker is able to check a useful and well-defined
+subset of TESLA assertions at compile time. It is able to check the control-flow
+aspects of a TESLA assertion, as well as a limited part of the data-flow
+aspects. Combining control- and data-flow in this way for temporal assertions,
+along with the ability to fall back on runtime instrumentation marks TESLA with
+static analysis as a useful contribution in the field of program verification
+for systems software.
+
+Additionally, I provide new tools that integrate with the existing TESLA
+toolchain in order to make this analysis available to existing collections of
+assertions.
+
+Future work on the model checker could improve it in a number of ways. Firstly,
+the use of non-symbolic model checking is not optimal---adapting it to construct
+a symbolic representation would allow it to take advantage of wider improvements
+in the field of model checking. Secondly, techniques from symbolic execution
+could be applied to increase the range of inferences available in the data flow
+part of the checker. This would improve on the number of programs that can be
+checked without a false negative.
+
+\section{Application to Real-World Code}
+
+A secondary goal of the project was to investigate how TESLA could be used to
+verify the behaviour of a network protocol. In particular, performance-sensitive
+code was of interest here in order to show the potential benefits of applying
+static analysis to TESLA assertions. While this goal was not directly
+successful, the investigation into how such code could be modelled lead to an
+explicit analysis of source code features that make TESLA assertions less
+useful, as well as to a general application of TESLA to library interface
+verification.
+
+\subsection{Improvements on Previous Work}
+
+The approach taken by \textcite{anderson_tesla:_2014} towards using TESLA placed
+it firmly in the category of \emph{debugging tools}---that is, TESLA
+instrumentation could be added to a program in order to diagnose bugs, but it
+would be removed in a release build due to the associated runtime performance
+overhead. The use cases described in the original TESLA paper are all
+applications to individual programs or libraries where this debugging process
+has been used successfully.
+
+I describe a more general way in which TESLA can be used---library developers
+can use TESLA to enforce usage properties of their code without having prior
+knowledge of the user's code. This method is applied successfully to the LWIP
+TCP callback library. Applying TESLA in this way is possible
+without my extensions for static analysis. However, the performance impact of
+doing so is prohibitive when assertions are placed on \textquote{hot} code paths
+(as is the case for the TCP library). Static analysis allows for this impact to
+be reduced to far more manageable levels, allowing for TESLA to be applied to
+release code.
+
+\section{Usability}
+
+While not an explicit goal of the project at the outset, the usability of TESLA
+as a programming tool is an issue that I encountered frequently during the
+course of the project. At present, there are a number of issues that future work
+would be well-served to rectify.
+\begin{description}
+  \item[Compiler Lock-in] TESLA is currently built against LLVM 3.4, a version
+  released in 2014. This means that applications built with TESLA
+  instrumentation must be compiled with \texttt{clang} 3.4. While the lock-in to
+  \texttt{clang} is unavoidable by design, keeping the version up to date would
+  be a useful improvement.
+  
+  \item[Documentation] The only online documentation for TESLA is somewhat
+  outdated---writing TESLA assertions for the first time currently involves some
+  amount of trial and error.
+
+  \item[Installation] Currently, the only way to install TESLA is to build it
+  from source against LLVM. Making precompiled versions of the toolchain
+  available would be a good way of making TESLA available to those who would
+  rather not build it themselves.
+\end{description}
+
+In short, some amount of software engineering work is required to make TESLA a
+truly useful tool for programmers, rather than just an interesting research
+project.

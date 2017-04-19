@@ -2,11 +2,12 @@ In this chapter I provide an overview of related work in areas relevant
 to this project, along with a summary of how my work on TESLA
 contributes new ideas and developments.
 
-\section{Temporal Logic Assertions} \label{sec:bounded-model-checking}
+\section{Program Verification} \label{sec:bounded-model-checking}
 
-There exists a good deal of prior research related to program
-verification using temporal logic assertions and model checking. In this
-section I give a summary of the important work in this area.
+There is a great deal of prior research related to program verification using
+temporal logic assertions and model checking. In this section I give a summary
+of important work in this area that has influenced parts of my work on static
+analysis for TESLA.
 
 \subsection{Bounded Model Checking}
 
@@ -68,7 +69,10 @@ of Verilog signals to the C program). In this sense, the scope and
 target of TESLA assertions is different to those of CBMC---TESLA
 assertions are written to verify the behaviour of a program, while CBMC
 uses a C program with assertions to verify that a hardware
-implementation is behaviourally equivalent to that program.
+implementation is behaviourally equivalent to that program. It is worth noting
+that the CBMC technique of modelling hardware with a C program can be
+generalised to any system expressible as a C program with an appropriately sized
+state space.
 
 \subsubsection{LLBMC}
 
@@ -120,11 +124,41 @@ same lineage.
 
 \subsubsection{MOPS}
 
-% TODO: write this section up from the perspective of a non-BMC style
-% approach, as well as how it partially influences the idea of
-% temporally checked plugin interfaces.
+\textcite{anderson_tesla:_2014} identify MOPS \cite{chen_mops:_2002} as being
+partially similar to TESLA in concept. The primary goal of MOPS is to discover
+potential vulnerabilities of C programs operating in a Unix environment (where
+security properties may have whole papers dedicated to explaining their
+subtleties, as is the case with \mintinline{c}{setuid} \cite{chen_setuid_2002}).
+The authors were able to use MOPS to discover a number of security
+vulnerabilities in well-known open-source software.
 
-\section{Plugin Interfaces}
+Properties in MOPS are expressed as finite state automata, with accepting states
+representing an execution on which an unsafe event has occurred. The expression
+of TESLA assertions is similar in concept to this, but with extensions to check
+function arguments and return values. MOPS assertions can express slightly
+different properties than TESLA assertions can (and vice versa). MOPS can assert
+properties such as \textquote{a call to \mintinline{c}{f} is immediately
+followed by a call to \mintinline{c}{g}}, while TESLA can assert that
+\textquote{if execution reaches this program point, \mintinline{c}{f} was
+previously called}. Broadly, however, the concepts are similar.
 
-% TODO: do the reading here to see what other work has been done in the
-% area.
+The primary advantage of the TESLA model checker compared to MOPS is the
+inclusion of assertion site events for considering control flow only on certain
+paths, and the ability to check a subset of the program's data flow.
+
+\subsubsection{KLEE}
+
+KLEE \cite{cadar_klee:_2008} is a system for symbolic execution of programs in
+order to automatically generate tests or prove assertions. It differs from other
+approaches described here as it is does not perform model checking---instead, it
+generates constraints that must hold for a program point to be reachable, then
+solves the constraints to generate test inputs to the program. KLEE is
+implemented as an interpreter for LLVM bitcode.
+
+The primary motivation for this implementation style is to increase the
+source-level coverage of a program's test suite. This means exploring every
+possible execution path, an approach that TESLA sought explicitly to avoid (by
+using automata bounds and assertion site events). However, some of the ideas
+present in KLEE are relevant to the TESLA model checker. In particular, the idea
+of solving constraints on program values could be used to generalise the return
+value constraint algorithm I described in \autoref{sec:rvc}.
