@@ -338,33 +338,37 @@ user code could make. All of these were reported as safe by the model checker.
 In all three echo servers, throughput was saturated when sending on two or more
 threads---using more threads to send data had no effect on throughput. The mean
 throughput over 2--10 sending threads was therefore used as a measure of the
-maximum possible performance of each server. \autoref{fig:locks-bench} compares
-the throughput for each implementation.
+maximum possible performance of each server (taken relative to the unmodified
+server implementation---the concrete throughput is less interesting than the
+proportional overhead). \autoref{fig:locks-bench} compares the relative
+throughput for each implementation.
 
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}
-    \pgfplotsset{scaled y ticks=false}
+    \pgfplotstableread[col sep=comma]{data/echo_bench_avg.dat}\data
     \begin{axis}[
-      title={Throughput vs. number of sending threads},
-      xlabel={No. of Threads},
-      ylabel={Throughput (messages/s)},
-      xmin=0,xmax=11,
-      ymin=0,ymax=140000,
-      legend pos=south east,
-      ymajorgrids=true,
-      grid style=dashed,
+      title={Relative Throughput of Echo Servers},
+      ylabel={Throughput relative to unmodified server (\%)},
+      xlabel={Server implementation},
+      width=0.85\textwidth,
+      ybar,
+      ymin=0,ymax=110,
       cycle list/Dark2,
+      every axis plot/.append style={fill,draw=none,no markers},
+      ymajorgrids=true,
+      symbolic x coords={Unmodified,Static,Instrumented},
+      xtick={Unmodified,Static,Instrumented},
+      %x tick label style={rotate=45, anchor=east},
+      enlarge x limits=0.25,
+      nodes near coords,
+      bar shift=0pt,
+      bar width=4ex,
     ]
-      \addplot +[mark=x]
-      table [x =n, y =unmod]{data/echo_bench.dat};
-
-      \addplot +[mark=x]
-      table [x =n, y =static]{data/echo_bench.dat};
-
-      \addplot +[mark=x]
-      table [x =n, y =instr]{data/echo_bench.dat};
-      \legend{Unmodified,Static,Instrumented}
+      \addplot+ coordinates { (Unmodified, 100.0) };
+      %\addplot+ coordinates { (Static (all), 99.4) };
+      \addplot+ coordinates { (Static, 84.1) };
+      \addplot+ coordinates { (Instrumented, 60.8) };
     \end{axis}
   \end{tikzpicture}
   \caption{Effect of TESLA instrumentation and library interface adaptation on
@@ -372,7 +376,7 @@ the throughput for each implementation.
   \label{fig:locks-bench}
 \end{figure}
 
-The server with runtime TESLA instrumentation achieves only 60\% throughput when
+The server with runtime TESLA instrumentation achieves only 61\% throughput when
 compared to the unmodified version, while the version with static analysis
 applied achieves 84\% throughput. There is a significant performance penalty
 incurred from using even a small number of TESLA assertions, which can be
@@ -382,12 +386,16 @@ compile time.
 Even though all TESLA automata have been removed from the statically analysed
 binary, some TESLA code remains in the binary. Using Callgrind
 \cite{weidendorfer_tool_2004} (a simulation-based profiling tool) shows that the
-number of instructions executed in the TESLA runtime library is approximately
-proportional to the throughput performance decreases observed. While this is an
-imprecise analysis (running Callgrind on a program affects performance
-significantly), it gives an indication that the overhead observed in the
-statically analysed server is due to imperfections in the optimisation process
-rather than the API wrapper functions.
+statically-analysed server is still spending a large portion of its execution
+time in the TESLA runtime library (performing unnecessary work as there are no
+automata left to keep track of).
+
+Because the overhead of the remaining TESLA instrumentation is high, even when
+there are no automata, I extended the instrumenting tool with an optimisation to
+handle this case. The resulting server implementation achieved 99.4\% throughput
+compared to the unmodified server. While this performance result is appealing,
+it is worth noting that it will only be possible when every automaton is
+statically provable.
 
 \subsection{Summary}
 
