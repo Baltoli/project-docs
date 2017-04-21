@@ -1,0 +1,5 @@
+name,perf
+Unmodified,100.00
+Static (all),99.38
+Static,84.10
+Instrumented,60.80

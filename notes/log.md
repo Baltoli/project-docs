@@ -1695,3 +1695,50 @@ actual_cb_func()
   Not quite that easy, I don't think - needs to do stuff like deleting magic
   function calls.
 * Got to a very rough first draft stage.
+* Investigating a build of TESLA on Ubuntu, but no luck getting it to boot on
+  the server (I think virtualisation won't work as I'm already virtualised).
+
+# 20/4/2017
+
+* Sent off rough first draft to Robert to have a look at - giving it a few days
+  sitting time before I look at it again.
+* Investigating some engineering improvements to TESLA - first on the list is
+  trying to get it built against an up to date LLVM (incrementally).
+
+# 21/4/2017
+
+* LLVM upgrade got to a point where I'd want to be spending more time on it -
+  there are places where the instruction builder API is changing and I'm not
+  sure where to get types etc. from. For a future effort, maybe worth going
+  straight from 3.5 to 4.0?
+* Also definitely worth a look at the build system - things like link order for
+  LLVM libraries are horrible to resolve.
+* Should look at the "no instrumentation" optimisation when every automaton has
+  been removed.
+* Implemented this optimisation - big decrease in binary size for the echo
+  server. Looking at benchmarking it against the other optimisations.
+* Big improvements - the overhead comes down dramatically to less than 1%!
+  Investigating where the remaining overhead is coming from (probably small
+  enough that it's the extra function calls).
+* Put the new version through callgrind - shows the overhead is basically down
+  to the extra function calls. The only meaningful difference I can see between
+  the compiled binaries is the extra functions.
+* Definitely worth noting that this is a best case scenario - as soon as you
+  have a single automaton left in the binary, things start to get much slower.
+* Added this new benchmarking to the report.
+* How could the inference algorithm for values be improved? It's really an
+  instance of some kind of SMT problem. It's a per-function analysis, where the
+  values in the function generate a set of "constraints". Point of SMT is to
+  generate counterexamples. What kind of counterexamples are we trying to get?
+  We have boolean constraints - take the negated constraint and solve that for a
+  counterexample. Each LLVM value is a function - e.g. it says that value %3 is
+  equal to XOR of %1 and %2. Then the final branch condition is asserted in the
+  negative.
+* OK, but how does this work with unrolling / repeated values? We compute the
+  inferences for a function. Then from those we use the SMT solver to work back
+  up to call values (and that's all - we only use it for the backwards search
+  interpretation). Given a set of branch value inferences, we plug them into an
+  SMT model of the function. Then, this can give us a possible valuation for
+  return values? Should have a look at a more arithmetic-y example to see how
+  far this can go (and if my model idea is correct).
+* Further exploration: can I turn the entire model checker into this format?
