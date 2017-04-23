@@ -1742,3 +1742,37 @@ actual_cb_func()
   return values? Should have a look at a more arithmetic-y example to see how
   far this can go (and if my model idea is correct).
 * Further exploration: can I turn the entire model checker into this format?
+
+# 22/4/2017
+
+* Continuing to look at SMT methods and how they could be useful for the model
+  checker.
+* Problem I have is really that the current approach is sort of backwards -
+  information is lost in the process of doing the model check (building a
+  trace). To do the return value inference properly, traces need to include all
+  the control flow information.
+* Generate an arbitrary, data-flow insensitive path through a function. Then use
+  a local version of the control flow analysis to work out what conditions hold
+  at each basic block.
+* Because we have a whole trace like this, we can "ssa" it even further - we can
+  then make a linear function that is only the basic blocks executed on the
+  trace. Add a final sink basic block? Maintain branches in the linearised
+  function. The idea is that there's then a definite sequence of boolean values
+  observed on the trace in order for it to reach the end - then we have a linear
+  model of a function, and so we can use SMT techniques to build a model!
+* So what do we actually need to be doing?
+  * Create a dummy function for each trace - same type as original
+  * Build a value map for function arguments (and other values?)
+  * Add a sink block to each trace that handles untaken branches
+* Implemented this function trace mechanism - instead of treating traces as just
+  sequences of events, we generate a non-executable function that preserves
+  structure *and* encodes the necessary data flow in a form we can use for SMT.
+* Things to do now:
+  * Extract event sequences from these traces so that we can do model checking
+  * Turn the SSA instruction form into an SMT problem by running inference
+* The inference algorithm can be simplified now - just check each basic block
+  for a conditional branch and pick the correct value (i.e. not leading to sink).
+
+# 23/4/2017
+
+* More investigation into SMT solving techniques for the model checker.
