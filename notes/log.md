@@ -1776,3 +1776,34 @@ actual_cb_func()
 # 23/4/2017
 
 * More investigation into SMT solving techniques for the model checker.
+* Maybe better to structure the SMT generator as a function pass rather than as
+  ad-hoc code - means that I can swap it out more easily for one that uses an
+  SMT API along with other benefits.
+* Have changed the approach, and can now generate models for boolean-only
+  traces - correct condititions are generated on the lock examples.
+* Currently what we're looking at is the conditions for a trace to terminate -
+  we are only actually interested in traces that include an assertion site. For
+  that set of traces, we want to check whether each one is accepted by the
+  automaton. We do that by generating the sequence of return constraints for the
+  trace, then walking it instruction-by-instruction.
+* An instruction matches an edge with a return constraint only if the top of the
+  constraint list built previously is satisfied.
+* Problem remains with *inlining* - this method does not cope with function
+  calls. Need to perform an an aggressive inlining pass to a certain depth?
+* We need to preserve function entry and exit events when inlining - add calls
+  to a new dummy function at the start and end of each function with a constant
+  string argument? Then, do aggressive inlining of the bounding function up do a
+  specified depth.
+* New problem is that we might not know where a function return value is going
+  after the call has been inlined. But we don't care about the actual value -
+  add a dummy of the appropriate type after each CallInst that acts as a
+  non-inlinable placeholder.
+* So: placeholder functions for function entry and return, holding the same
+  arguments and replacing the return values of the functions.
+* Implemented the stubbing and inlining mechanism - the results of calls are now
+  preserved in the unresolved functions, while the function bodies themselves
+  are now embedded in the overall function.
+* Next step is to fix up the visitor for loads and comparisons. Loads can be
+  handled like function calls - we have no idea what will come out of memory so
+  it's just an uninterpreted function. Comparisons give us defined functions in
+  the same way as a binary operation does.
