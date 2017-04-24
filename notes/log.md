@@ -1807,3 +1807,42 @@ actual_cb_func()
   handled like function calls - we have no idea what will come out of memory so
   it's just an uninterpreted function. Comparisons give us defined functions in
   the same way as a binary operation does.
+* Should also begin to integrate CVC4 into the checker rather than generating
+  text - the logic will be broadly similar, but internal rather than external.
+
+# 24/4/2017
+
+* Looks like the basic-block based trace generation method is far slower than
+  the previous one (but we should be able to do similar things to avoid up-front
+  generation).
+* Could also apply a CFG simplification pass of some kind?
+* Also filter generated traces somehow looking for assertion site events.
+* Added support for loads and comparisons - can now generate models and solve
+  them for the lock examples successfully. Next step is to integrate CVC4 as an
+  internal solver and work on integration.
+* Using Z3 instead of CVC4 for now as CVC's buuld system wouldn't play nicely.
+* Also worth noting that I'm currently using a theory of booleans and integers -
+  a more accurate model of LLVM IR would be to use bitvectors. Maybe worth doing
+  that for the Z3-integrated version. The whole question of width is then
+  removed, and we don't have to worry about separating conceptual bools and
+  ints.
+* Can now call into Z3 and get back a set of constraints on function return
+  values automatically.
+* The next step is to actually check traces against an automaton. Each trace is
+  a linear sequence of instructions, disregarding the sink block. We want to
+  walk this linear sequence, checking against the automata as we go. The
+  nondeterminism with multiple return values is handled nicely by the Z3 solver
+  (we can just look the exact call instance up to find the correct path /
+  failure).
+* Steps:
+  * Accept bitcode and manifest as input
+  * Generate FSM from the manifest
+  * Traverse the FSM, checking whether or not instructions are accepted
+  * When a return instruction is reached, accept / reject
+* How do we decide when to ignore instructions? Can get a set of edge labels
+  from the FSM. Then get function names from those.
+* Check the trace for an assertion site first, then do the checking!
+* Either decide to disallow Z3 configuration (make it mandatory), or have a way
+  of disabling it in the static analysis tool.
+* Starting to build the Z3-based model checking tool for integration with the
+  current setup.
