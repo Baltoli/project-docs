@@ -513,7 +513,9 @@ stating that $ \%_3 = \%_1 + \%_2 $, whatever interpretation is given to the
 values $ \%_1 $ and $ \%_2 $. This encoding relies on a particular background
 theory (for example, the theory of finite bit vectors---one leading
 implementation of which is Boolector \cite{brummayer_boolector:_2009}) to supply
-the semantics of $ + $ and other operations.
+the semantics of $ + $ and other operations. All of the LLVM binary and
+comparison operators can be encoded into interpreted SMT functions using this
+method.
 
 While it is possible to provide a defined interpretation of some LLVM values, it
 is more interesting to consider the ones where we cannot. We have no way of
@@ -524,10 +526,71 @@ the same background theory---they will be assigned values in a satisfying model.
 A particular execution path through a function is given by a sequence of basic
 blocks from entry to termination (through ordinary return or otherwise). From
 this execution path we are able to determine the truth values of each branch
-condition---these branch conditions uniquely determine control flow and
-vice versa.
+condition---these branch conditions uniquely determine control flow and vice
+versa. Each of these truth values can then be added to the SMT interpretation of
+the IR as an assertion.
 
-\subsection{Program Event Graphs}
+The result of applying this translation to a particular execution path is an SMT
+instance such that when a model is found, it may give a valuation to the return
+value of function calls. It is possible that no valuation for a function call is
+found (for example, if no branches depend on its return value), or that several
+models are possible. Because TESLA assertions specify a fixed value for a
+function return value, we must check that exactly one model is possible---this
+can be done by solving an augmented problem that includes the negation of the
+original solution as assertions. For example, if \texttt{\%3 = 12} is identified
+as a solution, adding \texttt{\%3 != 12} as an assertion causes the problem to
+become unsatisifiable if there was only one possible model.
+
+Finally, after translating a function execution and finding a unique model, we
+are left with a mapping from call sites to fixed return values on the execution.
+\autoref{fig:llvm-smt} contains a fragment of LLVM IR taken from the test suite
+of mutex programs, and \autoref{fig:smt-example} shows the translation of this
+IR into an SMT program (given using SMT-LIB2 standardised syntax
+\cite{BarST-SMT-10}).
+
+% TODO get lexer and populate these listings with actual example code
+
+\begin{listing}
+  \begin{minted}{llvm}
+  \end{minted}
+  \caption{LLVM IR to be translated into an SMT problem}
+  \label{fig:llvm-smt}
+\end{listing}
+
+\begin{listing}
+  \begin{minted}{haskell}
+  \end{minted}
+  \caption{SMT translation of LLVM IR}
+  \label{fig:smt-example}
+\end{listing}
+
+\subsubsection{Implementation}
+
+Implementing the algorithm described above requires several transformations to
+be made to an LLVM function before it can be transformed to its SMT
+representation. First, because execution is modelled as a sequence of basic
+blocks, the function must be completely inlined. This is easily achieved using
+existing LLVM library code (with the caveat that infinite recursion can only be
+inlined up to a finite depth).
+
+Once the function has been inlined, all of its call sites are removed---this
+means we lose information about arguments passed and values returned. To remedy
+this problem, calls to stub functions are added before and after each call site
+to be inlined. Each stub function receives the same arguments as the call being
+made, and the return value of the call is replaced by the return value of the
+``after'' stub. The stub functions are not inlined, preserving call graph
+information in the inlined function.
+
+Execution sequences are generated from the inlined function by walking its
+control flow graph to a specified finite depth---this finiteness condition is
+addressed further in \autoref{sec:evg}. Repeated basic blocks from loops in the
+graph are handled by simply duplicating the blocks.
+
+From these execution sequences, the Z3 SMT solver \cite{de_moura_z3:_2008} is
+used to construct and solve the SMT problem. Z3 was chosen as a
+production-quality SMT implementation with a well-documented C++ API.
+
+\subsection{Program Event Graphs} \label{sec:evg}
 
 From its position in the TESLA toolchain, the inputs available to the model
 checking tool are:
@@ -629,7 +692,7 @@ analyse.
 From this inlining step we obtain a whole-program graph of program events, with
 edges representing control flow between these events.
 
-\subsection{Model Checking Algorithm}
+\subsection{Model Checking Algorithm} \label{sec:mc}
 
 Now that the structure and specification for the TESLA model checking problem
 are defined, the next step is to implement an algorithm by which satisfaction
