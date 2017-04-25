@@ -482,7 +482,7 @@ represents a program, as well as a set of algorithms that check whether a
 particular structure is a model for a specification automata. Finally, I discuss
 the limitations and potential improvements that could be made to this approach.
 
-\subsection{Data Flow Inference}
+\subsection{Data Flow Inference} \label{sec:rvc}
 
 Because TESLA allows for data flow properties to be asserted, a mechanism to do
 so statically is required for the model checker to be fully useful. The two
@@ -583,191 +583,98 @@ information in the inlined function.
 
 Execution sequences are generated from the inlined function by walking its
 control flow graph to a specified finite depth---this finiteness condition is
-addressed further in \autoref{sec:evg}. Repeated basic blocks from loops in the
+addressed further in \autoref{sec:mc}. Repeated basic blocks from loops in the
 graph are handled by simply duplicating the blocks.
 
 From these execution sequences, the Z3 SMT solver \cite{de_moura_z3:_2008} is
 used to construct and solve the SMT problem. Z3 was chosen as a
 production-quality SMT implementation with a well-documented C++ API.
 
-\subsection{Program Event Graphs} \label{sec:evg}
-
-From its position in the TESLA toolchain, the inputs available to the model
-checking tool are:
-\begin{itemize}
-  \item The manifest file containing all assertions and usages thereof from the
-    program.
-  \item A single LLVM bitcode file (obtained using
-    \texttt{llvm-link}\footnote{\url{http://releases.llvm.org/3.4/docs/CommandGuide/llvm-link.html}})
-    that has not yet been instrumented or optimised.
-\end{itemize}
-In order to define a model checking algorithm, we must first define a
-\emph{structure} that will be checked against the specification. Because our
-specification automata are defined in terms of program events (function calls,
-returns, assertion sites and field assignments), it is natural that the
-structure extracted from the LLVM IR represents these events in some form.
-
-\autoref{lst:ir-example} shows an example LLVM IR function that uses a lock from
-\autoref{sec:locks} correctly. Some of the structure we are interested in is
-already apparent---calls to \mintinline{c}{lock_acquire} and
-\mintinline{c}{lock_release} are made in the function along with the appropriate
-checks on the return values. However, using the LLVM IR as the model-checking
-structure directly is not convenient (it contains a great deal of redundant
-information and indirection through function calls makes analysis more
-difficult).
-
-\begin{listing}
-  \begin{minted}{llvm}
-define void @do_work() #0 {
-  br label %1
-
-  ; <label>:1 ; preds = %4, %0
-  %2 = call zeroext i1 @lock_acquire(%struct.lock_st* @lock)
-  %3 = xor i1 %2, true
-  br i1 %3, label %4, label %5
-
-  ; <label>:4 ; preds = %1
-  br label %1
-
-  ; <label>:5 ; preds = %1
-  call void @lock_release(%struct.lock_st* @lock)
-  ret void
-}
-  \end{minted}
-  \caption{LLVM IR with correct lock usage}
-  \label{lst:ir-example}
-\end{listing}
-
-The solution chosen is to convert the IR module into an \emph{event graph} that
-contains only the program events we are interested in and that makes control
-flow between these events more explicit.
-
-To construct such an event graph, I used a variation of function
-inlining. Every function in the module can be converted to a directed graph
-with instructions as vertices and control flow determining the
-edges.\footnote{This step is purely a conversion between representations; a
-function is a graph of basic blocks that already encodes the same information
-about control flow.}
-
-Next, every instruction that is not a function call is removed from the graph
-(preserving transitive control flow edges).\footnote{Assertion site events are
-preserved by this step because of their representation as calls to a marker
-function.} The function graphs are then \textquote{bookended} with an entry and
-exit vertex such that there is a unique node with no predecessors, and similarly
-a unique node with no successors. The event graph extracted from the IR in
-\autoref{lst:ir-example} is shown in \autoref{fig:event-graph-single}.
-
-\begin{figure}[ht]
-  \centering
-  \begin{tikzpicture}
-    \node[instr] (entry) {Entry};
-    \node[instr,below=of entry] (1) {\mintinline{llvm}{call @lock_acquire(...)}};
-    \node[instr,below=of 1] (5) {\mintinline{llvm}{call @lock_release(...)}};
-    \node[instr,below=of 5] (exit) {Exit};
-
-    \draw[-latex] (entry) -- (1);
-    \path[-latex] (1.4) edge  [out=30,in=330,distance=1cm] node[anchor=west] {}
-    (1.356);
-    \draw[-latex] (1) to (5);
-    \draw[-latex] (5) to (exit);
-  \end{tikzpicture}
-  \caption{Program event graph for a single function}
-  \label{fig:event-graph-single}
-\end{figure}
-
-Finally, every call instruction is replaced by a copy of the event graph for the
-call's target (or by an appropriate assertion site event, if the function call
-is to the assertion marker function). Note that any loops in the call graph
-arising from recursive calls will never be fully inlined---this is a limitation
-of the approach, and is not easily resolved. 
-
-A partial solution in the context of the TESLA model checker is to inline
-recursive calls up to a specified call depth, and no further. There is no
-simple, general solution to this problem, supported by similar instances in the
-literature---\textcite{henry_pagai:_2012} apply inlining to avoid the problem of
-interprocedural analysis, but do not address the problem of recursive calls,
-while \textcite{wang_function_2009} disallow recursion entirely in programs they
-analyse.
-
-From this inlining step we obtain a whole-program graph of program events, with
-edges representing control flow between these events.
-
 \subsection{Model Checking Algorithm} \label{sec:mc}
 
-Now that the structure and specification for the TESLA model checking problem
-are defined, the next step is to implement an algorithm by which satisfaction
-can be checked mechanically.
+Given the SMT-based mechanism for determining function return values described
+above, we can now define a model checking algorithm for TESLA assertions. This
+algorithm is defined in terms of finite traces over an LLVM function, together
+with the finite state machine translation of an assertion given in
+\autoref{sec:formal}.
+
+\subsubsection{Finite Traces}
+
+TESLA assertions are \emph{bounded} by beginning and end events. In the model
+checker, for ease of implementation we consider only assertions bounded by entry
+and exit to the same function. Possible executions are then sequences of basic
+blocks from the entry of this function to an exit (after inlining has been
+applied as far as possible).
+
+The model checker generates all possible traces through the inlined bounding
+function up to a given length maximum length---while this is unsound from a
+theoretical perspective, it is often the case that counterexamples are generated
+relatively quickly (as by searching shorter traces first, minimal
+counterexamples are found first).
+
+On each of these generated finite traces, we compute the return value
+constraints using Z3 as described previously. Then, we pass the sequence of
+instructions in the trace to the specification automaton to be checked. The
+acceptance criteria for a sequence of instructions is given in the rest of this
+section.
 
 \subsubsection{Single-Edge Acceptance}
 
-First, we define a single-edge acceptance criterion that defines when a program
-event is accepted by an edge in the specification automaton (this is required
-because edges in the specification automaton have attached metadata that program
-events do not). This acceptance criterion is defined to be equality over all
-metadata fields that program events carry. In more detail, these are:
+First, we define a single-edge acceptance criterion that defines when an LLVM
+instruction is accepted by an edge in the specification automaton. All of the
+relevant program events are encoded as function calls---either to stub functions
+that preserve the call graph after inlining, or to the TESLA instrumentation
+hook function. Instructions that are not function calls can therefore be
+ignored. Then, we can specify when an edge in the specification automaton
+accepts a function call instruction (based on the type of the edge) as follows:
 \begin{description}
-  \item[Function Events] The associated function, direction and parameters
-  \item[Assertion Site Events] The assertion site location
+  \item[Function Event] If the call is to an entry stub function (or an exit
+    stub function with no associated return value), the function
+    names and arguments must match. If it is to an exit stub function with a
+    return value specified, the mapping obtained from the SMT solver must
+    contain that return value.
+  \item[Assertion Site] The location specified by the parameters to the TESLA
+    instrumentation hook must match the location contained in the assertion site
+    event.
 \end{description}
-Note that this criterion does not discriminate on function return values---this
-is a deliberate choice, and the resulting imprecision is addressed in
-\autoref{sec:rvc}. Another consequence of not discriminating on function return
-values is that previously deterministic specification automata are no longer
-deterministic---if there are multiple transitions for the same function and
-parameter combination, each will accept the same events regardless of the
-constraints placed on their return values.
 
-\subsubsection{Graph Acceptance}
+One subtlety to this approach is that not all function call instructions will be
+accepted in a given state. In some cases, this is acceptable---if the relevant
+TESLA assertion does not mention the called function, then it can safely be
+ignored. However, if the assertion does mention the called function but it is
+not accepted by a state, then dynamic TESLA instrumentation will throw an error.
+The solution to this is to enumerate all the edges of the specification
+automaton before checking starts---this gives the collection of all functions
+mentioned by the automaton, and we can therefore detect these erroneous
+instructions.
 
-Given a criterion for single-edge acceptance of a program event, the next step
-is to define when a program event graph is accepted by a specification
-automaton.
+\subsubsection{Function Acceptance}
 
-An initial (and partially inadequate) definition is to say that a graph is
-accepted by an automaton if and only if every path of events through the graph
+Given a criterion for single-edge acceptance of an LLVM instruction, the next step
+is to define when a whole function is accepted by the same automaton.
+
+An initial (and partially inadequate) definition is to say that a function is
+accepted by an automaton if and only if every trace through the function
 from entry to exit reaches an accepting state in the specification automaton.
 This definition is reminiscent of the definition of satisfaction for LTL, where
 a formula is satisfied over a structure if and only if it is on all possible
-linear paths in that structure. However, this fails to capture two important
-features of TESLA assertions:
+linear paths in that structure. However, this fails to capture an important
+feature of TESLA assertions:
 \begin{description}
-  \item[Boundedness] For a given specification automaton, we are not interested
-    in events that fall outside of its bounding interval.
   \item[Non-termination] Programs with TESLA assertions may never
     terminate. This is perfectly valid---as long as the program never
     performs an event not permitted by an automaton, it will not fail
     its TESLA assertions.
 \end{description}
 
-To capture the boundedness criterion, we refine our original definition to
-quantify over all paths over the bounding interval (for example, all paths from
-a call event to a matching return event).
-
-Non-termination is added to this definition by including all paths that begin at
-the start of the bounding interval and enter an infinite loop. These
-paths may not include an accepting state, and so a path with an infinite
-loop satisfies the specification as long as the path does not contain an
-event forbidden by the automaton.
+Non-termination is added to this definition by including all traces that enter
+an infinite loop. These paths may not include an accepting state, and so a path
+with an infinite loop satisfies the specification as long as the path does not
+contain an event forbidden by the automaton.
 
 \subsubsection{Implementation}
 
-I now describe an implementation of an algorithm that performs the graph
-acceptance check described previously. A na\"ive translation of the
-specification given above (i.e.\ quantifying over \emph{all} paths
-through the bounding interval) is clearly not viable---even the
-small single-function graph in \autoref{fig:event-graph-single} has an
-infinite\footnote{To be more precise, the number of paths is only
-\emph{countably} infinite, by a simple argument on the number of times
-the looping state is visited.} number of paths from entry to exit!
-
-A pragmatic solution to this problem is to employ \emph{bounded} model
-checking, where only paths through the graph of length $ \leq k $ (where
-$k$ is an arbitrary constant) are considered. While this method is
-perhaps not appealing from a theoretical standpoint, it is well studied
-in the context of systems software (see
-\autoref{sec:bounded-model-checking} for a full review of related work).
-
-To implement the definition given previously, the notion of
+As described previously, we consider only finite traces To implement the definition given previously, the notion of
 \textquote{infinite loop} must be sensibly defined in the context of
 bounded paths. To do this, we generate every path through the event
 graph of length $\leq k$, classifying each as either terminating,
