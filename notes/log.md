@@ -1846,3 +1846,26 @@ actual_cb_func()
   of disabling it in the static analysis tool.
 * Starting to build the Z3-based model checking tool for integration with the
   current setup.
+
+# 25/4/2017
+
+* Continuing to integrate the Z3-based solver into a new version of the model
+  checker.
+* Think the checker needs a good bit of refactoring work done to it - it's
+  piling up code in a bad way. Lots of duplicate parameters being passed around.
+* I think that we want to run the inlining passes before instantiating a
+  checker. Then, each usage check can safely instantiate a separate checker.
+  This means that shared state such as constraints, fsm etc. can be class
+  properties rather than being passed around all the time.
+* Each checker instance shares a module, but we can have a static mutex as
+  before to guard the argument lookup. Or do we? Each trace function is in its
+  own module, so isn't shared. Each depth can create its own trace functions and
+  modify them to get arguments safely - more parallelism.
+* Problem is that inlining depends on the bound function - how to deal with
+  this?
+* Can make the checker's data dependencies smaller still by having it take an
+  inlined function directly - doesn't need the module then.
+* Working on improving the interface of the new model checker, but hampered by
+  WiFi blocking the VPN for now.
+* Looking into writing up a section in the dissertation about the new SMT-based
+  approach.
