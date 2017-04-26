@@ -1869,3 +1869,31 @@ actual_cb_func()
   WiFi blocking the VPN for now.
 * Looking into writing up a section in the dissertation about the new SMT-based
   approach.
+
+# 26/4/2017
+
+* Continuing to work on the new model checker integration.
+* Finished implementing the Z3 checker - for now it seems slower than the
+  hand-coded version, but has the more appealing underlying formalism (and
+  soundness for RVC, I think).
+* BMC uses the idea of a diameter - then claims that if the property holds for
+  an example of length k >= d, then it does so for all examples.
+* Z3 itself is obviously very fast - the problem is in the exponential number of
+  examples I'm throwing at it. Generating too many basic block splits is the
+  crux of it. The problem is that we need the full CFG to use Z3 for RVC, but
+  there is a horribly exponential number of traces over said CFG in the presence
+  of loops.
+* Why not try to encode the whole system as an SMT problem? We can define state
+  structures and a reachability relationship on them.
+* States are program events - encode as abstract types with reachability?
+* Looking into this - can encode an FSM by a 1-step transition relation that is
+  then extended by transitivity. Use appropriately-sized bitvectors and enforce
+  uniqueness.
+* This gives us a model of the TESLA automaton - next logical step is to build a
+  set of program events, then describe when a sequence of events is accepted by
+  the automaton. Program-side mapping of events onto constants?
+* Might be the case that this translation turns out to be a useful summer
+  project to work on rather than making it into the dissertation.
+* Seems like Z3 struggles with recursive definitions / looping models.
+* Solution is to use the inbuilt way of defining recursive functions - how to do
+  using the C API?
