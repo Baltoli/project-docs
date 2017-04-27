@@ -1897,3 +1897,43 @@ actual_cb_func()
 * Seems like Z3 struggles with recursive definitions / looping models.
 * Solution is to use the inbuilt way of defining recursive functions - how to do
   using the C API?
+
+# 27/4/2017
+
+* Finally internalised what the Z3 API documentation means by macro expansions -
+  the client code can unwind a recursive definition for as many iterations as it
+  needs.
+* Problem remains with the implementation - we are just generating far too many
+  traces. The crux of this is looping - a straightforward tree-style CFG isn't
+  such a big problem, but the repeated loop is.
+* Can we take inspiration from BMC techniques to identify and deal better with
+  loops?
+* What is a loop?
+  * Any basic block with a back edge to a node that dominates it
+  * In `basic`, `%1` dominates `%4`, but there's a back edge
+* What can we do with loop structure?
+  * Unroll as we do currently, but this is exponential
+  * Identify what kinds of assertions can be accepted by a loop?
+* What can we do with a dominance tree? Lets us identify a minimal sequence of
+  basic blocks to exit (in `basic`, this is entry -> 1 -> 5 -> exit). So if we
+  check the dominant path to each exit (and fail), what do we know? Not
+  necessarily anything, because a loop could have made the conditions true.
+* There are algorithms to identify loops in complex control flow structures,
+  probably exist in LLVM as well.
+* What about computing loop closure? For each loop identified, work out where it
+  can get to from each state after n iterations.
+* This is probably all future work - big efficiency gains will be possible if
+  some of this exponential structure can be removed.
+* And it can - solution was annoyingly simple. The CFG I was analysing had a lot
+  of branching in, and it turns out that lots of it could be fixed by the CFG
+  simplification pass in LLVM.
+* Now can look into parallelising the new checker. Each thread owns its own Z3
+  context, so can be run safely in parallel I think. The only part that needs to
+  be locked is the argument lookup again.
+* Interesting to note that the new version consumes very little memory compared
+  to the old one, presumably as a result of using LLVM internally for
+  everything and being smarter about object lifetimes etc.
+* Current performance status: basic at 500 depth in 5 minutes.
+* So parallelising the new version isn't as easy as the old one because of how
+  pervasively it uses LLVM internals. Might still be possible, but seemed to
+  mean littering the code with locks (and still getting intermittent segfaults).
