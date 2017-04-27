@@ -162,3 +162,101 @@ using automata bounds and assertion site events). However, some of the ideas
 present in KLEE are relevant to the TESLA model checker. In particular, the idea
 of solving constraints on program values could be used to generalise the return
 value constraint algorithm I described in \autoref{sec:rvc}.
+
+\section{SMT} \label{sec:smt}
+
+In this section I give a brief overview of the theory of SMT methods, as well as
+a summary of important work in the area.
+
+\subsection{Background}
+
+As its name suggests, the study of satisfiability modulo theories (SMT) is
+founded in boolean satisfiability. The decision problem SAT was the first such
+problem to be proven to be NP-complete \cite{cook_complexity_1971}---its
+statement can be given concisely as \textquote{Does there exist a consistent
+assignment of truth values to the variables in a boolean formula such that the
+formula is satisfied?}. SAT exhibits the useful property of self-reducibility,
+meaning that any algorithm that solves the decision problem can be used to find
+a satisfying assigment.
+
+Many problems can be easily reduced to SAT (formally, any problem in NP can be
+reduced to SAT in polynomial time, and informally, its structure makes it a good
+choice for encoding some domain-specific problems). However, many other problems
+are stated with respect to a background theory such as integer arithmetic or
+finite arrays. The key idea of SMT problems is to allow for a \emph{background
+theory} to be combined with a satisfiability problem.
+
+\textcite[ch. 12]{biere_handbook_2009} provide a formal definition of SMT
+problems, as well as several commonly-used background theories. For the purposes
+of this report, only a basic definition is required.
+
+\subsubsection{Terminology}
+
+A \emph{background theory} is a collection of axioms that allow for
+interpretation of the symbols in a formula. For example, the background theory
+of integer arithmetic provides the standard interpretations of symbols such as $
++, -, \times, 0 $ etc. A different background theory such as that of finite
+bit-vectors may interpret these symbols differently (for example, \ $+$ could be
+defined to wrap on overflow).
+
+\emph{Uninterpreted functions} are the building blocks of SMT instances. No
+meaning is associated with these functions when an SMT problem is specified,
+only that they have a particular \emph{sort}\footnote{Informally, sorts can be
+understood as ``types'' in a particular problem. Examples are the sorts of
+integers, booleans, and functions with particular domain and range.}. An SMT
+solver may assign interpretations to these functions in order to satisfy the
+instance constraints.
+
+\subsubsection{Tools and Standards}
+
+A great deal of research and engineering work is invested in the use of SMT
+tools. Two of the most commonly used solver implementations are Z3
+\cite{de_moura_z3:_2008} and CVC4 \cite{barrett_cvc4_2011}, but there are
+numerous others with individual strengths and weaknesses. As well as
+implementations, there exist standards such as SMT-LIB \cite{BarFT-SMTLIB} that
+specify textual input and output formats for SMT solvers. Standardisation in
+this way allows for competitive benchmarking of solver performance (the primary
+venue for this is SMT-COMP \cite{CDW14}).
+
+\subsection{Related Work}
+
+SMT solvers are a low-level tool---using them to solve a domain-specific problem
+involves translating the problem into a formulae in a particular theory. Because
+of this flexibility, SMT solvers have been used to solve a large number of
+disparate problems. For example, Microsoft list 58 publications related to
+Z3\footnote{\url{https://github.com/Z3Prover/z3/wiki/Publications}} that span
+areas as diverse as cloud computing, verification of real-time systems, and
+functional programming.
+
+In this section I give a summary of related work in the area of program analysis
+and verification, one of the primary motivating applications of SMT solvers.
+
+\textcite{dahlweid_vcc:_2009} provide VCC, a tool for proving partial
+correctness of C programs using annotations that describe invariants on data
+structures. These annotations are converted to an intermediate representation,
+then to an SMT problem to be verified. The annotations supported by VCC are
+somewhat different to TESLA assertions---they specify invariant rather than
+temporal properties. VCC was used successfully to verify the implementation of
+the Microsoft Hyper-V kernel.
+
+The interactive theorem prover Isabelle \cite{paulson_isabelle:_2000} supports
+the use of SMT solvers to generate proofs. These proofs are written in a
+higher-level formalism that can then be extracted into verified functional
+programs. This approach is conceptually very different to TESLA and similar
+``systems'' tools---rather than starting from a program to be verified, the
+proof itself is the primary object of interest.
+
+Recent work has emerged on the use of SMT solvers as tools for performing
+``superoptimisation'' (Optgen \cite{buchwald_optgen:_2015} and
+Souper \cite{regehr_souper_2017} are two examples). This approach aims to
+discover potential optimisations that are left unimplemented by a compiler.
+Souper translates LLVM IR into SMT formulae, but is otherwise conceptually
+unrelated to TESLA.
+
+PAGAI \cite{henry_pagai:_2012} uses SMT solvers to implement analyses based on
+abstract interpretation. For example, it can be used to discover invariants that
+hold at points in the control flow graphs, and to prove properties based on
+assertion reachability. The methods used in PAGAI to map LLVM IR onto an SMT
+problem are more sophisticated that those I describe in \autoref{sec:rvc}---for
+example, PAGAI implements an arithmetic simplification method based on parallel
+assignments that allows for stronger invariants to be proved.

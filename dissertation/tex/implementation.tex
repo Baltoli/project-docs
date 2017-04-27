@@ -482,184 +482,199 @@ represents a program, as well as a set of algorithms that check whether a
 particular structure is a model for a specification automata. Finally, I discuss
 the limitations and potential improvements that could be made to this approach.
 
-\subsection{Program Event Graphs}
+\subsection{Data Flow Inference} \label{sec:rvc}
 
-From its position in the TESLA toolchain, the inputs available to the model
-checking tool are:
-\begin{itemize}
-  \item The manifest file containing all assertions and usages thereof from the
-    program.
-  \item A single LLVM bitcode file (obtained using
-    \texttt{llvm-link}\footnote{\url{http://releases.llvm.org/3.4/docs/CommandGuide/llvm-link.html}})
-    that has not yet been instrumented or optimised.
-\end{itemize}
-In order to define a model checking algorithm, we must first define a
-\emph{structure} that will be checked against the specification. Because our
-specification automata are defined in terms of program events (function calls,
-returns, assertion sites and field assignments), it is natural that the
-structure extracted from the LLVM IR represents these events in some form.
+Because TESLA allows for data flow properties to be asserted, a mechanism to do
+so statically is required for the model checker to be fully useful. The two
+forms of data flow assertion allowed by TESLA are constraints on the arguments
+passed to a function, and on the value returned by a function call. The dynamic
+implementation of TESLA includes code for mapping from an abstract
+representation of function arguments onto LLVM values (as this is required to
+insert instrumentation code). This code is reused in the model checker, and so
+the model checker only has to be able to check function return values.
 
-\autoref{lst:ir-example} shows an example LLVM IR function that uses a lock from
-\autoref{sec:locks} correctly. Some of the structure we are interested in is
-already apparent---calls to \mintinline{c}{lock_acquire} and
-\mintinline{c}{lock_release} are made in the function along with the appropriate
-checks on the return values. However, using the LLVM IR as the model-checking
-structure directly is not convenient (it contains a great deal of redundant
-information and indirection through function calls makes analysis more
-difficult).
+Stated more formally, the property we are interested in checking is
+\textquote{on a particular execution path, can we infer that a function call
+returned a fixed value?}. In this section, I describe an algorithm for
+performing this inference by making use of an SMT\footnote{Satisfiability Modulo
+Theories} encoding of LLVM IR.
+
+\subsubsection{Encoding LLVM IR as SMT Formulae}
+
+In \autoref{sec:smt} I gave an overview of SMT methods, their history and
+relevant terminology. Building on this background, in this section I describe
+how an LLVM function can be encoded as an SMT problem that when solved gives a
+solution to the function return value inference problem described above.
+
+Because LLVM IR is expressed in SSA\footnote{Static Single Assignment} form, it
+admits a relatively simple encoding as SMT formulae. For example, the LLVM
+instruction \mintinline{llvm}{%3 = add i32 %1, %2} can be seen as a formulae
+stating that $ \%_3 = \%_1 + \%_2 $, whatever interpretation is given to the
+values $ \%_1 $ and $ \%_2 $. This encoding relies on a particular background
+theory (for example, the theory of finite bit vectors---one leading
+implementation of which is Boolector \cite{brummayer_boolector:_2009}) to supply
+the semantics of $ + $ and other operations. All of the LLVM binary and
+comparison operators can be encoded into interpreted SMT functions using this
+method.
+
+While it is possible to provide a defined interpretation of some LLVM values, it
+is more interesting to consider the ones where we cannot. We have no way of
+supplying an interpretation for a function call or a load from memory, for
+example. Instructions in this class are encoded as uninterpreted constants in
+the same background theory---they will be assigned values in a satisfying model.
+
+A particular execution path through a function is given by a sequence of basic
+blocks from entry to termination (through ordinary return or otherwise). From
+this execution path we are able to determine the truth values of each branch
+condition---these branch conditions uniquely determine control flow and vice
+versa. Each of these truth values can then be added to the SMT interpretation of
+the IR as an assertion.
+
+The result of applying this translation to a particular execution path is an SMT
+instance such that when a model is found, it may give a valuation to the return
+value of function calls. It is possible that no valuation for a function call is
+found (for example, if no branches depend on its return value), or that several
+models are possible. Because TESLA assertions specify a fixed value for a
+function return value, we must check that exactly one model is possible---this
+can be done by solving an augmented problem that includes the negation of the
+original solution as assertions. For example, if \texttt{\%3 = 12} is identified
+as a solution, adding \texttt{\%3 != 12} as an assertion causes the problem to
+become unsatisifiable if there was only one possible model.
+
+Finally, after translating a function execution and finding a unique model, we
+are left with a mapping from call sites to fixed return values on the execution.
+\autoref{fig:llvm-smt} contains a fragment of LLVM IR taken from the test suite
+of mutex programs, and \autoref{fig:smt-example} shows the translation of this
+IR into an SMT program (given using SMT-LIB2 standardised syntax
+\cite{BarST-SMT-10}).
+
+% TODO get lexer and populate these listings with actual example code
 
 \begin{listing}
   \begin{minted}{llvm}
-define void @do_work() #0 {
-  br label %1
-
-  ; <label>:1 ; preds = %4, %0
-  %2 = call zeroext i1 @lock_acquire(%struct.lock_st* @lock)
-  %3 = xor i1 %2, true
-  br i1 %3, label %4, label %5
-
-  ; <label>:4 ; preds = %1
-  br label %1
-
-  ; <label>:5 ; preds = %1
-  call void @lock_release(%struct.lock_st* @lock)
-  ret void
-}
   \end{minted}
-  \caption{LLVM IR with correct lock usage}
-  \label{lst:ir-example}
+  \caption{LLVM IR to be translated into an SMT problem}
+  \label{fig:llvm-smt}
 \end{listing}
 
-The solution chosen is to convert the IR module into an \emph{event graph} that
-contains only the program events we are interested in and that makes control
-flow between these events more explicit.
+\begin{listing}
+  \begin{minted}{haskell}
+  \end{minted}
+  \caption{SMT translation of LLVM IR}
+  \label{fig:smt-example}
+\end{listing}
 
-To construct such an event graph, I used a variation of function
-inlining. Every function in the module can be converted to a directed graph
-with instructions as vertices and control flow determining the
-edges.\footnote{This step is purely a conversion between representations; a
-function is a graph of basic blocks that already encodes the same information
-about control flow.}
+\subsubsection{Implementation}
 
-Next, every instruction that is not a function call is removed from the graph
-(preserving transitive control flow edges).\footnote{Assertion site events are
-preserved by this step because of their representation as calls to a marker
-function.} The function graphs are then \textquote{bookended} with an entry and
-exit vertex such that there is a unique node with no predecessors, and similarly
-a unique node with no successors. The event graph extracted from the IR in
-\autoref{lst:ir-example} is shown in \autoref{fig:event-graph-single}.
+Implementing the algorithm described above requires several transformations to
+be made to an LLVM function before it can be transformed to its SMT
+representation. First, because execution is modelled as a sequence of basic
+blocks, the function must be completely inlined. This is easily achieved using
+existing LLVM library code (with the caveat that infinite recursion can only be
+inlined up to a finite depth).
 
-\begin{figure}[ht]
-  \centering
-  \begin{tikzpicture}
-    \node[instr] (entry) {Entry};
-    \node[instr,below=of entry] (1) {\mintinline{llvm}{call @lock_acquire(...)}};
-    \node[instr,below=of 1] (5) {\mintinline{llvm}{call @lock_release(...)}};
-    \node[instr,below=of 5] (exit) {Exit};
+Once the function has been inlined, all of its call sites are removed---this
+means we lose information about arguments passed and values returned. To remedy
+this problem, calls to stub functions are added before and after each call site
+to be inlined. Each stub function receives the same arguments as the call being
+made, and the return value of the call is replaced by the return value of the
+``after'' stub. The stub functions are not inlined, preserving call graph
+information in the inlined function.
 
-    \draw[-latex] (entry) -- (1);
-    \path[-latex] (1.4) edge  [out=30,in=330,distance=1cm] node[anchor=west] {}
-    (1.356);
-    \draw[-latex] (1) to (5);
-    \draw[-latex] (5) to (exit);
-  \end{tikzpicture}
-  \caption{Program event graph for a single function}
-  \label{fig:event-graph-single}
-\end{figure}
+Execution sequences are generated from the inlined function by walking its
+control flow graph to a specified finite depth---this finiteness condition is
+addressed further in \autoref{sec:mc}. Repeated basic blocks from loops in the
+graph are handled by simply duplicating the blocks.
 
-Finally, every call instruction is replaced by a copy of the event graph for the
-call's target (or by an appropriate assertion site event, if the function call
-is to the assertion marker function). Note that any loops in the call graph
-arising from recursive calls will never be fully inlined---this is a limitation
-of the approach, and is not easily resolved. 
+From these execution sequences, the Z3 SMT solver \cite{de_moura_z3:_2008} is
+used to construct and solve the SMT problem. Z3 was chosen as a
+production-quality SMT implementation with a well-documented C++ API.
 
-A partial solution in the context of the TESLA model checker is to inline
-recursive calls up to a specified call depth, and no further. There is no
-simple, general solution to this problem, supported by similar instances in the
-literature---\textcite{henry_pagai:_2012} apply inlining to avoid the problem of
-interprocedural analysis, but do not address the problem of recursive calls,
-while \textcite{wang_function_2009} disallow recursion entirely in programs they
-analyse.
+\subsection{Model Checking Algorithm} \label{sec:mc}
 
-From this inlining step we obtain a whole-program graph of program events, with
-edges representing control flow between these events.
+Given the SMT-based mechanism for determining function return values described
+above, we can now define a model checking algorithm for TESLA assertions. This
+algorithm is defined in terms of finite traces over an LLVM function, together
+with the finite state machine translation of an assertion given in
+\autoref{sec:formal}.
 
-\subsection{Model Checking Algorithm}
+\subsubsection{Finite Traces}
 
-Now that the structure and specification for the TESLA model checking problem
-are defined, the next step is to implement an algorithm by which satisfaction
-can be checked mechanically.
+TESLA assertions are \emph{bounded} by beginning and end events. In the model
+checker, for ease of implementation we consider only assertions bounded by entry
+and exit to the same function. Possible executions are then sequences of basic
+blocks from the entry of this function to an exit (after inlining has been
+applied as far as possible).
+
+The model checker generates all possible traces through the inlined bounding
+function up to a given length maximum length---while this is unsound from a
+theoretical perspective, it is often the case that counterexamples are generated
+relatively quickly (as by searching shorter traces first, minimal
+counterexamples are found first).
+
+On each of these generated finite traces, we compute the return value
+constraints using Z3 as described previously. Then, we pass the sequence of
+instructions in the trace to the specification automaton to be checked. The
+acceptance criteria for a sequence of instructions is given in the rest of this
+section.
 
 \subsubsection{Single-Edge Acceptance}
 
-First, we define a single-edge acceptance criterion that defines when a program
-event is accepted by an edge in the specification automaton (this is required
-because edges in the specification automaton have attached metadata that program
-events do not). This acceptance criterion is defined to be equality over all
-metadata fields that program events carry. In more detail, these are:
+First, we define a single-edge acceptance criterion that defines when an LLVM
+instruction is accepted by an edge in the specification automaton. All of the
+relevant program events are encoded as function calls---either to stub functions
+that preserve the call graph after inlining, or to the TESLA instrumentation
+hook function. Instructions that are not function calls can therefore be
+ignored. Then, we can specify when an edge in the specification automaton
+accepts a function call instruction (based on the type of the edge) as follows:
 \begin{description}
-  \item[Function Events] The associated function, direction and parameters
-  \item[Assertion Site Events] The assertion site location
+  \item[Function Event] If the call is to an entry stub function (or an exit
+    stub function with no associated return value), the function
+    names and arguments must match. If it is to an exit stub function with a
+    return value specified, the mapping obtained from the SMT solver must
+    contain that return value.
+  \item[Assertion Site] The location specified by the parameters to the TESLA
+    instrumentation hook must match the location contained in the assertion site
+    event.
 \end{description}
-Note that this criterion does not discriminate on function return values---this
-is a deliberate choice, and the resulting imprecision is addressed in
-\autoref{sec:rvc}. Another consequence of not discriminating on function return
-values is that previously deterministic specification automata are no longer
-deterministic---if there are multiple transitions for the same function and
-parameter combination, each will accept the same events regardless of the
-constraints placed on their return values.
 
-\subsubsection{Graph Acceptance}
+One subtlety to this approach is that not all function call instructions will be
+accepted in a given state. In some cases, this is acceptable---if the relevant
+TESLA assertion does not mention the called function, then it can safely be
+ignored. However, if the assertion does mention the called function but it is
+not accepted by a state, then dynamic TESLA instrumentation will throw an error.
+The solution to this is to enumerate all the edges of the specification
+automaton before checking starts---this gives the collection of all functions
+mentioned by the automaton, and we can therefore detect these erroneous
+instructions.
 
-Given a criterion for single-edge acceptance of a program event, the next step
-is to define when a program event graph is accepted by a specification
-automaton.
+\subsubsection{Function Acceptance}
 
-An initial (and partially inadequate) definition is to say that a graph is
-accepted by an automaton if and only if every path of events through the graph
+Given a criterion for single-edge acceptance of an LLVM instruction, the next step
+is to define when a whole function is accepted by the same automaton.
+
+An initial (and partially inadequate) definition is to say that a function is
+accepted by an automaton if and only if every trace through the function
 from entry to exit reaches an accepting state in the specification automaton.
 This definition is reminiscent of the definition of satisfaction for LTL, where
 a formula is satisfied over a structure if and only if it is on all possible
-linear paths in that structure. However, this fails to capture two important
-features of TESLA assertions:
+linear paths in that structure. However, this fails to capture an important
+feature of TESLA assertions:
 \begin{description}
-  \item[Boundedness] For a given specification automaton, we are not interested
-    in events that fall outside of its bounding interval.
   \item[Non-termination] Programs with TESLA assertions may never
     terminate. This is perfectly valid---as long as the program never
     performs an event not permitted by an automaton, it will not fail
     its TESLA assertions.
 \end{description}
 
-To capture the boundedness criterion, we refine our original definition to
-quantify over all paths over the bounding interval (for example, all paths from
-a call event to a matching return event).
-
-Non-termination is added to this definition by including all paths that begin at
-the start of the bounding interval and enter an infinite loop. These
-paths may not include an accepting state, and so a path with an infinite
-loop satisfies the specification as long as the path does not contain an
-event forbidden by the automaton.
+Non-termination is added to this definition by including all traces that enter
+an infinite loop. These paths may not include an accepting state, and so a path
+with an infinite loop satisfies the specification as long as the path does not
+contain an event forbidden by the automaton.
 
 \subsubsection{Implementation}
 
-I now describe an implementation of an algorithm that performs the graph
-acceptance check described previously. A na\"ive translation of the
-specification given above (i.e.\ quantifying over \emph{all} paths
-through the bounding interval) is clearly not viable---even the
-small single-function graph in \autoref{fig:event-graph-single} has an
-infinite\footnote{To be more precise, the number of paths is only
-\emph{countably} infinite, by a simple argument on the number of times
-the looping state is visited.} number of paths from entry to exit!
-
-A pragmatic solution to this problem is to employ \emph{bounded} model
-checking, where only paths through the graph of length $ \leq k $ (where
-$k$ is an arbitrary constant) are considered. While this method is
-perhaps not appealing from a theoretical standpoint, it is well studied
-in the context of systems software (see
-\autoref{sec:bounded-model-checking} for a full review of related work).
-
-To implement the definition given previously, the notion of
+As described previously, we consider only finite traces To implement the definition given previously, the notion of
 \textquote{infinite loop} must be sensibly defined in the context of
 bounded paths. To do this, we generate every path through the event
 graph of length $\leq k$, classifying each as either terminating,
@@ -681,239 +696,6 @@ accepted by the automaton, then the assertion always holds---the
 instrumentation for the assertion can therefore be safely removed from
 the program.
 
-\subsection{Return Value Constraints} \label{sec:rvc}
-
-The bounded model checking algorithm described in the previous section
-is in fact unsound with respect to one particular class of
-assertions---if the assertion has constraints on the return value of
-some function calls, then the model checker may report that an unsafe
-program is actually safe. This is clearly a more serious issue than the
-converse---safe programs being reported as unsafe is simply
-\emph{imprecision} in the algorithm, and affects performance rather than
-correctness.
-
-In this section I describe an algorithm that can be applied to resolve
-this unsoundness, along with a discussion on how the techniques used
-could be extended to permit a less conservative analysis than is
-implemented here.
-
-\subsubsection{A Failing Example}
-
-To motivate the rest of this section, I describe a program that suffers
-from the unsoundess characterised above. The program is taken from the
-test suite implemented in \autoref{sec:hand-coded}, and the relevant
-parts of its source code are given in \autoref{lst:mult-acq}.
-
-\begin{listing}[ht]
-  \begin{minted}{c}
-lock_t lock;
-
-void do_work() {
-  while(!lock_acquire(&lock)) {}
-  while(!lock_acquire(&lock)) {}
-  lock_release(&lock);
-}
-
-int main(void) {
-  TESLA_WITHIN(main, eventually(
-    acq_rel(&lock)
-  ));
-
-  do_work();
-  return 0;
-}
-  \end{minted}
-  \caption{An unsafe program incorrectly reported as safe}
-  \label{lst:mult-acq}
-\end{listing}
-
-It is easy to intuit why the program in \autoref{lst:mult-acq} is
-incorrect---when the second \mintinline{c}{while} loop is reached, the
-lock must have been acquired, and so the second loop is always invalid
-behaviour. More precisely, we can examine the transition sequence that
-must be taken through the specification automaton for this program to be
-accepted. A general representation of the transition sequence is given
-in \autoref{fig:impossible}, with the two call sites for
-\mintinline{c}{lock_acquire} disambiguated as \mintinline{llvm}{call (1)
-...} and \mintinline{llvm}{call (2) ...} respectively.\footnote{These
-call sites are separate objects in the LLVM in-memory representation,
-and are disambiguated in this way purely for reading convenience.}
-Dashed edges between events abbreviate potential repetition of the event
-from which the edge originates.
-
-\begin{figure}[ht]
-  \centering
-  \begin{tikzpicture}
-    \node[instr] (assert) {\texttt{assertion site [line 10]}};
-    \node[instr,below=of assert] (1) {\mintinline{llvm}{call (1) @lock_acquire(...) == false}};
-    \node[instr,below=of 1] (2) {\mintinline{llvm}{call (1) @lock_acquire(...) == false}};
-    \node[instr,below=of 2] (3) {\mintinline{llvm}{call (2) @lock_acquire(...) == false}};
-    \node[instr,below=of 3] (4) {\mintinline{llvm}{call (2) @lock_acquire(...) == true}};
-
-    \draw[-latex] (assert) -- (1);
-    \draw[-latex,dashed] (1) -- (2);
-    \draw[-latex] (2) -- (3);
-    \draw[-latex,dashed] (3) -- (4);
-  \end{tikzpicture}
-  \caption{Sequence of program events in an unsafe program}
-  \label{fig:impossible}
-\end{figure}
-
-The key problem with the transition sequence in \autoref{fig:impossible}
-is that the first call at the second call site \emph{must} have been
-preceded with a call at the first call site that returned
-\mintinline{c}{false}. However, we have already noted (at least
-informally) that this cannot happen---in the remainder of this section I
-present an analysis that formalises this result.
-
-\subsubsection{Path-sensitive Value Inference}
-
-I now describe a classical data-flow analysis in the style introduced by
-\textcite{kildall_unified_1973} (that is, one where the analysis
-computes a function at each node of the control flow graph, iterating
-until a convergent solution is reached).
-
-The function we compute at each control flow node is the strongest
-possible inference that can be made about the value taken by variables
-in the IR before reaching the node.
-
-\begin{listing}[ht]
-  \begin{minted}{llvm}
-define void @branch(i1 zeroext) #0 {
-  br i1 %0, label %6, label %7
-
-; <label>:6: ; preds = %1
-  ; ... code ...
-  br label %8
-
-; <label>:7: ; preds = %1
-  ; ... other code ...
-  br label %8
-
-; <label>:8: ; preds = %7, %6
-  ret void
-}
-  \end{minted}
-  \caption{LLVM IR example demonstrating control flow value inference}
-  \label{lst:control-flow}
-\end{listing}
-
-\autoref{lst:control-flow} contains a simplified function written in
-LLVM IR that can be used as an example of this analysis. There are two
-possible execution paths through this function---one where block
-\mintinline{llvm}{%6} is visited, and one where \mintinline{llvm}{%7} is
-visited. If control reaches \mintinline{llvm}{%6}, then it is easy to
-see that the value of \mintinline{llvm}{%0} must have been
-\mintinline{llvm}{true} (and conversely for \mintinline{llvm}{%7}).
-The aim of our analysis is to infer these constraints generically for
-any function, even in the presence of more complex control flow
-structures.
-
-\subsubsection{Algorithm}
-
-Our aim is to compute the strongest possible inference on IR variables
-(an inference $A$ is stronger than an inference $B$ if $A \implies B
-\land B \notimplies A$).
-
-We first consider the \textquote{single step} version of the analysis.
-Control flow may enter a basic block through any of its predecessors.
-Each predecessor block has a strongest inference associated with it, as
-well as a branch leading to the block in consideration. Therefore for
-control flow to move from the predecessor to the current block, the
-predecessor's strongest inference must hold, together with the
-associated branch condition. Stated more formally, the strongest
-inference at a basic block $n$ is defined as:
-\[
-  \mathrm{inf}(n) = \bigvee_{p \in \mathrm{preds}(n)}
-    \mathrm{inf}(p) \land \mathrm{branch}(p,n)
-\]
-
-Initially, the inference at the entry block is $true$, and at every
-other block it is $false$. This is because there is no possible
-inference to be made from control flow reaching the entry block, and
-every other block is assumed to be unreachable until the iteration
-reaches them (an unreachable block has the strongest possible
-inference---if control reaches such a block, then we can infer anything
-about the previous execution state).
-
-The algorithm to run the analysis on a single function is given as
-pseudocode in \autoref{lst:infs-pseudo}.
-
-\begin{listing}[ht]
-  \begin{minted}[escapeinside=||]{s}
-infs = [ false, ... ]
-infs[entry] = true
-while infs changes:
-  for every basic block i:
-    infs[i] = |$\bigvee_{\mathtt{p} \in \mathtt{preds(i)}}$| infs[p] |$\land$| branch(p,i)
-  \end{minted}
-  \caption{Strongest inference algorithm as pseudocode}
-  \label{lst:infs-pseudo}
-\end{listing}
-
-\subsubsection{Application to the Model Checker}
-
-The problem to be addressed by this data flow algorithm is that return
-value constraints in assertions are ignored by the model checker.
-However, what we have computed so far (inferences on the boolean values
-taken by branch conditions) is not yet a solution. The final step is to
-determine whether we can determine a relevant function return value
-based on these inferences.
-
-\begin{listing}[ht]
-  \begin{minted}{llvm}
-; ... preceding code ...
-%2 = call i1 @lock_acquire(%struct.lock_st* @lock)
-%3 = xor i1 %2, true
-br i1 %3, label %4, label %5
-  \end{minted}
-  \caption{Branch value computed from function return value}
-  \label{lst:branch-compute}
-\end{listing}
-
-The LLVM IR extract in \autoref{lst:branch-compute} is taken from one of
-the programs in the test suite implemented in \autoref{sec:hand-coded}.
-It shows an example of how a branch value can be computed from a
-function return value of interest. Using the data flow algorithm on the
-function this extract is taken from yields inferences on the value
-\mintinline{llvm}{%3}. Given these inferences, we can then trace the
-execution back through the basic block by hand to see that the branch
-value is determined fully by the return value of \mintinline{llvm}{call
-i1 @lock_acquire(...)}.
-
-To integrate the data flow analysis into the model checker, I added a
-basic implementation of this backwards tracing from the basic block
-inferences. As implemented, only simple boolean operations are followed
-(e.g.\ the \mintinline{llvm}{xor} instruction in
-\autoref{lst:branch-compute}). In \autoref{sec:model-limits}, I discuss
-how this approach could be extended to provide a less conservative
-analysis.
-
-Finally, the unsoundness described at the beginning of this section can
-be addressed. When a path through the event graph is checked against a
-specification automaton successfully, the transitions taken are
-recorded. From these, a sequence of function return constraints is
-extracted. If the path through the event graph passes through basic
-blocks with exactly that sequence of observable inferences, then the
-analysis is safe. If return values cannot be inferred, or the path does
-not observe the exact sequence of inferences, then the analysis is
-unsafe.
-
-\subsection{Results}
-
-When extended with the data flow analysis described in
-\autoref{sec:rvc}, the model checker is able to successfully check a
-large subset of TESLA assertions. As a concrete reference, it is able to
-produce the same results as the hand-coded lock usage analyses from
-\autoref{sec:hand-coded}.
-
-The model checker will produce imprecise results on any assertion that
-contains a field assignment event, and on an assertion with return value
-constraints if the function return values are not inferrable from static
-control flow. However, it is worth noting that the result of an
-imprecise result is simply to leave the original TESLA assertions in
-place---they can still be checked at runtime.
-
 \subsection{Limitations and Improvements} \label{sec:model-limits}
 
 \subsubsection{Performance}
@@ -931,24 +713,6 @@ bounding length must be checked. For example, checking any incorrect
 test case from \autoref{sec:hand-coded} with a bound of 5000
 instructions takes approximately 15 seconds, while the successful test
 cases take around 90 seconds.
-
-\subsubsection{Function Return Inference}
-
-The implementation used to infer function return values from branch
-conditions (as described in \autoref{sec:rvc}) is limited in scope---it
-will only infer function return values that within the same basic block
-as the branch condition in question, and only then if the dependence
-between them is composed only of boolean operations.
-
-However, it would be possible for this inference to be extended. One
-possible avenue for this improvement would be to allow the inference of
-non-boolean function return values. For example, a symbolic execution
-system such as KLEE \cite{cadar_klee:_2008} could be used to explore the
-range of function return values that lead to a particular branch.
-Alternatively, an SMT\footnote{Satisfiability modulo theories}-based
-approach such as LAV \cite{vujosevic-janicic_development_2012} could be
-applied to express the relevant inferences as an instance of an SMT
-problem.
 
 \subsubsection{Field Assignments}
 
