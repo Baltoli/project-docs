@@ -340,7 +340,7 @@ threads---using more threads to send data had no effect on throughput. The mean
 throughput over 2--10 sending threads was therefore used as a measure of the
 maximum possible performance of each server (taken relative to the unmodified
 server implementation---the concrete throughput is less interesting than the
-proportional overhead). \autoref{fig:locks-bench} compares the relative
+proportional overhead). \autoref{fig:echo-bench} compares the relative
 throughput for each implementation.
 
 \begin{figure}[ht]
@@ -373,7 +373,7 @@ throughput for each implementation.
   \end{tikzpicture}
   \caption{Effect of TESLA instrumentation and library interface adaptation on
   echo server throughput}
-  \label{fig:locks-bench}
+  \label{fig:echo-bench}
 \end{figure}
 
 The server with runtime TESLA instrumentation achieves only 61\% throughput when
