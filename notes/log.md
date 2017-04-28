@@ -1937,3 +1937,40 @@ actual_cb_func()
 * So parallelising the new version isn't as easy as the old one because of how
   pervasively it uses LLVM internals. Might still be possible, but seemed to
   mean littering the code with locks (and still getting intermittent segfaults).
+
+# 28/4/2017
+
+* Meeting with Robert to discuss remaining directions for the project.
+* Key points were:
+  * Good evaluation needs to focus on *explaining* performance effects
+  * Counterexample generation is useful to have
+  * Might be interesting to look into "how much modification" is needed
+* Next steps: use hwpmc to observe performance effects when using TESLA
+  (architectural and microarchitectural). Improve counterexample generation so
+  that failing traces can be better understood.
+* Counterexample generation - what information would we like to extract?
+  * Failure reason
+  * Call stack leading to failure
+* When do we know about failure? Trace checker `is_safe` method tells us this.
+  Unambiguous at the point of calling `next_state`, so we know which program
+  event failed to match which automaton.
+* Do we want to switch from using bools to some kind of counterexample
+  structure? Want a CLI argument to print counterexamples I think.
+* Implemented a basic form of counterexample printing that tells the user why
+  their assertion failed, along with a callback to the offending event. Useful
+  addition to this would be to pinpoint the possible events that would be
+  recognised, and to print the FSM. Works as is for now though.
+* Now investigating how to use the `hwpmc` tools for detailed profiling of
+  programs.
+* Starting to tinker with `pmcstat` to get a feel for how I can get explanations
+  for observable performance effects.
+* Benchmarking ideas need to change a little bit - the timed approach is good
+  for throughput, but doesn't work so well when looking at things that pmcstat
+  can measure. In this case better to use large fixed-size files.
+* Been able to measure a few simple metrics using `pmcstat` against the server
+  implementations. The next step is to work out *what* metrics to use in order
+  to explain why we see performance penalties for using TESLA - need to work out
+  methodology etc in order to get a good writeup out of it.
+* Architectural / microarchitectural effects are important - what metrics get
+  worse running under TESLA? Which ones make sense to measure in a benchmark
+  context?
