@@ -1,6 +1,6 @@
 # Part III Project Work Log & Notes
 
-### 24/11/16
+## 24/11/16
 
 * Build TESLA on both remote and local machines - it would be good to be able to
   work on both (if ssh is slow or compile times are a problem).
@@ -80,7 +80,7 @@
   * The instrumented files can then be compiled using `llc` into a binary as
     normal, with the TESLA functionality included.
 
-### 2/12/2016
+## 2/12/2016
 
 * Got set up on the development server by Khilan - managed to get TESLA building
   and installing into a home directory appropriately.
@@ -92,7 +92,7 @@
 * Begun to look into building some very simple TESLA assertions on a small
   program.
 
-### 3/12/2016
+## 3/12/2016
 
 * Continued to work on very simple examples learning to use TESLA. Found that
   the documentation is out of date in a number of places:
@@ -111,7 +111,7 @@
     extra parameter for the return value. Why can't you do
     `call(foo(ANY(int)))`? Ask Jon.
 
-### 5/12/2016
+## 5/12/2016
 
 * Did some more digging into why explicit automata descriptions aren't working
   for me. No real answers yet - the symptom is that I have an undefined name in
@@ -120,7 +120,7 @@
   emailed Jon for clarification / help but no answer yet. The next place to look
   is probably trying to find out what is meant to replace the global variable.
 
-### 15/12/2016
+## 15/12/2016
 
 * Still no reply from Jon. Should get Robert to prod him. Looking into why I get
   these linker errors with a much-simplified example. Seems that the
@@ -150,7 +150,7 @@
   working to get CMake not to break but now it works. Next step: modelling
   simple locks.
 
-### 16/12/2016
+## 16/12/2016
 
 * Begin to work on getting a very simple model of locks verified. Set up project
   structure etc. Convenience macro for TESLA struct field accesses (might be
@@ -168,7 +168,7 @@
 * Using two or more locks: I think strict mode might be a problem here. How to
   fix this?
 
-### 17/12/2016
+## 17/12/2016
 
 * Looking into how I can use `tesla-print` to get `.dot` files for debugging.
   Managed to get graphviz on OS X to output me a file. Workflow is a little bit
@@ -193,13 +193,13 @@
 * Also worth thinking about what properties (in a formal sense) this
   implementation allows me to verify.
 
-### 18/12/2016
+## 18/12/2016
 
 * Small amount of work looking into the lifetime automata but to no real
   progress - I can get them to compile but their definitions seem to somehow be
   different to regular 'in-function' automata. Shelving this for now.
 
-### 19/12/2016
+## 19/12/2016
 
 * Begin looking into how static analysis can be performed on TESLA automata,
   starting with the example of a single lock being acquired and released.
@@ -249,7 +249,7 @@
 * Implemented a few small misbehaving programs to demonstrate the kinds of
   behaviour that the lock automata attempt to catch.
 
-### 20/12/2016
+## 20/12/2016
 
 * Finished off writing example programs that show the behaviour of my simple
   lock automata (successful / good path as well as several 'failed' examples).
@@ -318,7 +318,7 @@
     program from a single .bc file (and analysis can be done on this
     individually).
 
-### 21/12/2016
+## 21/12/2016
 
 * Got the boilerplate set up for the static analysis tool (very similar to
   `tesla-instrument`). It is now able to load a manifest and an IR file from
@@ -354,7 +354,7 @@
   be done is walk the root automata for things that are `acq_rel` (if it's
   included), then delete (don't pass on) root automata if the analysis succeeds.
 
-### 22/12/2016
+## 22/12/2016
 
 * The `cat` tool generates a new file by directly writing the textual
   representation of a `ManifestFile` to disk. It seems to be valid to initialize
@@ -409,7 +409,7 @@
   * Then once we have a way of recognizing usages of `acq_rel`, the next step is
     to pick out the bounds of each usage and do the analysis on the IR.
 
-### 23/12/2016
+## 23/12/2016
 
 * Today: work on recognizing usages of `acq_rel` in an automaton root. Want a
   function that takes a root usage, and returns true if it is an instance of
@@ -458,7 +458,7 @@
     is *adding to* the manifest data to suggest approaches to the
     instrumentation pass.
 
-### 13/1/2017
+## 13/1/2017
 
 * Back working on TESLA after a break to do coursework post-christmas. Meeting
   with Robert earlier today in which we discussed the work that I've been doing
@@ -498,7 +498,7 @@
       manifest itself first. Should look at why the incorrect branch makes two
       goes round the function!
 
-### 14/1/2017
+## 14/1/2017
 
 * Fixed the parser regression identified yesterday. The solution was to add an
   extra parameter to the argument parsing methods so that they can be
@@ -516,7 +516,7 @@
   so that TESLA can be rebuilt and installed easily if the experiment build is
   broken, without having to change code.
 
-### 15/1/2017
+## 15/1/2017
 
 * Added the experimental on / off flags that allow TESLA to be rebuilt and
   installed if the experiments are breaking the build.
@@ -535,7 +535,7 @@
   usages of `acq_rel` are deleted).
 * Looked into the usage of field assignments as assertion bound events.
 
-### 16/1/2017
+## 16/1/2017
 
 * Looked into how the variable names in an assertion site are mapped onto LLVM
   `Value` objects. Found the mechanism that does this by searching all of the
@@ -546,7 +546,7 @@
   to get the appropriate information out of the usage and module.
 * Fixed that annoying CMake install problem for the experiments directory.
 
-### 17/1/2017
+## 17/1/2017
 
 * Next step is to rip out the part of the instrumenter that maps variable names
   onto an LLVM `Value`. Have implemented this and moved the appropriate parts
@@ -557,7 +557,7 @@
 * Realised that my pass construction interface isn't quite right, and I need to
   actually give an `Automata`.
 
-### 18/1/2017
+## 18/1/2017
 
 * Rewired stuff to pass an `Automaton` instance into the LLVM pass so that the
   argument information can be accessed.
@@ -573,14 +573,14 @@
   to the acquire and release functions *only* use the variable named in the
   assertion.
 
-### 19/1/2017
+## 19/1/2017
 
 *  Big achievement for the day is getting the project to build without errors on
    LLVM 3.4. It doesn't look like it'll be easy to get it updated further
    because of incompatibilities with the CMake system that I haven't been able
    to resolve yet.
 
-### 23/1/2017
+## 23/1/2017
 
 * Worked out how to get call graph information out of the corresponding LLVM
   pass.
@@ -593,7 +593,7 @@
 * Added some TODOs and questions about the static analysis methodology, and the
   `OtherLock` analysis.
 
-### 24/1/2017
+## 24/1/2017
 
 * Finished factoring out the "Other Lock Used" static analysis into its own
   self-contained implementation. The next step will be to write more of these
@@ -1359,7 +1359,7 @@
   in it from a theoretical standpoint. As well as that, a bit of reading to get
   context and terminology sorted out would be a good idea.
 
-## 31/3/2017
+## 31/3/2017
 
 * Next step is to do a bit of work on formalising the model checking stuff I've
   done with TESLA.
@@ -1377,7 +1377,7 @@
 * Doing a bit of LaTeX setup so that I can get this stuff down into an
   approximation of a section.
 
-# 3/4/2017
+## 3/4/2017
 
 * Looking to try and implement an FSM library that I can use to improve the
   initial model checking algorithm - we don't need to generate every possible
@@ -1385,7 +1385,7 @@
   machine.
 * Implemented a big chunk of the FSM algorithms (NFA -> DFA etc.).
 
-# 4/4/2017
+## 4/4/2017
 
 * Worked on integrating the FSM library into TESLA - can now construct a DFA
   with edges labelled by TESLA root assertions. The next step is to check input
@@ -1395,7 +1395,7 @@
 * Should look into Buchi automata now that we have a more explicit notion of
   cycles.
 
-# 6/4/2017
+## 6/4/2017
 
 * Adding a transducer method to the FSM library that will allow a new sequence
   of values to be generated. This is similar to the accept methods - what it
@@ -1434,11 +1434,11 @@
 * More work on the writeup, making a start to the implementation section.
   Chapter titles could probably do with some work.
 
-# 8/4/2017
+## 8/4/2017
 
 * Getting through more writing on the implementation section.
 
-# 9/4/2017
+## 9/4/2017
 
 * Plan is to keep going on the writing, ideally finishing a first rough draft of
   the implementation chapter.
@@ -1450,7 +1450,7 @@
   Part of the problem is that it consumes so much memory.
 * Started lit review and to look at counterexample outputs.
 
-# 10/4/2017
+## 10/4/2017
 
 * Finished adding a hacky counterexample output to the model checker - to be
   more strictly useful, the internal printing functions I use would have to be
@@ -1476,7 +1476,7 @@
   we see that the model doesn't leave state x when executing a loop, don't go
   through that loop again?
 
-# 11/4/2017
+## 11/4/2017
 
 * Wrote up part of the lit review on bounded model checking.
 * Improved some figures in the background section of the writeup.
@@ -1485,7 +1485,7 @@
 * More tinkering with LWIP in a way that isn't entirely promising---definitely
   worth a writeup as "why static analysis on real code is *hard*".
 
-# 12/4/2017
+## 12/4/2017
 
 * What to look at today? Dissertation is at 6700 words with case study, partial
   lit review, intro and conclusion to come. Things to look at doing just now are
@@ -1553,7 +1553,7 @@
   library (preinstr) bitcode and distribute it as a single file with a manifest.
   That could then be compiled wih the plugin code to build the whole app.
 
-# 14/4/2017
+## 14/4/2017
 
 * Should start to put together the case study section of the evaluation so that
   I can have a full rough draft ready soon.
@@ -1587,7 +1587,7 @@
   file wrapper. The wrapped bitcode files can behave just like any other bitcode
   file, but can have their manifest extracted to allow for instrumentation.
 
-# 16/4/2017
+## 16/4/2017
 
 * Worked out a reasonably reliable way to compile apps against a precompiled,
   archived library built using TESLA - the app depends on the .m.bc file, then
@@ -1636,7 +1636,7 @@ actual_cb_func()
 * Problem faced is that the virtual interface is *much* slower than making real
   function call - but why should that be so much worse than previously?
 
-# 17/4/2017
+## 17/4/2017
 
 * Fixed the mysterious performance issue - the wrapper wasn't registering a
   whole callback! This meant that polling was the only way it could ever be
@@ -1660,7 +1660,7 @@ actual_cb_func()
   we can get determinism back. Not easy.
 * Otherwise we're back to a slightly improved model trace generator.
 
-# 18/4/2017
+## 18/4/2017
 
 * Continuing to work on fixing up the model checker. Idea late yesterday was
   that we can reuse the bigram checking idea by keeping track of what we saw
@@ -1683,7 +1683,7 @@ actual_cb_func()
 * Running the examples for longer to get more reliable data.
 * Started to write up section on safer library interfaces.
 
-# 19/4/2017
+## 19/4/2017
 
 * Worked out what I've been doing wrong all this time for caller-context
   instrumentation. Should extend the checker to work with it.
@@ -1698,14 +1698,14 @@ actual_cb_func()
 * Investigating a build of TESLA on Ubuntu, but no luck getting it to boot on
   the server (I think virtualisation won't work as I'm already virtualised).
 
-# 20/4/2017
+## 20/4/2017
 
 * Sent off rough first draft to Robert to have a look at - giving it a few days
   sitting time before I look at it again.
 * Investigating some engineering improvements to TESLA - first on the list is
   trying to get it built against an up to date LLVM (incrementally).
 
-# 21/4/2017
+## 21/4/2017
 
 * LLVM upgrade got to a point where I'd want to be spending more time on it -
   there are places where the instruction builder API is changing and I'm not
@@ -1743,7 +1743,7 @@ actual_cb_func()
   far this can go (and if my model idea is correct).
 * Further exploration: can I turn the entire model checker into this format?
 
-# 22/4/2017
+## 22/4/2017
 
 * Continuing to look at SMT methods and how they could be useful for the model
   checker.
@@ -1810,7 +1810,7 @@ actual_cb_func()
 * Should also begin to integrate CVC4 into the checker rather than generating
   text - the logic will be broadly similar, but internal rather than external.
 
-# 24/4/2017
+## 24/4/2017
 
 * Looks like the basic-block based trace generation method is far slower than
   the previous one (but we should be able to do similar things to avoid up-front
@@ -1847,7 +1847,7 @@ actual_cb_func()
 * Starting to build the Z3-based model checking tool for integration with the
   current setup.
 
-# 25/4/2017
+## 25/4/2017
 
 * Continuing to integrate the Z3-based solver into a new version of the model
   checker.
@@ -1870,7 +1870,7 @@ actual_cb_func()
 * Looking into writing up a section in the dissertation about the new SMT-based
   approach.
 
-# 26/4/2017
+## 26/4/2017
 
 * Continuing to work on the new model checker integration.
 * Finished implementing the Z3 checker - for now it seems slower than the
@@ -1898,7 +1898,7 @@ actual_cb_func()
 * Solution is to use the inbuilt way of defining recursive functions - how to do
   using the C API?
 
-# 27/4/2017
+## 27/4/2017
 
 * Finally internalised what the Z3 API documentation means by macro expansions -
   the client code can unwind a recursive definition for as many iterations as it
@@ -1938,7 +1938,7 @@ actual_cb_func()
   pervasively it uses LLVM internals. Might still be possible, but seemed to
   mean littering the code with locks (and still getting intermittent segfaults).
 
-# 28/4/2017
+## 28/4/2017
 
 * Meeting with Robert to discuss remaining directions for the project.
 * Key points were:
@@ -1974,3 +1974,81 @@ actual_cb_func()
 * Architectural / microarchitectural effects are important - what metrics get
   worse running under TESLA? Which ones make sense to measure in a benchmark
   context?
+
+## 29/4/2017
+
+* Looking into gathering performance metrics for the echo server implementations
+  to see where performance degradation is coming from.
+* Things to explore:
+  * Time taken to echo data into `/dev/null`
+* Observations:
+  * Bulk transfer rate plateaus for both the static and instrumented versions
+  * Through the scaling up and plateau components, relative throughput constant
+* So throughput can be measured by sending large files through the server - how
+  does running with performance probes enabled change this?
+* Quick back-of the envelope test to see how running with the instructions
+  counter looks. There does seem to be some effect on relative performance - the
+  instrumented server gets 63.3% average under no pmcstat, but drops to 60.7%
+  under pmcstat. Relative throughput does remain constant over file sizes,
+  however.
+* Even with very large files, the maximum throughput demonstrated by each server
+  seems to remain constant - same as existing benchmarks, suggests peak
+  performance. No degradation from continuous usage / lots of data, or from
+  multiple connections.
+* Next step is to pick the counters to actually measure.
+  * Cache misses (data / instruction?)
+  * Branch mispredictions
+* Also need to work out what the best way of actually gathering data is.
+* Can use `pmcstudy -L` to get the actual name of things that didn't want to run
+  before.
+* First possible performance indicator - instrumented version is doing a lot
+  more memory accesses than the statically analysed version. Need to look at
+  cache behaviour as well.
+* Consistent across cache levels - the instrumented version performs roughly
+  twice as many loads as the static version.
+* More stores as well, but not quite 2x as is the case for loads. Generally,
+  lots more memory operations for the instrumented version.
+* More culprits - branch misprediction is much higher in the instrumented
+  version. Primary source of this is inside TESLA library code.
+* Should also be doing these comparisons with the unmodified version and the
+  halfway-analysed version.
+* Obvious increase in number of instructions executed - the instrumented version
+  retires newarly twice as many when receiving a 100M file. Same places are the
+  cause of this as callgrind indicated earlier - strcmp inside libtesla for both
+  memory and CPU cycles.
+* Binaries for the static version actually turn out to be smaller than those of
+  the unmodified version - suspect this is due to the differences in build
+  process (i.e. being able to do whole program optimisation on them).
+* So we have data showing slowdown consistently over the 4 versions of the
+  server as expected. Now let's run them under `pmcstat` with counters enabled
+  so that we can see how benchmark performance changes.
+* Counters to be used:
+  * No of loads (total, L1, L2, LL)
+  * No of stores
+  * No of instructions retired
+* First step is to get a picture of how enabling these counters will change
+  performance. Second step is to actually gather data and see where performance
+  is hit.
+* Enabling these counters doesn't seem to have a major influence on performance.
+  No consistent swing up or down for relative performance, all differences
+  within 2%. Seems to be the case that we can run these probes without too much
+  impact on performance.
+* How best to gather data? Need to get info per file sent, so can't automate as
+  easily.
+* Memory behaviour seems consistent across versions - hits go proportionately to
+  the same places, but there's just a lot more of them in the static / instr
+  versions. Across data size as well as versions.
+* Instrumented version does ~240% the loads the unmodified version does, which
+  in fact holds for instructions in general.
+* In terms of the number of instructions executed, the static and instr versions
+  are very similar over the portions they share - both do about the same amount
+  of work in sunrise / sunset. The difference comes from the instrumented
+  version doing twice as much again on updates.
+* Haven't yet diagnosed any behaviour in which the instrumented version is
+  "worse" than the default version except in the *amount* of work it ends up
+  doing - should try again tomorrow with different metrics (more instruction
+  related? pipeline stalls?), as the memory profiles are very similar.
+* A first look at whether the sunrise / sunset costs could be removed isn't
+  promising - because lifetimes are shared between automata, there's no easy way
+  to tell whether they can be omitted at instrumentation time (as opposed to the
+  actual instrumentation code, which is tied to a usage).
