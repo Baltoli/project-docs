@@ -2052,3 +2052,33 @@ actual_cb_func()
   promising - because lifetimes are shared between automata, there's no easy way
   to tell whether they can be omitted at instrumentation time (as opposed to the
   actual instrumentation code, which is tied to a usage).
+
+# 30/4/2017
+
+* Next steps with profiling - look at instruction / execution related metrics.
+  Yesterday's work showed that the memory behaviour is very similar once
+  instrumented (more of it, but same proportion of loads, hits at each
+  cache level).
+* Interesting note that the instrumented version exhibits noticeably better CPI
+  than the default versions - hypothesis for this is that `strncmp` is well
+  suited to being executed on a super-scalar processor, and so a large
+  proportion of the execution time gets good CPI as a result. Some very quick,
+  imprecise checking seems to indicate that this is indeed the case.
+* Not even the instrumented version makes top-level cache misses - the internal
+  LWIP library is well optimised.
+* Conclusion from this performance work basically seems to be that the
+  instrumented versions don't perform proportionally any worse than the
+  uninstrumented versions, but they need to do a lot more work. The bottleneck
+  is in `libtesla` comparing lifetimes.
+* Firmer conclusions: can see the exact same overhead at sunrise and sunset
+  between the static and fully-instrumented versions. The difference is in
+  automaton update code - this overhead is then proportional to the number of
+  TESLA events triggered on an execution, while the sunrise and sunset overhead
+  is proportional to the number of lifetime bounds encountered.
+* Because the overhead is primarily in `strncmp` calls, the instrumented
+  versions are actually a bit more efficient - they get a better CPI ratio by
+  spending so much time doing easily super-scalar operations, and don't behave
+  any worse with respect to memory.
+* For the most part, the amount of work done doing "tcp things" is about the
+  same across versions.
+* Result is a clear attribution of overhead to TESLA work being done.

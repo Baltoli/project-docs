@@ -397,6 +397,153 @@ compared to the unmodified server. While this performance result is appealing,
 it is worth noting that it will only be possible when every automaton is
 statically provable.
 
+\subsubsection{Analysis}
+
+It is clear from these results that TESLA instrumentation has a
+significant impact on performance. In this section I analyse the causes
+of this overhead by using the
+\texttt{hwpmc}\footnote{\url{https://www.freebsd.org/cgi/man.cgi?query=hwpmc}}
+tools available in FreeBSD.
+
+Hardware performance counters are a set of specialised registers
+available on modern processors that can be used to measure architectural
+and microarchitectural performance events. For example, the number of
+mispredicted branches or the number of cache line misses are commonly
+made available. The exact data available varies between architectures,
+and even between different models of processor on the same architecture.
+FreeBSD makes these performance counters available to user programs
+through the \texttt{hwpmc} driver.
+
+Using these counters can have an effect on the performance
+characteristics of a program. In order to verify that this effect was
+acceptable, the experiment described above was repeated with five
+performance counters enabled. There was no significant change in
+relative performance when running with counters enabled---the maximum
+deviation from the results given above was 1.7\%.\footnote{Absolute
+throughput with counters enabled was approximately 90\% of the
+throughput with no counters.}
+
+The performance counters enabled were as follows: the number of
+instructions retired, the number of load instructions retired, and the
+number of loads from the L1, L2 and L3 caches respectively. Each counter
+was run in sampling mode, meaning that data was obtained by statistical
+sampling over all the events observed. Each server was observed over the
+course of a fixed-size data transfer, with the size of the data used
+varying from 10--150MB.
+
+An approximation to the amount of work performed by each version is the
+total number of instructions retired.\footnote{An instruction is retired
+when it has been executed and its effects written back---in a
+superscalar architecture, instructions may be speculatively dispatched
+but not retired.} \autoref{fig:retired-bench} shows the number of
+instructions retired during these transfers for each server version.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      title={Effect of data transfer size on instructions retired},
+      width=0.85\textwidth,
+      xlabel={Data size (MB)},
+      ylabel={Instructions retired},
+      xmin=7,xmax=153,
+      ymin=0,ymax=250000,
+      legend pos=north west,
+      ymajorgrids=true,
+      grid style=dashed,
+      cycle list/Dark2,
+      yticklabel style={
+	      /pgf/number format/fixed,
+	      /pgf/number format/precision=5
+      },
+      scaled y ticks=false
+    ]
+      \addplot+[mark=x]
+      table [x =size, y =unmod]{data/retired.dat};
+
+      %\addplot+[mark=x]
+      %table [x =size, y =all]{data/retired.dat};
+
+      \addplot+[mark=x]
+      table [x =size, y =static]{data/retired.dat};
+
+      \addplot+[mark=x]
+      table [x =size, y =instr]{data/retired.dat};
+      \legend{Unmodified,Static,Instrumented}
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Number of instructions retired during a fixed-size data
+  transfer}
+  \label{fig:retired-bench}
+\end{figure}
+
+It is clear from this data that the number of instructions retired is
+proportional to the quantity of data being transferred by the server. On
+average, the statically analysed server retired $1.37\times$ the
+instructions of the unmodified server, while the instrumented version
+retired $2.49\times$ as many. Further experiments with much larger data
+files showed that this relationship continued to hold.
+
+The memory access patterns for each version are very similar---for each
+one, 28\% of the total instructions retired are load instructions, of
+which 94\% are served by the L1 cache, and less than 0.2\% by the L3
+cache (although because the total number of instructions executed is
+greater, the total number of loads from the L3 cache and cache misses
+will increase).
+
+A similar analysis was performed for instruction cache misses, with the
+same conclusion---TESLA instrumentation did not significantly change the
+microarchitectural performance characteristics of the server
+implementations (beyond increasing the number of executed instructions).
+
+The sampled counter data can be used to show where instructions are
+spent during execution. \autoref{lst:instr-callchain} shows a sampled
+excerpt from the instrumented server. From this data we can see that
+TESLA automaton operations account for 37\% of the retired instructions,
+with 25\% corresponding to state updates and 12\% to lifetime
+management.\footnote{The TESLA terminology for creating and destroying
+automata is ``sunrise'' and ``sunset''.}
+
+\begin{listing}[ht]
+  \begin{minted}{objdump-nasm}
+@ INSTR_RETIRED_ANY [227749 samples]
+
+36.66%  [83489]    strncmp @ /lib/libc.so.7
+  100.0%  [83489]     same_static_lifetime @ libtesla.so
+    68.99%  [57601]      tesla_update_class_state @ libtesla.so
+    16.00%  [13358]      tesla_sunset @ libtesla.so
+    15.01%  [12530]      tesla_sunrise @ libtesla.so
+06.73%  [15337]    inet_chksum_pseudo @ tesla-app.instr
+  ...
+  \end{minted}
+  \caption{Callchain output showing number of instructions retired with
+  TESLA instrumentation enabled}
+  \label{lst:instr-callchain}
+\end{listing}
+
+The equivalent data for the statically analysed server (in
+\autoref{lst:static-callchain}) shows clearly where the remaining
+overhead arises. Calls to the automaton lifetime functions remain (with
+a similar number of associated instructions), while the state update
+functions have been removed. Calls to the lifetime functions can be
+removed only if there are no automata to be instrumented.
+
+\begin{listing}[ht]
+  \begin{minted}{objdump-nasm}
+@ INSTR_RETIRED_ANY [125375 samples]
+
+22.71%  [28467]    strncmp @ /lib/libc.so.7
+  100.0%  [28467]     same_static_lifetime @ libtesla.so
+    51.17%  [14567]      tesla_sunrise @ libtesla.so
+    48.83%  [13900]      tesla_sunset @ libtesla.so
+12.74%  [15968]    inet_chksum_pseudo @ tesla-app.static
+  ...
+  \end{minted}
+  \caption{Callchain output showing number of instructions retired with
+  TESLA instrumentation removed}
+  \label{lst:static-callchain}
+\end{listing}
+
 \subsection{Summary}
 
 In this section I have shown how TESLA can be used by library developers to
@@ -404,9 +551,9 @@ apply temporal assertions to users of the library without prior knowledge of the
 user code. Additionally, I have demonstrated a method for adapting library
 interfaces not explicitly designed with TESLA instrumentation in mind. This
 technique was applied to an application using the LWIP TCP library,
-demonstrating the performance improvements achievable by using static analysis
-(as well as further improvements that could be made to the optimisation
-process).
+demonstrating the performance improvements achievable by using static
+analysis. Finally, I have given an analysis of the performance overheads
+observed that shows TESLA instrumentation is indeed the source.
 
 The methods developed have some shortcomings when compared to typical C library
 development:
