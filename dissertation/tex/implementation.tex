@@ -541,24 +541,48 @@ original solution as assertions. For example, if \texttt{\%3 = 12} is identified
 as a solution, adding \texttt{\%3 != 12} as an assertion causes the problem to
 become unsatisifiable if there was only one possible model.
 
-Finally, after translating a function execution and finding a unique model, we
-are left with a mapping from call sites to fixed return values on the execution.
-\autoref{fig:llvm-smt} contains a fragment of LLVM IR taken from the test suite
-of mutex programs, and \autoref{fig:smt-example} shows the translation of this
-IR into an SMT program (given using SMT-LIB2 standardised syntax
-\cite{BarST-SMT-10}).
-
-% TODO get lexer and populate these listings with actual example code
+Finally, after translating a function execution and finding a unique
+model, we are left with a mapping from call sites to fixed return values
+on the execution.  \autoref{fig:llvm-smt} contains an inlined execution
+trace taken from the mutex test suite, and \autoref{fig:smt-example}
+shows the translation of this IR into an SMT program (given using
+SMT-LIB2 standardised syntax \cite{BarST-SMT-10}).
 
 \begin{listing}
   \begin{minted}{llvm}
+define i32 @trace_main_5() {
+  call void (...)* @__tesla_inline_assertion(...)
+  call void @__entry_stub_do_work()
+  %2 = call i1 @__entry_stub_lock_acquire(...)
+  ; locking code omitted
+  br i1 %5, label %__tesla_sink, label %lock_acquire.exit
+
+lock_acquire.exit: ; preds = %6
+  %7 = call i1 @__return_stub_lock_acquire(...)
+  %8 = xor i1 %7, true
+  br i1 %8, label %__tesla_sink, label %do_work.exit
+
+do_work.exit: ; preds = %lock_acquire.exit
+  call void @__entry_stub_lock_release(...)
+  call void @__return_stub_lock_release(...)
+  call void @__return_stub_do_work()
+  ret i32 0
+
+__tesla_sink: ; preds = %lock_acquire.exit, %1
+  unreachable
+}
   \end{minted}
   \caption{LLVM IR to be translated into an SMT problem}
   \label{fig:llvm-smt}
 \end{listing}
 
 \begin{listing}
-  \begin{minted}{haskell}
+  \begin{minted}{smt2}
+(declare-fun |%5| () Bool)
+(declare-fun |%7| () Bool)
+(define-fun |%8| () Bool (xor |%7| true))
+(assert (not |%5|))
+(assert (not |%8|))
   \end{minted}
   \caption{SMT translation of LLVM IR}
   \label{fig:smt-example}
