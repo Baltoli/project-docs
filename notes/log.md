@@ -2082,3 +2082,5 @@ actual_cb_func()
 * For the most part, the amount of work done doing "tcp things" is about the
   same across versions.
 * Result is a clear attribution of overhead to TESLA work being done.
+* Added a section to the echo server benchmarks that analyses performance using
+  hwpmc.
