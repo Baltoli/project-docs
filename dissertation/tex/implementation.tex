@@ -450,7 +450,7 @@ its sub-automata do.
 In \autoref{sec:formal} I gave a translation from TESLA assertions to
 nondeterministic finite automata with transitions labeled with program
 event assertions. These automata act as \emph{specifications} for a
-program. To check whether a program is correct with regard to its
+program. Checking whether a program is correct with regard to its
 specifications is similar to a model checking problem in the style of
 \textcite{clarke_design_1982}:
 
@@ -461,77 +461,90 @@ specifications is similar to a model checking problem in the style of
 
 In this section I describe the methods used to check a program against
 its specifications as derived from TESLA assertions. I first describe an
-SMT-based algorithm for computing data flow for a program execution.
-Then, I apply this together with a form of bounded model checking to
-check a program against its specification automata. Finally, I discuss
-the limitations and potential improvements that could be made to this
-approach.
+SMT-based algorithm for computing data flow information for an
+individual program execution. Then, I apply this together with a form of
+bounded model checking to check a program against its specification
+automata. Finally, I discuss the limitations and potential improvements
+that could be made to this approach.
 
 \subsection{Data Flow Inference} \label{sec:rvc}
 
-Because TESLA allows for data flow properties to be asserted, a mechanism to do
-so statically is required for the model checker to be fully useful. The two
-forms of data flow assertion allowed by TESLA are constraints on the arguments
-passed to a function, and on the value returned by a function call. The dynamic
-implementation of TESLA includes code for mapping from an abstract
-representation of function arguments onto LLVM values (as this is required to
-insert instrumentation code). This code is reused in the model checker, and so
-the model checker only has to be able to check function return values.
+TESLA allows for properties of data flow to be asserted---in particular,
+the value of arguments passed to functions and the value returned by a
+function call. Checking arguments passed to functions can be performed
+by adapting existing TESLA code, and so in this section I describe only
+the algorithm used to check function return values.
 
-Stated more formally, the property we are interested in checking is
-\textquote{on a particular execution path, can we infer that a function call
-returned a fixed value?}. In this section, I describe an algorithm for
-performing this inference by making use of an SMT\footnote{Satisfiability Modulo
-Theories} encoding of LLVM IR.
+Stated formally, the property we are interested in checking is
+\textquote{on a particular execution path, can we infer that a function
+call returned a fixed value?}. In this section, I describe an algorithm
+for performing this inference by translating LLVM functions to SMT
+problems.
 
 \subsubsection{Encoding LLVM IR as SMT Formulae}
 
-In \autoref{sec:smt} I gave an overview of SMT methods, their history and
-relevant terminology. Building on this background, in this section I describe
-how an LLVM function can be encoded as an SMT problem that when solved gives a
-solution to the function return value inference problem described above.
+In \autoref{sec:smt} I gave an overview of SMT methods, their history
+and relevant terminology. Building on this background, in this section I
+describe how an LLVM function can be translated to an SMT problem that
+can be used to solve the return value inference problem described above.
 
-Because LLVM IR is expressed in SSA\footnote{Static Single Assignment} form, it
-admits a relatively simple encoding as SMT formulae. For example, the LLVM
+A subset of LLVM IR can be easily translated to an SMT formula.\footnote{At least
+for the properties relevant to this problem---a full translation of the
+LLVM semantics would be far more complex.} For example, the LLVM
 instruction \mintinline{llvm}{%3 = add i32 %1, %2} can be seen as a formulae
 stating that $ \%_3 = \%_1 + \%_2 $, whatever interpretation is given to the
 values $ \%_1 $ and $ \%_2 $. This encoding relies on a particular background
-theory (for example, the theory of finite bit vectors---one leading
-implementation of which is Boolector \cite{brummayer_boolector:_2009}) to supply
+theory (for example, the theory of finite bit vectors) to supply
 the semantics of $ + $ and other operations. All of the LLVM binary and
-comparison operators can be encoded into interpreted SMT functions using this
+comparison operators can be translated to interpreted SMT functions using this
 method.
 
-While it is possible to provide a defined interpretation of some LLVM values, it
-is more interesting to consider the ones where we cannot. We have no way of
-supplying an interpretation for a function call or a load from memory, for
-example. Instructions in this class are encoded as uninterpreted constants in
-the same background theory---they will be assigned values in a satisfying model.
+Function calls and loads from memory are translated to uninterpreted
+functions---we have no \emph{a priori} knowledge of the value they will
+take at runtime, but they can be assigned values in a satisfying model
+for the problem.
 
-A particular execution path through a function is given by a sequence of basic
-blocks from entry to termination (through ordinary return or otherwise). From
-this execution path we are able to determine the truth values of each branch
-condition---these branch conditions uniquely determine control flow and vice
-versa. Each of these truth values can then be added to the SMT interpretation of
-the IR as an assertion.
+A single execution path through a function is a finite sequence of basic blocks
+starting at the entry block. The blocks taken in the sequence constrain the
+values of \emph{branch conditions} (the LLVM values on which conditional
+branches are predicated). These constraints are then added to the SMT problem as
+assertions.
 
-The result of applying this translation to a particular execution path is an SMT
-instance such that when a model is found, it may give a valuation to the return
-value of function calls. It is possible that no valuation for a function call is
-found (for example, if no branches depend on its return value), or that several
-models are possible. Because TESLA assertions specify a fixed value for a
-function return value, we must check that exactly one model is possible---this
-can be done by solving an augmented problem that includes the negation of the
-original solution as assertions. For example, if \texttt{\%3 = 12} is identified
-as a solution, adding \texttt{\%3 != 12} as an assertion causes the problem to
-become unsatisifiable if there was only one possible model.
+Applying this translation to a single execution path yields an SMT problem, the
+solution to which produces an assignment of values to LLVM SSA variables. It is
+possible that some variables are left unconstrained (if no conditional branches
+depend on their value), or that multiple values are satisfying assignments. In
+order to check whether a valuation is unique for a given variable, we construct
+an augmented problem that contradicts the original model. If this problem is
+unsatisfiable, the original solution was unique.
 
-Finally, after translating a function execution and finding a unique
-model, we are left with a mapping from call sites to fixed return values
-on the execution.  \autoref{fig:llvm-smt} contains an inlined execution
-trace taken from the mutex test suite, and \autoref{fig:smt-example}
-shows the translation of this IR into an SMT program (given using
-SMT-LIB2 standardised syntax \cite{BarST-SMT-10}).
+Finally, after translating a function execution and finding a unique model, we
+are left with a mapping from call sites to fixed return values (on this
+execution path).
+
+\subsubsection{Implementation}
+
+Implementing the algorithm described above requires several transformations to
+be made to an LLVM function before it can be transformed to its SMT
+representation. First, because execution is modelled as a sequence of basic
+blocks, the function must be completely inlined. This is easily achieved using
+existing LLVM library code (with the caveat that infinite recursion can only be
+inlined up to a finite depth).
+
+Once the function has been inlined, all of its call sites are removed---this
+means we lose information about arguments passed and values returned. To remedy
+this problem, calls to stub functions are added before and after each call site
+to be inlined. Each stub function receives the same arguments as the call being
+made, and the return value of the call is replaced by the return value of the
+``after'' stub. The stub functions are not inlined, preserving call graph
+information in the inlined function.
+
+Execution sequences are generated from the inlined function by walking its
+control flow graph to a specified finite depth---this finiteness condition is
+addressed further in \autoref{sec:mc}. Repeated basic blocks from loops in the
+graph are handled by simply duplicating the blocks. \autoref{lst:llvm-smt} shows
+a single trace taken from one of the programs in the mutex test suite after
+these transformations have been applied.
 
 \begin{listing}
   \begin{minted}{llvm}
@@ -558,7 +571,7 @@ __tesla_sink: ; preds = %lock_acquire.exit, %1
 }
   \end{minted}
   \caption{LLVM IR to be translated into an SMT problem}
-  \label{fig:llvm-smt}
+  \label{lst:llvm-smt}
 \end{listing}
 
 \begin{listing}
@@ -570,158 +583,116 @@ __tesla_sink: ; preds = %lock_acquire.exit, %1
 (assert (not |%8|))
   \end{minted}
   \caption{SMT translation of LLVM IR}
-  \label{fig:smt-example}
+  \label{lst:smt-example}
 \end{listing}
-
-\subsubsection{Implementation}
-
-Implementing the algorithm described above requires several transformations to
-be made to an LLVM function before it can be transformed to its SMT
-representation. First, because execution is modelled as a sequence of basic
-blocks, the function must be completely inlined. This is easily achieved using
-existing LLVM library code (with the caveat that infinite recursion can only be
-inlined up to a finite depth).
-
-Once the function has been inlined, all of its call sites are removed---this
-means we lose information about arguments passed and values returned. To remedy
-this problem, calls to stub functions are added before and after each call site
-to be inlined. Each stub function receives the same arguments as the call being
-made, and the return value of the call is replaced by the return value of the
-``after'' stub. The stub functions are not inlined, preserving call graph
-information in the inlined function.
-
-Execution sequences are generated from the inlined function by walking its
-control flow graph to a specified finite depth---this finiteness condition is
-addressed further in \autoref{sec:mc}. Repeated basic blocks from loops in the
-graph are handled by simply duplicating the blocks.
 
 From these execution sequences, the Z3 SMT solver \cite{de_moura_z3:_2008} is
 used to construct and solve the SMT problem. Z3 was chosen as a
-production-quality SMT implementation with a well-documented C++ API.
+production-quality SMT implementation with a well-documented C++ API, but the
+techniques used apply equally well to any SMT solver implementation.
+\autoref{lst:smt-example} shows the SMT translation of the LLVM IR in
+\autoref{lst:llvm-smt}, given in SMT-LIB standard syntax \cite{BarST-SMT-10}.
 
 \subsection{Model Checking Algorithm} \label{sec:mc}
 
 Given the SMT-based mechanism for determining function return values described
-above, we can now define a model checking algorithm for TESLA assertions. This
-algorithm is defined in terms of finite traces over an LLVM function, together
-with the finite state machine translation of an assertion given in
+above, a model checking algorithm for TESLA assertions can now be defined. This
+algorithm is defined in terms of execution traces over an LLVM function,
+together with the finite-state automaton translation of an assertion given in
 \autoref{sec:formal}.
 
-\subsubsection{Finite Traces}
+\subsubsection{Execution Traces}
 
-TESLA assertions are \emph{bounded} by beginning and end events. In the model
-checker, for ease of implementation we consider only assertions bounded by entry
-and exit to the same function. Possible executions are then sequences of basic
-blocks from the entry of this function to an exit (after inlining has been
-applied as far as possible).
+TESLA assertions are bounded by beginning and end events. In the model checker,
+for ease of implementation we consider only assertions bounded by entry and exit
+to the same function. Possible executions are then sequences of basic blocks
+that begin at the function's entry block (an execution of finite length may not
+reach a terminating block---this is discussed further in
+\autoref{sec:auto-check}).
 
-The model checker generates all possible traces through the inlined bounding
-function up to a given length maximum length---while this is unsound from a
-theoretical perspective, it is often the case that counterexamples are generated
-relatively quickly (as by searching shorter traces first, minimal
-counterexamples are found first).
+The model checker generates all possible executions through the inlined bounding
+function up to a given length maximum length. On each of these generated
+executions, we compute function return values using Z3 as described previously.
+Then, the execution is checked for acceptance against the finite-state automaton
+obtained from the original assertion.
 
-On each of these generated finite traces, we compute the return value
-constraints using Z3 as described previously. Then, we pass the sequence of
-instructions in the trace to the specification automaton to be checked. The
-acceptance criteria for a sequence of instructions is given in the rest of this
-section.
+If all possible executions are accepted by the automaton, then the assertion
+cannot fail at runtime. Its instrumentation code can therefore be removed safely
+from the program. If an execution is not accepted by the automaton, then a
+\emph{counterexample} has been found---we can demonstrate an execution path on
+which the assertion may not hold, and the reasons why it may not hold.
+\autoref{lst:counter} shows a counterexample generated from one of the mutex
+test programs.
 
-\subsubsection{Single-Edge Acceptance}
+% TODO: improve counterexample generation and add output here
+\begin{listing}
+  \begin{minted}{objdump-nasm}
+  \end{minted}
+  \caption{Counterexample trace generated from a mutex test program}
+  \label{lst:counter}
+\end{listing}
 
-First, we define a single-edge acceptance criterion that defines when an LLVM
-instruction is accepted by an edge in the specification automaton. All of the
-relevant program events are encoded as function calls---either to stub functions
-that preserve the call graph after inlining, or to the TESLA instrumentation
-hook function. Instructions that are not function calls can therefore be
-ignored. Then, we can specify when an edge in the specification automaton
-accepts a function call instruction (based on the type of the edge) as follows:
-\begin{description}
-  \item[Function Event] If the call is to an entry stub function (or an exit
-    stub function with no associated return value), the function
-    names and arguments must match. If it is to an exit stub function with a
-    return value specified, the mapping obtained from the SMT solver must
-    contain that return value.
-  \item[Assertion Site] The location specified by the parameters to the TESLA
-    instrumentation hook must match the location contained in the assertion site
-    event.
-\end{description}
+\subsubsection{Checking Execution Traces} \label{sec:auto-check}
 
-One subtlety to this approach is that not all function call instructions will be
-accepted in a given state. In some cases, this is acceptable---if the relevant
-TESLA assertion does not mention the called function, then it can safely be
-ignored. However, if the assertion does mention the called function but it is
-not accepted by a state, then dynamic TESLA instrumentation will throw an error.
-The solution to this is to enumerate all the edges of the specification
-automaton before checking starts---this gives the collection of all functions
-mentioned by the automaton, and we can therefore detect these erroneous
-instructions.
+In this section I describe how an execution trace can be checked against a
+specification automaton in order to implement the model checking procedure
+described previously. I first describe how individual state transitions are
+checked, and from there define a notion of acceptance for an entire execution
+trace.
 
-\subsubsection{Function Acceptance}
+Each execution trace is a finite sequence of LLVM instructions. For each
+instruction in the sequence, the following checks are made:
+\begin{itemize}
+  \item Is the instruction a function call? (all checkable program events are
+    expressed as function calls in the IR---either to entry or return stubs, or
+    to the internal TESLA assertion site function).
+  \item If it is, is it accepted by any of the edges from the current edge?
+  \item If none of the edges accept the function call, does there exist an edge
+    elsewhere in the automaton that would accept it?
+\end{itemize}
 
-Given a criterion for single-edge acceptance of an LLVM instruction, the next step
-is to define when a whole function is accepted by the same automaton.
+Whether or not an individual edge accepts a program event is defined in terms of
+the event's type and metadata---if the event's metadata matches the edge's, then
+the event is accepted. For edges that specify a function return value, the check
+also verifies that the mapping generated from the SMT problem includes a
+matching entry.
 
-An initial (and partially inadequate) definition is to say that a function is
-accepted by an automaton if and only if every trace through the function
-from entry to exit reaches an accepting state in the specification automaton.
-This definition is reminiscent of the definition of satisfaction for LTL, where
-a formula is satisfied over a structure if and only if it is on all possible
-linear paths in that structure. However, this fails to capture an important
-feature of TESLA assertions:
-\begin{description}
-  \item[Non-termination] Programs with TESLA assertions may never
-    terminate. This is perfectly valid---as long as the program never
-    performs an event not permitted by an automaton, it will not fail
-    its TESLA assertions.
-\end{description}
+If an event is not accepted in the current state, but would be in another, then
+the assertion has been violated. If it is not accepted in any state, then we
+ignore the instruction as a \textquote{don't care} event.
 
-Non-termination is added to this definition by including all traces that enter
-an infinite loop. These paths may not include an accepting state, and so a path
-with an infinite loop satisfies the specification as long as the path does not
-contain an event forbidden by the automaton.
+It is now possible to define when an execution trace is accepted by the
+specification automaton. As noted previously, traces do not have to be
+complete---they may not reach a terminating block for the
+function.\footnote{Incomplete traces are required to deal with code that may
+enter an infinite loop.} Separate definitions for complete and incomplete traces
+must therefore be given.
 
-\subsubsection{Implementation}
+A complete trace ends in a basic block with no successors, and is accepted if
+the state reached after all instructions have been checked is an accepting
+state. Incomplete traces are accepted if an accepting state is reachable from
+the final state reached. In both cases if an unexpected event occurs, the
+execution is not accepted.
 
-As described previously, we consider only finite traces To implement the definition given previously, the notion of
-\textquote{infinite loop} must be sensibly defined in the context of
-bounded paths. To do this, we generate every path through the event
-graph of length $\leq k$, classifying each as either terminating,
-looping or incomplete:
-\begin{description}
-  \item[Terminating] paths are those that reach the end of the bounding
-    interval in $k$ or fewer steps.
-  \item[Looping] paths have a suffix made up of more than one
-    repetition of a shorter suffix (this characterises infinite loops
-    because if the shorter suffix can be repeated more than once, it can
-    be repeated any number of times).
-  \item[Incomplete] paths are not terminating or looping.
-\end{description}
+\subsection{Results} \label{sec:model-limits}
 
-Then to check whether the specification automaton is a model for the
-event graph, each terminating and looping path is checked against the
-automaton using the acceptance criteria given above. If every path is
-accepted by the automaton, then the assertion always holds---the
-instrumentation for the assertion can therefore be safely removed from
-the program.
-
-\subsection{Limitations and Improvements} \label{sec:model-limits}
+The implementation of the algorithms described above was able to check all the
+examples from the mutex test suite described in \autoref{sec:hand-coded},
+achieving parity with the less flexible hand-coded analyses.
 
 \subsubsection{Performance}
 
-Generally speaking, running the model checker is computationally
-expensive. However, it is designed to check shorter event paths first,
-such that a counterexample can be generated as soon as possible if one
-exists (the other benefit of this approach is that shorter
-counterexamples are easier for the user to understand).
+Generally speaking, running the model checker is computationally expensive.
+However, shorter execution traces are checked first. This means that minimal
+counterexamples will be generated as soon as possible.
 
-In practical terms, this means that assertions that have a
-counterexample can be checked a great deal faster than those that do
-not---if there is no counterexample, then every path shorter than the
-bounding length must be checked. For example, checking any incorrect
-test case from \autoref{sec:hand-coded} with a bound of 5000
-instructions takes approximately 15 seconds, while the successful test
-cases take around 90 seconds.
+In practical terms, this means that assertions that have a counterexample can be
+checked a great deal faster than those that do not---if there is no
+counterexample, then every path shorter than the bounding length must be
+checked. For example, checking any incorrect test case from
+\autoref{sec:hand-coded} with a bound of 200 basic blocks takes less than
+\num{0.1}\si{\second}, while the successful cases take approximately
+\num{160}\si{\second}.
 
 \subsubsection{Field Assignments}
 
