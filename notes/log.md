@@ -2053,7 +2053,7 @@ actual_cb_func()
   to tell whether they can be omitted at instrumentation time (as opposed to the
   actual instrumentation code, which is tied to a usage).
 
-# 30/4/2017
+## 30/4/2017
 
 * Next steps with profiling - look at instruction / execution related metrics.
   Yesterday's work showed that the memory behaviour is very similar once
@@ -2084,3 +2084,8 @@ actual_cb_func()
 * Result is a clear attribution of overhead to TESLA work being done.
 * Added a section to the echo server benchmarks that analyses performance using
   hwpmc.
+
+## 1/5/2017
+
+* Started to work on editing implementation chapter.
+* 

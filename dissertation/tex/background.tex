@@ -186,10 +186,9 @@ event---this reference is implicit in \autoref{lst:tesla-example}
 through the \mintinline{c}{eventually} macro, which states that the
 sequence of events listed take place after the assertion site.
 
-Automata can be written explicitly in the style of C functions, as well
-as inline with a program---an example of this is given in
-\autoref{lst:tesla-explicit}. Using this style allows for code reuse in
-the same way as declaring a function in ordinary code does.
+Automata can be written \emph{explicitly} to allow for composition
+(similar to defining a function in an ordinary program).
+\autoref{lst:tesla-explicit} shows an example of this style.
 
 \begin{listing}[ht]
   \begin{minted}{c}
