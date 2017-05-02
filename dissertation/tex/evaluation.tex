@@ -21,13 +21,13 @@ Additionally, I provide new tools that integrate with the existing TESLA
 toolchain in order to make this analysis available to existing collections of
 assertions.
 
-Future work on the model checker could improve it in a number of ways. Firstly,
-the use of non-symbolic model checking is not optimal---adapting it to construct
-a symbolic representation would allow it to take advantage of wider improvements
-in the field of model checking. Secondly, techniques from symbolic execution
-could be applied to increase the range of inferences available in the data flow
-part of the checker. This would improve on the number of programs that can be
-checked without a false negative.
+Future work on the model checker could improve it in a number of ways. The use
+of non-symbolic model checking is not optimal---adapting it to construct a
+symbolic representation would allow it to take advantage of wider improvements
+in the field of model checking. Additionally, the TESLA assertion language could
+be extended to allow richer properties of function return values to be expressed
+(e.g. \textquote{function \texttt{f} returns a value $> 0$ and $\leq
+10$}). SMT methods are well suited to this type of expression.
 
 \section{Application to Real-World Code}
 
@@ -48,7 +48,11 @@ instrumentation could be added to a program in order to diagnose bugs, but it
 would be removed in a release build due to the associated runtime performance
 overhead. The use cases described in the original TESLA paper are all
 applications to individual programs or libraries where this debugging process
-has been used successfully.
+has been used successfully. However, it is worth noting that the original uses
+of TESLA all involve instrumentation on system boundaries in much the same way
+as the general usage I describe.\footnote{In particular, the boundaries
+identified are the OpenSSL X509 verification API, the FreeBSD MAC framework and
+the Objective-C message dispatch mechanism.}
 
 I describe a more general way in which TESLA can be used---library developers
 can use TESLA to enforce usage properties of their code without having prior

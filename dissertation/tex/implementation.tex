@@ -532,12 +532,12 @@ existing LLVM library code (with the caveat that infinite recursion can only be
 inlined up to a finite depth).
 
 Once the function has been inlined, all of its call sites are removed---this
-means we lose information about arguments passed and values returned. To remedy
-this problem, calls to stub functions are added before and after each call site
-to be inlined. Each stub function receives the same arguments as the call being
-made, and the return value of the call is replaced by the return value of the
-``after'' stub. The stub functions are not inlined, preserving call graph
-information in the inlined function.
+means we lose information about arguments passed and values returned. This
+problem is resolved, calls to stub functions are added before and after each
+call site to be inlined. Each stub function receives the same arguments as the
+call being made, and the return value of the call is replaced by the return
+value of the ``after'' stub. This means that call graph information is preserved
+in the inlined function.
 
 Execution sequences are generated from the inlined function by walking its
 control flow graph to a specified finite depth---this finiteness condition is
@@ -707,7 +707,19 @@ counterexample, then every path shorter than the bounding length must be
 checked. For example, checking any incorrect test case from
 \autoref{sec:hand-coded} with a bound of 200 basic blocks takes less than
 \num{0.1}\si{\second}, while the successful cases take approximately
-\num{160}\si{\second}.
+\num{160}\si{\second}. 
+
+The complexity of the model checker is exponential in the number of conditional
+branches in a bounding interval. This complexity can be reduced in two primary
+ways:
+\begin{itemize}
+  \item LLVM implements a control flow graph simplification pass that can
+    potentially reduce the number of conditional branches. Running this pass
+    after the inlining process lead to a significant performance improvement.
+  \item Narrower bounds for assertions will naturally lead to less complex
+    control flow in the inlined function---this is dependent on the author of
+    the assertion rather than the model checker itself.
+\end{itemize}
 
 \subsubsection{Field Assignments}
 

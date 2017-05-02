@@ -2087,5 +2087,23 @@ actual_cb_func()
 
 ## 1/5/2017
 
-* Started to work on editing implementation chapter.
-* 
+* Edited implementation chapter, rewriting things where they needed to be.
+* Made some minor formatting changes to ensure that the report meets
+  regulations.
+* Thinking about how to improve counterexample generation - need to make some
+  changes to code structure in order to capture and dump all the relevant
+  information. If a check result gets a trace checker at initialisation (and can
+  access all the checker's fields), then what can we do?
+  * Don't need to capture trace, nor do wacky cloning things
+  * Still need event and state for failures
+  * Can access FSM for printing, don't need call stack param
+  * Make call stack a member function to access checker
+
+## 2/5/2017
+
+* Made some big improvements to counterexample printing - it can now give
+  information that's actually useful about why assertions fail by printing the
+  FSM, call stack, current state and failure reason.
+* Improved some diagrams throughout the report and added a counterexample output
+  as a demonstration.
+* Minor changes to wording etc. in a few places.

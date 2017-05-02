@@ -159,9 +159,9 @@ The primary motivation for this implementation style is to increase the
 source-level coverage of a program's test suite. This means exploring every
 possible execution path, an approach that TESLA sought explicitly to avoid (by
 using automata bounds and assertion site events). However, some of the ideas
-present in KLEE are relevant to the TESLA model checker. In particular, the idea
-of solving constraints on program values could be used to generalise the return
-value constraint algorithm I described in \autoref{sec:rvc}.
+present in KLEE are relevant to the TESLA model checker---like the return value
+inference algorithm I describe in \autoref{sec:rvc}, KLEE uses an SMT
+translation of LLVM IR to solve constraint systems.
 
 \section{SMT} \label{sec:smt}
 
@@ -197,7 +197,9 @@ interpretation of the symbols in a formula. For example, the background theory
 of integer arithmetic provides the standard interpretations of symbols such as $
 +, -, \times, 0 $ etc. A different background theory such as that of finite
 bit-vectors may interpret these symbols differently (for example, \ $+$ could be
-defined to wrap on overflow).
+defined to wrap on overflow). Background theories are used because it is often
+either tedious or impossible to encode these axioms in propositional logic for a
+SAT solver.
 
 \emph{Uninterpreted functions} are the building blocks of SMT instances. No
 meaning is associated with these functions when an SMT problem is specified,
