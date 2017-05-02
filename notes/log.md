@@ -2107,3 +2107,29 @@ actual_cb_func()
 * Improved some diagrams throughout the report and added a counterexample output
   as a demonstration.
 * Minor changes to wording etc. in a few places.
+* What major improvements to the implementation are possible
+* Formulating programs as state machines and TESLA assertions as logical
+  properties over these state machines. Can program events be seen as logical
+  single-state predicates? Each program state has 0-1 predicates true of it.
+  Inline and split basic blocks so each has only a single predicate.
+* How do TESLA assertions get translated as logical statements on this kind of
+  structure? How can return values be linked into this? Splitting - for each
+  constraint on a function's return value, generate a distinct state?
+* This is conceptually interesting - treat events as things that are true in a
+  state rather than things that happen. Use constant propagation and control
+  flow simplification to enforce return value constraints (for each possible
+  constraint mentioned in the assertion, generate a new state).
+* Doing this transformation within the bounding interval would then give a sort
+  of Kripke structure that could be checked against an LTLish translation of
+  TESLA assertions.
+* Investigating the TESLA test suite to see if I can get it to stop breaking so
+  horribly. Fixed by working out how to actually use lit python packages.
+* Would be good to actually have tests for the static analysis stuff to make
+  sure it doesn't break - maybe a summer project.
+* TESLA experiments probably need to be extracted out - they make the build a
+  bit fiddly.
+* Also the Z3 issue complicates things - need to just make it mandatory I think
+  as it's the better of the two tools.
+* Looking into cleaning up the build - LLVM_DIR is what's needed by LLVM cmake
+  configuration. Depends on where LLVM is installed. Then also need the
+  appropriately versioned tools.
