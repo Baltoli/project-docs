@@ -145,7 +145,7 @@ instrumentation code.
 An example of the TESLA macros being written inline with a program is
 given in \autoref{lst:tesla-example}.
 
-\begin{listing}
+\begin{figure}
   \begin{minted}{c}
 int main(void)
 {
@@ -165,7 +165,7 @@ int main(void)
   \end{minted}
   \caption{Example of TESLA macros being used to write an assertion}
   \label{lst:tesla-example}
-\end{listing}
+\end{figure}
 
 \section{The TESLA Assertion Language} \label{sec:assertions}
 
@@ -190,7 +190,7 @@ Automata can be written \emph{explicitly} to allow for composition
 (similar to defining a function in an ordinary program).
 \autoref{lst:tesla-explicit} shows an example of this style.
 
-\begin{listing}[ht]
+\begin{figure}[ht]
   \begin{minted}{c}
 automaton(name_of_auto, struct arg_type *s) {
   some_function(s) == 0;
@@ -201,4 +201,4 @@ automaton(name_of_auto, struct arg_type *s) {
   \end{minted}
   \caption{Example of an explicit TESLA automaton}
   \label{lst:tesla-explicit}
-\end{listing}
+\end{figure}

@@ -70,7 +70,7 @@ Almost all of the TCP protocol implementation is expressed in terms of
 these structures---\autoref{lst:tcp-decls} contains some function
 declarations taken from the source code that use the structure.
 
-\begin{listing}
+\begin{figure}
   \begin{minted}{c}
 err_t tcp_bind(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port);
 
@@ -80,7 +80,7 @@ struct tcp_pcb * tcp_listen_with_backlog(struct tcp_pcb *pcb, u8_t backlog)
   \end{minted}
   \caption{Function declarations from the LWIP TCP implementation.}
   \label{lst:tcp-decls}
-\end{listing}
+\end{figure}
 
 Such heavy reliance on structure fields is obviously less than ideal
 from the perspective of static analysis, although checking assignments
@@ -140,7 +140,7 @@ are called at specified points in the protocol's execution.
 \autoref{lst:callbacks} shows an extract from the TCP echo server in
 which these callbacks are registered.
 
-\begin{listing}
+\begin{figure}
   \begin{minted}{c}
 tcp_recv(newpcb, tcpecho_raw_recv);
 tcp_err(newpcb, tcpecho_raw_error);
@@ -149,7 +149,7 @@ tcp_sent(newpcb, tcpecho_raw_sent);
   \end{minted}
   \caption{Callback registration for a user of the LWIP TCP implementation}
   \label{lst:callbacks}
-\end{listing}
+\end{figure}
 
 Registered callbacks are stored as members of a PCB structure. This
 behaviour defeats TESLA instrumentation (both static and
@@ -227,13 +227,13 @@ how the program interacts with the library under this usage model.
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}
-    \node[draw] (call1) {\texttt{callback\textsubscript{1}}};
-    \node[draw,below=of call1] (call2) {\texttt{callback\textsubscript{2}}};
+    \node[code] (call1) {\texttt{callback\textsubscript{1}}};
+    \node[code,below=of call1] (call2) {\texttt{callback\textsubscript{2}}};
     \node[below=of call2] (calletc) {...};
-    \node[draw,below=of calletc] (calln) {\texttt{callback\textsubscript{n}}};
+    \node[code,below=of calletc] (calln) {\texttt{callback\textsubscript{n}}};
     \node[above=of call1] (req) {};
-    \node[draw,right=of |(req)(calln),span vertical=(req)(calln)] (lib) {\texttt{liblwip}};
-    \node[draw,left=of |(req)(calln),span vertical=(req)(calln)] (prog) {\texttt{program}};
+    \node[code,right=of |(req)(calln),span vertical=(req)(calln)] (lib) {\texttt{liblwip}};
+    \node[code,left=of |(req)(calln),span vertical=(req)(calln)] (prog) {\texttt{program}};
 
     \draw[-latex] (prog.east |- req.south) -- (req.south -| lib.west);
 
@@ -267,36 +267,39 @@ usage model.
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}
-    \node[draw] (call1) {\texttt{interface\textsubscript{1}}};
-    \node[draw,below=of call1] (call2) {\texttt{interface\textsubscript{2}}};
+    \node[code] (call1) {\texttt{interface\textsubscript{1}}};
+    \node[code,below=of call1] (call2) {\texttt{interface\textsubscript{2}}};
     \node[below=of call2] (calletc) {...};
-    \node[draw,below=of calletc] (calln) {\texttt{interface\textsubscript{n}}};
+    \node[code,below=of calletc] (calln) {\texttt{interface\textsubscript{n}}};
     \node[above=of call1] (req) {};
 
-    \node[draw,right=of call1] (wrap1) {\texttt{wrapper\textsubscript{1}}};
-    \node[draw,right=of call2] (wrap2) {\texttt{wrapper\textsubscript{2}}};
+    \node[code,right=of call1] (wrap1) {\texttt{wrapper\textsubscript{1}}};
+    \node[code,right=of call2] (wrap2) {\texttt{wrapper\textsubscript{2}}};
     \node[below=of wrap2] (wrapetc) {...};
-    \node[draw,right=of calln] (wrapn) {\texttt{wrapper\textsubscript{n}}};
+    \node[code,right=of calln] (wrapn) {\texttt{wrapper\textsubscript{n}}};
 
-    \node[draw,dashed,inner sep=0.8em,fit=(wrap1)(wrapn)] (tesla) {};
+    \node[inner sep=0.8em,fit=(wrap1)(wrapn)] (tesla) {};
 
-    \node[draw,right=of |(req)(wrapn),span vertical=(req)(tesla)] (lib) {\texttt{liblwip}};
-    \node[draw,left=5em of |(req)(calln),span vertical=(req)(tesla)] (prog) {\texttt{program}};
+    \node[code,right=of |(req)(wrapn),span vertical=(req)(tesla)] (lib) {\texttt{liblwip}};
+    \node[code,left=5em of |(req)(calln),span vertical=(req)(tesla)] (prog) {\texttt{program}};
 
     \draw[-latex] (prog.east |- req.south) -- (req.south -| lib.west);
 
-    \draw[latex-latex] (call1) -- (wrap1);
-    \draw[latex-latex] (call2) -- (wrap2);
-    \draw[latex-latex] (calln) -- (wrapn);
+    \draw[latex-] (call1) -- (wrap1);
+    \draw[latex-] (call2) -- (wrap2);
+    \draw[latex-] (calln) -- (wrapn);
 
-    \draw[latex-latex] (wrap1) -- (call1 -| lib.west);
-    \draw[latex-latex] (wrap2) -- (call2 -| lib.west);
-    \draw[latex-latex] (wrapn) -- (calln -| lib.west);
+    \draw[latex-] (wrap1) -- (call1 -| lib.west);
+    \draw[latex-] (wrap2) -- (call2 -| lib.west);
+    \draw[latex-] (wrapn) -- (calln -| lib.west);
 
     \draw[-latex] (call1) -- (call1 -| prog.east);
     \draw[-latex] (call2) -- (call2 -| prog.east);
     \draw[-latex] (calln) -- (calln -| prog.east);
 
+    \draw[-latex] (call1.north) to ($ (call1.north) + (0,0.5) $) to ($ (call1.north -| lib.west) + (0,0.5) $);
+    \draw[-latex] (call2.north) to ($ (call2.north) + (0,0.5) $) to ($ (call2.north -| lib.west) + (0,0.5) $);
+    \draw[-latex] (calln.north) to ($ (calln.north) + (0,0.5) $) to ($ (calln.north -| lib.west) + (0,0.5) $);
   \end{tikzpicture}
   \caption{Usage of the LWIP callback API with TESLA instrumentation}
   \label{fig:callbacks-tesla}
@@ -506,7 +509,7 @@ with 25\% corresponding to state updates and 12\% to lifetime
 management.\footnote{The TESLA terminology for creating and destroying
 automata is ``sunrise'' and ``sunset''.}
 
-\begin{listing}[ht]
+\begin{figure}[ht]
   \begin{minted}{objdump-nasm}
 @ INSTR_RETIRED_ANY [227749 samples]
 
@@ -521,7 +524,7 @@ automata is ``sunrise'' and ``sunset''.}
   \caption{Callchain output showing number of instructions retired with
   TESLA instrumentation enabled}
   \label{lst:instr-callchain}
-\end{listing}
+\end{figure}
 
 The equivalent data for the statically analysed server (in
 \autoref{lst:static-callchain}) shows clearly where the remaining
@@ -530,7 +533,7 @@ a similar number of associated instructions), while the state update
 functions have been removed. Calls to the lifetime functions can be
 removed only if there are no automata to be instrumented.
 
-\begin{listing}[ht]
+\begin{figure}[ht]
   \begin{minted}{objdump-nasm}
 @ INSTR_RETIRED_ANY [125375 samples]
 
@@ -544,7 +547,7 @@ removed only if there are no automata to be instrumented.
   \caption{Callchain output showing number of instructions retired with
   TESLA instrumentation removed}
   \label{lst:static-callchain}
-\end{listing}
+\end{figure}
 
 \subsection{Summary}
 

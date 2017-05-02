@@ -61,7 +61,7 @@ with \mintinline{c}{true} if the lock was acquired, and
 \mintinline{c}{false} if it was not.} and release. Using an atomic
 member variable with a compare-and-swap function ensures thread-safety.
 
-\begin{listing}[ht]
+\begin{figure}[ht]
   \begin{minted}{c}
   struct lock_t {
     _Atomic(bool) locked
@@ -79,7 +79,7 @@ member variable with a compare-and-swap function ensures thread-safety.
   \end{minted}
   \caption{Implementation of a mutual exclusion lock with C11 atomics}
   \label{lst:mutex}
-\end{listing}
+\end{figure}
 
 A spin-lock as shown in \autoref{fig:spinlock} can be implemented with a
 loop around calls to non-blocking acquire:
@@ -104,7 +104,7 @@ to the functions \mintinline{c}{lock_acquire} and \mintinline{c}{lock_release}).
 
 \autoref{lst:mutex-tesla} shows a TESLA implementation of the spin-lock
 usage properties expressed using explicit TESLA automata.
-\begin{listing}[ht]
+\begin{figure}[ht]
   \begin{minted}{c}
   automaton(acq_rel, lock_t *lock) {
     acquire(lock);
@@ -125,7 +125,7 @@ usage properties expressed using explicit TESLA automata.
   \end{minted}
   \caption{Mutex lock properties expressed using TESLA}
   \label{lst:mutex-tesla}
-\end{listing}
+\end{figure}
 
 \subsection{Performance Overhead}
 
@@ -525,8 +525,8 @@ execution path).
 \subsubsection{Implementation}
 
 Implementing the algorithm described above requires several transformations to
-be made to an LLVM function before it can be transformed to its SMT
-representation. First, because execution is modelled as a sequence of basic
+be made to an LLVM function before it can be translated to an SMT
+formula. First, because execution is modelled as a sequence of basic
 blocks, the function must be completely inlined. This is easily achieved using
 existing LLVM library code (with the caveat that infinite recursion can only be
 inlined up to a finite depth).
@@ -546,7 +546,7 @@ graph are handled by simply duplicating the blocks. \autoref{lst:llvm-smt} shows
 a single trace taken from one of the programs in the mutex test suite after
 these transformations have been applied.
 
-\begin{listing}
+\begin{figure}
   \begin{minted}{llvm}
 define i32 @trace_main_5() {
   call void (...)* @__tesla_inline_assertion(...)
@@ -572,9 +572,9 @@ __tesla_sink: ; preds = %lock_acquire.exit, %1
   \end{minted}
   \caption{LLVM IR to be translated into an SMT problem}
   \label{lst:llvm-smt}
-\end{listing}
+\end{figure}
 
-\begin{listing}
+\begin{figure}
   \begin{minted}{smt2}
 (declare-fun |%5| () Bool)
 (declare-fun |%7| () Bool)
@@ -584,7 +584,7 @@ __tesla_sink: ; preds = %lock_acquire.exit, %1
   \end{minted}
   \caption{SMT translation of LLVM IR}
   \label{lst:smt-example}
-\end{listing}
+\end{figure}
 
 From these execution sequences, the Z3 SMT solver \cite{de_moura_z3:_2008} is
 used to construct and solve the SMT problem. Z3 was chosen as a
@@ -622,15 +622,30 @@ from the program. If an execution is not accepted by the automaton, then a
 \emph{counterexample} has been found---we can demonstrate an execution path on
 which the assertion may not hold, and the reasons why it may not hold.
 \autoref{lst:counter} shows a counterexample generated from one of the mutex
-test programs.
+test programs (the full DOT output for the finite-state automaton has been
+omitted for brevity).
 
-% TODO: improve counterexample generation and add output here
-\begin{listing}
+\begin{figure}
   \begin{minted}{objdump-nasm}
+Unexpected event in state s3:
+  return from lock_acquire (return value == 1)
+
+FSM:
+  digraph {
+    ...
+  }
+
+Call stack:
+  call: lock_init
+  return: lock_init
+  call: do_work
+  call: lock_acquire
+  return: lock_acquire
+  call: lock_acquire
   \end{minted}
   \caption{Counterexample trace generated from a mutex test program}
   \label{lst:counter}
-\end{listing}
+\end{figure}
 
 \subsubsection{Checking Execution Traces} \label{sec:auto-check}
 
