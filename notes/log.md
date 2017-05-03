@@ -2133,3 +2133,22 @@ actual_cb_func()
 * Looking into cleaning up the build - LLVM_DIR is what's needed by LLVM cmake
   configuration. Depends on where LLVM is installed. Then also need the
   appropriately versioned tools.
+
+## 3/5/2017
+
+* Further work on cleaning up my work on TESLA static analysis - need to make
+  things a little bit more "production".
+* Made some big cleanups that make the static analysis work dramatically easier
+  to understand and work with.
+* Looked at getting documentation built properly - also need to add
+  documentation for my own contributions to TESLA.
+* I can't update the ucampas styled pages myself, so the best I can do on my own
+  code for documentation is just to add comments and clean things up as best I
+  can.
+* Re-investigating a build of TESLA on OS X - requires building LLVM from source
+  which is a bit of a pain, but there's no reason why it shouldn't work in
+  theory.
+* Doxygen doesn't seem to want to actually generate any documentation for
+  anything - investigating.
+* Finally managed to get doxygen properly generating documentation that could
+  actually be useful on a TESLA site.
