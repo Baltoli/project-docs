@@ -1,66 +1,49 @@
-In this chapter I provide an overview of related work in areas relevant
-to this project, along with a summary of how my work on TESLA
-contributes new ideas and developments.
+In this chapter I provide an overview of how my work on TESLA contributes new
+ideas and developments compared to relevant previous work.
 
 \section{Program Verification} \label{sec:bounded-model-checking}
 
-There is a great deal of prior research related to program verification using
-temporal logic assertions and model checking. In this section I give a summary
-of important work in this area that has influenced parts of my work on static
-analysis for TESLA.
+In this section I give a summary of important work in the area of program
+analysis and verification that has influenced my development of static analysis
+for TESLA.
 
 \subsection{Bounded Model Checking}
 
-In this section I give a sumamry of previous work in the area of bounded
-model checking, with particular emphasis on where it has been applied to
-check C programs. I also note key differences between these previous
-works and my implementation of a TESLA model checker---namely the style
-of assertion supported, and the use of non-symbolic checking in my
-implementation.
 
-\subsubsection{BMC}
+\textcite{biere_symbolic_1999} introduce the concept of bounded model checking,
+building upon the earlier idea of \emph{symbolic} model checking due to
+\textcite{mcmillan_symbolic_1992}. In this section I give a summary of previous
+work in the area, with particular emphasis on where it has been applied to check
+C programs. I also note key differences between these previous works and my
+implementation of a TESLA model checker---namely the style of assertion
+supported, and the use of non-symbolic checking in my implementation.
 
-\textcite{biere_symbolic_1999} introduce the concept of bounded model
-checking, building upon the earlier idea of \emph{symbolic} model
-checking due to \textcite{mcmillan_symbolic_1992} while removing the
-need to construct BDDs\footnote{Binary Decision Diagrams}. Their
-implementation of a bounded model checker, BMC, used the state
-description language SMV\footnote{In fact, SMV describes both the state
-structure and the assertions made of it.} described by
-\citeauthor{mcmillan_symbolic_1992} and was able to show significant
-performance improvements over previous work.
+At the heart of model checking is the idea of counterexample generation---if a
+state is found to satisfy the negation of a formula, then that state is a
+counterexample for the original formula. Bounded model checking builds on this
+idea by searching for counterexamples with an upper bound on the allowable
+length. This means that the counterexamples discovered are of minimal length,
+and are discovered faster.
 
-At the heart of symbolic model checking is the idea of counterexample
-generation---if a state is found to satisfy the negation of a formula,
-then that state is a counterexample for the original formula. The model
-checking process can then be undertaken as a satisfiability problem.
-Bounded model checking builds on this idea by searching for
-counterexamples with an upper bound on the allowable length. This means
-that the counterexamples discovered are of minimal length, and are
-discovered faster.
-
-While the implementation strategies and analysis goals of BMC and my
-model checker are quite different (BMC is a symbolic model checker for
-SMV, my model checker is a non-symbolic model checker for TESLA
-assertions embedded in C programs), the strategy of searching for
-counterexamples using an iterative-deepening method is derived in part
-from the original work on bounded model checking.
+While the implementation strategies and analysis goals of BMC
+\cite{biere_symbolic_1999} (the first practical bounded model checker) and the
+TESLA model checker are quite different (BMC is a symbolic model checker for
+SMV\footnote{A state description language for model checking problems.}; the
+TESLA model checker is a non-symbolic and checks TESLA assertions embedded in C
+programs), the strategy of searching for counterexamples using an
+iterative-deepening method is derived in part from the original work on bounded
+model checking.
 
 \subsubsection{CBMC}
 
-\citeauthor{clarke_behavioral_2003}'s CBMC \cite{clarke_behavioral_2003}
-is perhaps the first instance of bounded model checking being applied to
-C programs (rather than to a state description language such as SMV).
-The focus of the CBMC tool was to allow for C programs to be written as
-executable specifications for synchronous Verilog hardware designs
-without prohibiting the use of any C programming construct (use of
-pointers, memory allocations and recursive calls are all permitted).
-
-Ideas from previous work on BMC together with the new idea of
-\emph{unwinding assertions}\footnote{An assertion that captures the idea
-that a loop has been unrolled \textquote{enough} times.} allowed C
-programs and assertions to be translated into boolean formulae, which
-could then be checked using a SAT solver.
+\citeauthor{clarke_behavioral_2003}'s CBMC \cite{clarke_behavioral_2003} applied
+bounded model checking to C programs by translating them into instances of the
+SAT decision problem. New developments included \emph{unwinding
+assertions}\footnote{An assertion that captures the idea that a loop has been
+unrolled \textquote{enough} times.}. CBMC allowed for C programs to be written
+as executable specifications for synchronous Verilog hardware designs without
+prohibiting the use of any C programming construct (use of pointers, memory
+allocations and recursive calls are all permitted).
 
 Although CBMC is an example of model checking being applied to C
 programs, the assertions that can be checked are only local assertions
@@ -69,28 +52,19 @@ of Verilog signals to the C program). In this sense, the scope and
 target of TESLA assertions is different to those of CBMC---TESLA
 assertions are written to verify the behaviour of a program, while CBMC
 uses a C program with assertions to verify that a hardware
-implementation is behaviourally equivalent to that program. It is worth noting
-that the CBMC technique of modelling hardware with a C program can be
-generalised to any system expressible as a C program with an appropriately sized
-state space.
+implementation is behaviourally equivalent to that program.
 
 \subsubsection{LLBMC}
 
-CBMC operates at the level of C source code (the translation to a
-boolean formula is specified using syntactic transformations).
-\textcite{merz_llbmc:_2012} identified a potential avenue for
-improvement upon this model---their LLBMC operates on LLVM
-\cite{lattner_llvm:_2002} intermediate representation. The benefits of
-this approach include broader language support, assistance from compiler
-optimisations for code simplification, and an improved memory model. The
-assertions supported by LLBMC are a combination of user-supplied local
-assertions, and a set of built-in safety assertions (arithmetic
-overflow, memory safety etc.).
-
-Empirically, LLBMC represents an improvement over previous work in the
-area it is compared to---it is able to detect more assertion failures in
-a larger set of programs than both CBMC and an extended implementation
-thereof (ESBMC \cite{cordeiro_smt-based_2009}).
+CBMC operates at the level of C source code using syntactic transformations.
+\textcite{merz_llbmc:_2012} identify this as a potential avenue for
+improvement---they contribute LLBMC, a bounded model checker that operates on
+LLVM \cite{lattner_llvm:_2002} intermediate representation. The benefits of this
+approach include broader language support, assistance from compiler
+optimisations for code simplification, and an improved memory model.
+Empirically, LLBMC represents an improvement over previous work in the area it
+is compared to---it is able to detect more assertion failures in a larger set of
+programs than CBMC.
 
 The use of a compiler intermediate representation to simplify model
 checking is similar in concept to TESLA (modulo the differences between
@@ -228,10 +202,8 @@ of this flexibility, SMT solvers have been used to solve a large number of
 disparate problems. For example, Microsoft list 58 publications related to
 Z3\footnote{\url{https://github.com/Z3Prover/z3/wiki/Publications}} that span
 areas as diverse as cloud computing, verification of real-time systems, and
-functional programming.
-
-In this section I give a summary of related work in the area of program analysis
-and verification, one of the primary motivating applications of SMT solvers.
+functional programming. Broadly, most applications of SMT methods involve some
+form of \emph{program analysis}.
 
 \textcite{dahlweid_vcc:_2009} provide VCC, a tool for proving partial
 correctness of C programs using annotations that describe invariants on data
@@ -241,19 +213,22 @@ somewhat different to TESLA assertions---they specify invariant rather than
 temporal properties. VCC was used successfully to verify the implementation of
 the Microsoft Hyper-V kernel.
 
-The interactive theorem prover Isabelle \cite{paulson_isabelle:_2000} supports
-the use of SMT solvers to generate proofs. These proofs are written in a
-higher-level formalism that can then be extracted into verified functional
-programs. This approach is conceptually very different to TESLA and similar
-``systems'' tools---rather than starting from a program to be verified, the
-proof itself is the primary object of interest.
+% Cutting these paragraphs out for not being directly relevant to program
+% analysis.
+% 
+% The interactive theorem prover Isabelle \cite{paulson_isabelle:_2000} supports
+% the use of SMT solvers to generate proofs. These proofs are written in a
+% higher-level formalism that can then be extracted into verified functional
+% programs. This approach is conceptually very different to TESLA and similar
+% ``systems'' tools---rather than starting from a program to be verified, the
+% proof itself is the primary object of interest.
 
-Recent work has emerged on the use of SMT solvers as tools for performing
-``superoptimisation'' (Optgen \cite{buchwald_optgen:_2015} and
-Souper \cite{regehr_souper_2017} are two examples). This approach aims to
-discover potential optimisations that are left unimplemented by a compiler.
-Souper translates LLVM IR into SMT formulae, but is otherwise conceptually
-unrelated to TESLA.
+% Recent work has emerged on the use of SMT solvers as tools for performing
+% ``superoptimisation'' (Optgen \cite{buchwald_optgen:_2015} and
+% Souper \cite{regehr_souper_2017} are two examples). This approach aims to
+% discover potential optimisations that are left unimplemented by a compiler.
+% Souper translates LLVM IR into SMT formulae, but is otherwise conceptually
+% unrelated to TESLA.
 
 PAGAI \cite{henry_pagai:_2012} uses SMT solvers to implement analyses based on
 abstract interpretation. For example, it can be used to discover invariants that
