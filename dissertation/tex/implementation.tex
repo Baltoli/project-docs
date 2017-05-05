@@ -687,7 +687,14 @@ A complete trace ends in a basic block with no successors, and is accepted if
 the state reached after all instructions have been checked is an accepting
 state. Incomplete traces are accepted if an accepting state is reachable from
 the final state reached. In both cases if an unexpected event occurs, the
-execution is not accepted.
+execution is not accepted. The difference in semantics between complete and
+incomplete traces is discussed in some depth by
+\textcite{eisner_reasoning_2003}---in particular, their description of a
+\textquote{weak view} corresponds to the checking criteria for incomplete traces
+described previously.\footnote{The weak view asserts that
+\textcquote[p.29]{eisner_reasoning_2003}{nothing has yet gone wrong}, while the
+strong view asserts that an assertion is \textquote{already} satisifed on a
+truncated execution path.}
 
 \subsection{Results} \label{sec:model-limits}
 

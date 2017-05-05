@@ -151,16 +151,15 @@ int main(void)
 {
   TESLA_WITHIN(main,
     eventually(
-      some_function(ANY(ptr)) == 0,
-      returnfrom(other_function)
+      call(some_function(ANY(ptr))),
+      other_function(ANY(int)) == 0
     )
   );
 
   int x;
-  some_function(&x));
+  some_function(&x);
 
-  int y = other_function(x);
-  return y;
+  return other_function(x);
 }
   \end{minted}
   \caption{Example of TESLA macros being used to write an assertion}
