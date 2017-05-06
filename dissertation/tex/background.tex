@@ -47,7 +47,9 @@ to instrument programs.
 Programmers may add \emph{assertions} to their code to ensure its
 correctness---these are logical statements predicated on the current
 scope. TESLA assertions are similar in concept, but allow for
-\emph{temporal} properties to be asserted as well.
+\emph{temporal} properties to be asserted as well. Temporal assertions require a
+\emph{bounding interval}---a pair of start and end events that specifies where
+initialisation and cleanup code should be placed.
 
 Each TESLA assertion defines an \emph{automaton}, and a collection of
 these automata is referred to as a \emph{manifest} when serialised to
@@ -63,7 +65,9 @@ modified to produce TESLA-specific intermediate products.
 C programs; \autoref{fig:c-tesla-compilation} shows the additional
 steps required by TESLA.
 
-\begin{figure}[ht]
+\afterpage{%
+\clearpage\clearpage
+\begin{figure}[t]
   \centering
   \begin{tikzpicture}
     \node [msourcefile] (source1) {\texttt{.c}};
@@ -80,7 +84,7 @@ steps required by TESLA.
   \label{fig:c-compilation}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}[h]
   \centering
   \begin{tikzpicture}
     \node [msourcefile] (source1) {\texttt{.c}};
@@ -110,6 +114,7 @@ steps required by TESLA.
   \caption{The C compilation model with TESLA integrated}
   \label{fig:c-tesla-compilation}
 \end{figure}
+}
 
 A \texttt{.bc} file contains LLVM intermediate code in its stable binary format,
 and a \texttt{.tesla} file contains a binary representation of the TESLA
@@ -189,7 +194,7 @@ Automata can be written \emph{explicitly} to allow for composition
 (similar to defining a function in an ordinary program).
 \autoref{lst:tesla-explicit} shows an example of this style.
 
-\begin{figure}[ht]
+\begin{figure}
   \begin{minted}{c}
 automaton(name_of_auto, struct arg_type *s) {
   some_function(s) == 0;

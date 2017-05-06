@@ -2152,3 +2152,60 @@ actual_cb_func()
   anything - investigating.
 * Finally managed to get doxygen properly generating documentation that could
   actually be useful on a TESLA site.
+
+## 4/5/2017
+
+* More work on making TESLA nicer to use (building, cleanup etc.)
+* Managed to get a successful TESLA build on OS X for the first time! Worked
+  with a default LLVM 3.4 source build, and with protobuf / z3 installed as
+  default.
+* Should fix the absolute path bug / inconvenience between the instrumenter and
+  the analyser. Other than that, the version of TESLA built seems to work on OS
+  X well enough.
+* Interesting problem - clang tool needs to be prodded in the direction of the
+  system headers for its clang version to get it to actually find them.
+* Problem is really caused by the TESLA analyser not being in the correct place
+  *relative* to where clang34 is installed.
+* Solution is to mandate that TESLA and LLVM are installed in the exact same
+  place.
+
+## 5/5/2017
+
+* Yesterday saw some strangeness because of my pointer type overload - should
+  try refactoring that method to return a string rather than writing to a
+  stream.
+* Fixed that and some other small changes (submodules, warnings etc.).
+* TESLA now builds much more cleanly on OS X, as does the separated suite of
+  examples. Should see if they work on FreeBSD as well by setting paths etc.
+* It works correctly by overriding the correct Makefile variables - no
+  modification to the make script required.
+* Meeting with Robert to discuss dissertation writing - key points were:
+  * Stronger introduction - results up front
+  * Could edit related work down a little if word count is needed
+  * Mention correctness / FN etc in evaluation
+  * Refactor performance etc. into evaluation a bit
+  * More terminology - bounded intervals
+  * Motivating example of an assertion at the start of background chapter
+  * Waiting for full detailed comments from Robert via email
+* Truncated model checking paper deals with the idea of extending LTL semantics
+  to non-maximal paths.
+* Lots of interesting ideas here - TESLA model checker touches on it a little,
+  but because of the properties we're asserting, we just want to be able to
+  reach an accepting state somehow.
+* What I do is exactly their "weak view" - nothing has yet gone wrong! Great
+  justification for my choice in the model checker. Worth noting that we have a
+  decidable distinction between terminating and truncated paths, so we can
+  switch between the weak and the strong views as appropriate (i.e. when the
+  path terminates vs. when it doesn't).
+
+## 6/5/2017
+
+* Yesterday looked into some refactorings of the dissertation as suggested by
+  Robert. Today continuing with that.
+* Examining model checker performance. Preliminary results seem to indicate that
+  it's O(n^3) on `basic` - though it could also be that there's an exponential
+  factor in the number of conditional branches taken?
+* Means that for a *fixed program*, the complexity is polynomial in the length
+  of the trace, but exponential in the complexity of the program itself.
+* Did some major refactoring of the dissertation, moving echo performance
+  analysis into the evaluation section.

@@ -23,7 +23,7 @@ static analysis with respect to runtime performance.
 implemented using a mutex with non-blocking acquire and release
 operations.
 
-\begin{figure}[ht]
+\begin{figure}
   \centering
   \begin{tikzpicture}[>=latex',initial text={},
                       node distance=3cm,on grid,auto]
@@ -61,7 +61,7 @@ with \mintinline{c}{true} if the lock was acquired, and
 \mintinline{c}{false} if it was not.} and release. Using an atomic
 member variable with a compare-and-swap function ensures thread-safety.
 
-\begin{figure}[ht]
+\begin{figure}
   \begin{minted}{c}
   struct lock_t {
     _Atomic(bool) locked
@@ -104,7 +104,7 @@ to the functions \mintinline{c}{lock_acquire} and \mintinline{c}{lock_release}).
 
 \autoref{lst:mutex-tesla} shows a TESLA implementation of the spin-lock
 usage properties expressed using explicit TESLA automata.
-\begin{figure}[ht]
+\begin{figure}
   \begin{minted}{c}
   automaton(acq_rel, lock_t *lock) {
     acquire(lock);
@@ -160,7 +160,7 @@ The benchmarks were run on a dedicated server (Intel Xeon E5-1620
 The uninstrumented binary is 25\% smaller than the instrumented binary
 (\num{19.1} KiB vs. \num{25.3} KiB).
 
-\begin{figure}[ht]
+\begin{figure}
   \centering
   \begin{tikzpicture}
     \begin{axis}[
@@ -296,7 +296,7 @@ automaton for an arbitrary program event $e$---it has a single
 transition from the initial state to the accepting state, labelled by
 the event $e$.
 
-\begin{figure}[ht]
+\begin{figure}
   \centering
   \begin{tikzpicture}[>=latex',initial text={},
                       node distance=3cm,on grid,auto]
@@ -341,7 +341,7 @@ accepting state to the next's initial state with an
 $\varepsilon$-transition.  \autoref{fig:seq-one-auto} shows this
 construction for two sub-automata.
 
-\begin{figure}[ht]
+\begin{figure}
   \centering
   \begin{tikzpicture}[>=latex',initial text={},
                       node distance=3cm,on grid,auto]
@@ -373,7 +373,7 @@ number is obtained by adding an $\varepsilon$-transition back from the
 accepting state to the initial state (as shown in
 \autoref{fig:seq-inf-auto}).
 
-\begin{figure}[ht]
+\begin{figure}
   \centering
   \begin{tikzpicture}[>=latex',initial text={},
                       node distance=3cm,on grid,auto]
@@ -417,7 +417,7 @@ TESLA can also express disjunction of sub-automata.
 \textquote{parallel} to construct an automaton that accepts if any of
 its sub-automata do.
 
-\begin{figure}[ht]
+\begin{figure}
   \centering
   \begin{tikzpicture}[>=latex',initial text={},
                       node distance=3cm,on grid,auto]

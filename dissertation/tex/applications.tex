@@ -1,9 +1,10 @@
-In this chapter I discuss potential applications of statically checked
-TESLA to practical software engineering scenarios. I provide an analysis
-of how coding style can make writing TESLA assertions for a system more
-difficult, with reference to a large open-source library. Finally, I
-contribute a framework for using TESLA with static analysis to enforce
-temporal invariants imposed by library code on users of the library.
+In this chapter I discuss potential applications of statically checked TESLA to
+practical software engineering scenarios. I provide an analysis of how coding
+style can make writing TESLA assertions for a system more difficult, with
+reference to a large open-source library. Then, motivated by this difficulty, I
+describe a general method for applying TESLA to library interfaces. Finally, I
+demonstrate a practical application of this technique by adding TESLA
+instrumentation to the interface of a widely-used TCP implementation.
 
 \section{LWIP} \label{sec:lwip}
 
@@ -55,7 +56,11 @@ changes needed were to add the extra TESLA-specific rules and to compile
 to bitcode instead of object files.
 
 The end result of this modification was that any of the example applications
-distributed with LWIP could be instrumented and built against TESLA.
+distributed with LWIP could be instrumented and built against TESLA. Based on
+this modified build of LWIP, I investigated how TESLA could be applied to
+internal library code. The remainder of this section describes the features
+found in the source code that made applying TESLA (statically analysed or
+otherwise) more difficult.
 
 \subsubsection{TCP State Implementation}
 
@@ -174,23 +179,22 @@ The LWIP TCP library presents an interesting target for verification with TESLA.
 However, the style in which the library is written means that applying TESLA
 assertions to the internal code is both difficult and unlikely to yield any
 useful insight into the behaviour of the library. Further informal investigation
-into the FreeBSD TCP implementation gave much the same conclusions, and it is
+into the FreeBSD TCP implementation yielded much the same conclusions, and it is
 likely that other similar libraries would suffer the same problems.
 Additionally, the use of a callback-based API for users of the library means
 that TESLA cannot be directly applied in the situation where it would be most
-useful (enforcing temporal assertions on user-supplied code). An interesting
+useful (enforcing temporal assertions on consumer code). An interesting
 direction for future work would be to quantify the degree of modification
 required for library code to be usefully instrumented with TESLA.
 
 \section{Safer Library Interfaces with TESLA} \label{sec:safer-libs}
 
-In this section I describe the implementation of a mechanism by which a
-library can use TESLA assertions to verify correct usage of the library
-by clients. First, I relate the problem to the difficulties encountered
-when attempting to apply TESLA to LWIP in \autoref{sec:lwip}. Then, I
-describe the construction of such an interface using TESLA. Finally, I
-present an application developed using this method and show the
-performance benefits available by applying static analysis.
+In this section I describe the implementation of a mechanism by which a library
+can use TESLA assertions to verify correct usage of the library by clients.
+First, I relate the problem to the difficulties encountered when attempting to
+apply TESLA to LWIP in \autoref{sec:lwip}. Then, I describe the construction of
+such an interface using TESLA. Finally, I succesfully apply the technique to a
+existing application using the LWIP TCP library.
 
 \subsection{Motivation}
 
@@ -220,7 +224,7 @@ callbacks. This is a very flexible approach that gives the program fine-grained
 control over how it interacts with the library. \autoref{fig:callbacks} shows
 how the program interacts with a library using this approach.
 
-\begin{figure}[ht]
+\begin{figure}
   \centering
   \begin{tikzpicture}
     \node[code] (call1) {\texttt{callback\textsubscript{1}}};
@@ -246,19 +250,18 @@ how the program interacts with a library using this approach.
 \end{figure}
 
 To add TESLA assertions, user programs must implement a static interface that
-can be linked with the library. The primary loss of flexibility with this approach
-is that users cannot change their callback functions at compile time.
-
+can be linked with the library. The primary loss of flexibility with this
+approach is that users cannot change their callback functions at compile time.
 However, this is not yet a complete solution. Each TESLA assertion must be
 placed at a source location on the execution path it asserts over---intuitively,
 this would be within the user-supplied interface functions themselves. Because
-the definitions of these functions are not available to the library ahead of time, it must
-implement wrapper functions. These wrappers call through to the user-supplied
-interface functions, as well as containing the library TESLA assertions.
-\autoref{fig:callbacks-tesla} shows how a program interacts with this modified
-usage model.
+the definitions of these functions are not available to the library ahead of
+time, it must implement wrapper functions. These wrappers call through to the
+user-supplied interface functions, as well as containing the library TESLA
+assertions.  \autoref{fig:callbacks-tesla} shows how a program interacts with
+this modified usage model.
 
-\begin{figure}[ht]
+\begin{figure}
   \centering
   \begin{tikzpicture}
     \node[code] (call1) {\texttt{interface\textsubscript{1}}};
@@ -304,239 +307,9 @@ wrapper functions and corresponding assertions were written---almost no
 modification of the application code was required beyond removing the callback
 registration calls.
 
-The result of this adaptation is two further echo server executables---one where
-static analysis has been applied to the library assertions, and one where it has
-not been.
-
-\subsection{Performance}
-
-I now provide benchmark results for the three different versions of the echo
-server (unmodified, instrumented and statically analysed) in order to
-demonstrate the performance overhead of both the adapted library interface, and
-of TESLA instrumentation.
-
-\subsubsection{Experimental Setup}
-
-A simple benchmark for an echo server is to measure how many requests of a fixed
-size it can handle in a fixed time period. An existing tool by
-\textcite{hoyer_rust_2016} was used to perform this benchmark---the tool runs
-for a fixed length of time, sending as many messages to a server as it can (on a
-configurable number of threads).
-
-The benchmarks were run on a dedicated server (Intel Xeon E5-1620
-\SI{3.6}{\GHz}, 8 cores, 64GB of RAM) running FreeBSD 11. The benchmark was run
-for \SI{60}{\s} with a message size of 512 bytes in every case, and the number
-of sending threads was varied from 1 to 10.
-
-For the instrumented and statically analysed versions, the library wrapper code
-contained five TESLA assertions covering the possible library calls that the
-user code could make. All of these were reported as safe by the model checker.
-
-\subsubsection{Results}
-
-In all three echo servers, throughput was saturated when sending on two or more
-threads---using more threads to send data had no effect on throughput. The mean
-throughput over 2--10 sending threads was therefore used as a measure of the
-maximum possible performance of each server (relative to the unmodified server
-implementation). 
-
-\begin{figure}[ht]
-  \centering
-  \begin{tikzpicture}
-    \pgfplotstableread[col sep=comma]{data/echo_bench_avg.dat}\data
-    \begin{axis}[
-      title={Relative Throughput of Echo Servers},
-      ylabel={Throughput relative to unmodified server (\%)},
-      xlabel={Server implementation},
-      width=0.85\textwidth,
-      ybar,
-      ymin=0,ymax=110,
-      cycle list/Dark2,
-      every axis plot/.append style={fill,draw=none,no markers},
-      ymajorgrids=true,
-      symbolic x coords={Unmodified,Static,Instrumented},
-      xtick={Unmodified,Static,Instrumented},
-      %x tick label style={rotate=45, anchor=east},
-      enlarge x limits=0.25,
-      nodes near coords,
-      bar shift=0pt,
-      bar width=4ex,
-    ]
-      \addplot+ coordinates { (Unmodified, 100.0) };
-      %\addplot+ coordinates { (Static (all), 99.4) };
-      \addplot+ coordinates { (Static, 84.1) };
-      \addplot+ coordinates { (Instrumented, 60.8) };
-    \end{axis}
-  \end{tikzpicture}
-  \caption{Effect of TESLA instrumentation and library interface adaptation on
-  echo server throughput}
-  \label{fig:echo-bench}
-\end{figure}
-
-\autoref{fig:echo-bench} compares the relative throughput for each
-implementation. The server with runtime TESLA instrumentation achieves only 61\%
-throughput when compared to the unmodified version, while the version with
-static analysis applied achieves 84\% throughput.
-
-Even though all TESLA automata have been removed from the statically analysed
-binary, some TESLA code remains in the binary. Using Callgrind
-\cite{weidendorfer_tool_2004} (a simulation-based profiling tool) shows that the
-statically-analysed server is still spending a large portion of its execution
-time in the TESLA runtime library (performing unnecessary work as there are no
-automata left to keep track of).
-
-Because the overhead of the remaining TESLA instrumentation is high, even when
-there are no automata, I extended the instrumenting tool with an optimisation to
-handle this case. The resulting server implementation achieved 99.4\% throughput
-compared to the unmodified server. While this performance result is appealing,
-it is worth noting that it will only be possible when every automaton is
-statically provable.
-
-\subsubsection{Analysis}
-
-It is clear from these results that TESLA instrumentation has a
-significant impact on performance. In this section I analyse the causes
-of this overhead by using the
-\texttt{hwpmc}\footnote{\url{https://www.freebsd.org/cgi/man.cgi?query=hwpmc}}
-tools available in FreeBSD.
-
-Hardware performance counters are a set of specialised registers
-available on modern processors that can be used to measure architectural
-and microarchitectural performance events. For example, the number of
-mispredicted branches or the number of cache line misses are commonly
-made available. The exact data available varies between architectures,
-and even between different models of processor on the same architecture.
-FreeBSD makes these performance counters available to user programs
-through the \texttt{hwpmc} driver and associated tooling.
-
-Using these counters can have an effect on the performance
-characteristics of a program. In order to verify that this effect was
-acceptable, the experiment described above was repeated with five
-performance counters enabled. There was no significant change in
-relative performance when running with counters enabled---the maximum
-deviation from the results given above was 1.7\%.\footnote{Absolute
-throughput with counters enabled was approximately 90\% of the
-throughput with no counters.}
-
-The performance counters enabled were as follows: the number of
-instructions retired, the number of load instructions retired, and the
-number of loads from the L1, L2 and L3 caches respectively. Each counter
-was run in sampling mode, meaning that data was obtained by statistical
-sampling over all the events observed. Each server was observed over the
-course of a fixed-size data transfer, with the size of the data used
-varying from 10--150MB.
-
-An approximation to the amount of work performed by each version is the
-total number of instructions retired.\footnote{An instruction is retired
-when it has been executed and its effects written back---in a
-superscalar architecture, instructions may be speculatively dispatched
-but not retired.} \autoref{fig:retired-bench} shows the number of
-instructions retired during these transfers for each server version.
-
-\begin{figure}[ht]
-  \centering
-  \begin{tikzpicture}
-    \begin{axis}[
-      title={Effect of data transfer size on instructions retired},
-      width=0.85\textwidth,
-      xlabel={Data size (MB)},
-      ylabel={Instructions retired},
-      xmin=7,xmax=153,
-      ymin=0,ymax=250000,
-      legend pos=north west,
-      ymajorgrids=true,
-      grid style=dashed,
-      cycle list/Dark2,
-      yticklabel style={
-	      /pgf/number format/fixed,
-	      /pgf/number format/precision=5
-      },
-      scaled y ticks=false
-    ]
-      \addplot+[mark=x]
-      table [x =size, y =unmod]{data/retired.dat};
-
-      %\addplot+[mark=x]
-      %table [x =size, y =all]{data/retired.dat};
-
-      \addplot+[mark=x]
-      table [x =size, y =static]{data/retired.dat};
-
-      \addplot+[mark=x]
-      table [x =size, y =instr]{data/retired.dat};
-      \legend{Unmodified,Static,Instrumented}
-    \end{axis}
-  \end{tikzpicture}
-  \caption{Number of instructions retired during a fixed-size data
-  transfer}
-  \label{fig:retired-bench}
-\end{figure}
-
-The number of instructions retired is proportional to the quantity of data being
-transferred by the server. On average, the statically analysed server retired
-$1.37\times$ the instructions of the unmodified server, while the instrumented
-version retired $2.49\times$ as many. Further experiments with much larger data
-files showed that this relationship continues to hold.
-
-The memory access patterns for each version are very similar---for each
-one, 28\% of the total instructions retired are load instructions, of
-which 94\% are served by the L1 cache, and less than 0.2\% by the L3
-cache (although because the total number of instructions executed is
-greater, the total number of loads from the L3 cache and cache misses
-will increase).
-
-A similar analysis was performed for instruction cache misses, with the
-same conclusion---TESLA instrumentation did not significantly change the
-microarchitectural performance characteristics of the server
-implementations (beyond increasing the number of executed instructions).
-
-The sampled counter data can be used to show where instructions are
-spent during execution. \autoref{lst:instr-callchain} shows a sampled
-excerpt from the instrumented server. From this data we can see that
-TESLA automaton operations account for 37\% of the retired instructions,
-with 25\% corresponding to state updates and 12\% to lifetime
-management.\footnote{The TESLA terminology for creating and destroying
-automata is ``sunrise'' and ``sunset''.}
-
-\begin{figure}[ht]
-  \begin{minted}{objdump-nasm}
-@ INSTR_RETIRED_ANY [227749 samples]
-
-36.66%  [83489]    strncmp @ /lib/libc.so.7
-  100.0%  [83489]     same_static_lifetime @ libtesla.so
-    68.99%  [57601]      tesla_update_class_state @ libtesla.so
-    16.00%  [13358]      tesla_sunset @ libtesla.so
-    15.01%  [12530]      tesla_sunrise @ libtesla.so
-06.73%  [15337]    inet_chksum_pseudo @ tesla-app.instr
-  ...
-  \end{minted}
-  \caption{Callchain output showing number of instructions retired with
-  TESLA instrumentation enabled}
-  \label{lst:instr-callchain}
-\end{figure}
-
-The equivalent data for the statically analysed server (in
-\autoref{lst:static-callchain}) shows clearly where the remaining
-overhead arises. Calls to the automaton lifetime functions remain (with
-a similar number of associated instructions), while the state update
-functions have been removed. Calls to the lifetime functions can be
-removed only if there are no automata to be instrumented.
-
-\begin{figure}[ht]
-  \begin{minted}{objdump-nasm}
-@ INSTR_RETIRED_ANY [125375 samples]
-
-22.71%  [28467]    strncmp @ /lib/libc.so.7
-  100.0%  [28467]     same_static_lifetime @ libtesla.so
-    51.17%  [14567]      tesla_sunrise @ libtesla.so
-    48.83%  [13900]      tesla_sunset @ libtesla.so
-12.74%  [15968]    inet_chksum_pseudo @ tesla-app.static
-  ...
-  \end{minted}
-  \caption{Callchain output showing number of instructions retired with
-  TESLA instrumentation removed}
-  \label{lst:static-callchain}
-\end{figure}
+This adaptation allows two versions of the server to be built---one where static
+analysis has been applied to the library assertions, and one where it has not
+been.
 
 \subsection{Summary}
 
@@ -544,10 +317,9 @@ In this section I have shown how TESLA can be used by library developers to
 apply temporal assertions to users of the library without prior knowledge of the
 user code. Additionally, I have demonstrated a method for adapting library
 interfaces not explicitly designed with TESLA instrumentation in mind. This
-technique was applied to an application using the LWIP TCP library,
-demonstrating the performance improvements achievable by using static
-analysis. Finally, I have given an analysis of the performance overheads
-observed that shows TESLA instrumentation is indeed the source.
+technique was applied successfully to an existing application (with minimal
+modification to application code). In \autoref{sec:eval-app} I give a detailed
+evaluation of the performance of the instrumented applications.
 
 The methods developed have some shortcomings when compared to typical C library
 development:
@@ -563,10 +335,10 @@ development:
     from making calls to \mintinline{c}{fprintf} without holding the lock.
 
   \item[Performance] If the user code is amenable to static analysis, then the
-    performance impact of TESLA should be minimal. However, this is completely
-    dependent on how the user code is written.
+    performance impact of TESLA is minimal. However, this is dependent on how
+    the user code is written.
 \end{description}
 
-Despite these issues, this is still a useful tool available to library
-developers for preventing bugs in user code. Additionally, it represents a more
-general use of TESLA than previous work.
+Despite these issues, the interface adaptation technique is still a useful tool
+for library developers to prevent bugs in user code. Additionally, it represents
+a significant generalisation of previous applications of TESLA.
