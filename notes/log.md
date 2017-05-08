@@ -2231,3 +2231,7 @@ actual_cb_func()
 * Added a simpler motivating example to the background section.
 * General reading to make sure everything basically makes sense before sending
   back to Robert for specific comments.
+* Doing a bit of investigation into how best to set up a project website for
+  TESLA (better examples etc). Jekyll theme on github pages is probably the most
+  sensible for now I think.
+* Should see if TESLA works if dependencies are installed via Homebrew.
