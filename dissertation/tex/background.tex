@@ -4,6 +4,52 @@ TESLA and an introduction to the TESLA assertion language used throughout this
 report. I also give an overview of the theoretical background to important
 techniques used in the implementation of this project.
 
+\section{Temporal Assertions}
+
+Before describing TESLA in detail, it is worth giving a motivating example of
+why it is useful. The simplest possible explanation is that it allows the
+programmer to make assertions about the past and future execution of a
+program---what has happened in the past, and what will happen in the future.
+
+\autoref{lst:mutex-simple} shows a C function for acquiring a mutual exclusion
+lock. For a program's usage of the lock to be \emph{safe}, it must eventually
+release the lock. However, within \mintinline{c}{lock_acquire}, there is no way
+of asserting this property using standard C constructs---the call that releases
+the lock could be logically separated from the call that acquires it (for
+example, a library function could acquire the lock then depend on user code
+releasing it).
+
+\begin{figure}
+  \begin{minted}{c}
+void lock_acquire(lock_t *lock) {
+  return CAS(&lock->locked, false, true);
+}
+  \end{minted}
+  \caption{Lock acquisition without safety propery enforced}
+  \label{lst:mutex-simple}
+\end{figure}
+
+TESLA allows for \emph{temporal} properties to be expressed.
+\autoref{lst:mutex-better} shows the same lock acquisition function, but with a
+TESLA assertion enforcing the safety property. The property is in the same
+source location as the function it applies to, and is independent of where calls
+to \mintinline{c}{lock_acquire} and \mintinline{c}{lock_release} are made. The
+remainder of this chapter describes TESLA assertions and the associated tooling
+in more detail.
+
+\begin{figure}
+  \begin{minted}{c}
+void lock_acquire(lock_t *lock) {
+  TESLA_WITHIN(main, eventually(
+    lock_release(lock)
+  ));
+  return CAS(&lock->locked, false, true);
+}
+  \end{minted}
+  \caption{Lock acquisition with safety property enforced using TESLA}
+  \label{lst:mutex-better}
+\end{figure}
+
 \section{Summary of Existing Work}
 
 \begin{displaycquote}[p. 1]{anderson_tesla:_2014}
