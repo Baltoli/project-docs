@@ -2209,3 +2209,25 @@ actual_cb_func()
   of the trace, but exponential in the complexity of the program itself.
 * Did some major refactoring of the dissertation, moving echo performance
   analysis into the evaluation section.
+* Wrote up an initial version of the abstract.
+* Investigating a more proper move to LLVM 3.5 to get the upgrade ball rolling -
+  having the test suite means I'm less likely to break things when API methods
+  change.
+
+## 7/5/2017
+
+* Pushing on with a proper upgrade to LLVM 3.5 - still some refactors left from
+  Robert's comments but not urgent.
+* Getting close to an upgrade as far as 3.9 - this is for more up to date than
+  before, so is a big improvement. Some weird stuff with lit going on, but for
+  the most part it all seems to work OK.
+
+## 8/5/1017
+
+* Trying to finish the LLVM 3.9 upgrade properly.
+* Got the upgrade to 4.0 working - TESLA now up to date with stable LLVM!
+* Works using a preinstalled (i.e. non-source build) of LLVM 4.0 on OS X as well
+  now.
+* Added a simpler motivating example to the background section.
+* General reading to make sure everything basically makes sense before sending
+  back to Robert for specific comments.

@@ -35,15 +35,16 @@ if an assertion has no counterexamples.
 
 This informal observation relies on the hypothesis that counterexamples are
 almost always minimal. I argue that this is the case for automata that do not
-place finite upper bounds on sequence repetition---if this is the case, then the
-size of the automaton (and therefore of minimal counterexamples) is bounded by
-the number of separate statements in the automaton. A formal analysis of
-automaton structure may be able to formalise this argument.
+place finite upper bounds on sequence repetition---if this holds, then the size
+of the automaton (and therefore of minimal counterexamples) is bounded by the
+number of separate statements in the automaton. A full analysis of automaton
+structure may be able to formalise this argument.
 
 Model checking TESLA assertions is likely to remain an \textquote{offline} tool
 for developers---for development builds, the runtime overhead of TESLA
-instrumentation is likely to be acceptable. For release builds, running the
-model checker for a long period of time (by a continuous integration tool, for
+instrumentation is likely to be acceptable, while running the model checker for
+several minutes is not likely to be. For release builds, running the model
+checker for a long period of time (by a continuous integration tool, for
 example) would be an acceptable trade-off to improve runtime performance.
 
 \subsection{Correctness}
@@ -55,12 +56,11 @@ being unsafely removed. As a result, the model checker must be completely free
 of false positives in order to be correct.
 
 During development, any false positives were treated as serious bugs and dealt
-with accordingly. As a result, during my instrumentation of the LWIP library
-interface (and other work not included in this dissertation), I did not
-encounter any false positives---though it would of course be foolish to suggest
-that none are possible. Future work on testing the model checker could use
-techniques from automatic test generation or fuzzing to ensure no false
-positives are found.
+with accordingly. During my instrumentation of the LWIP library interface (and
+other work not included in this dissertation), I did not encounter any false
+positives---though it would of course be foolish to suggest that none are
+possible. Future work on testing the model checker could use techniques from
+automatic test generation or fuzzing to ensure no false positives are found.
 
 \subsection{Future Work}
 
@@ -364,11 +364,9 @@ as a programming tool is an issue that I encountered frequently during the
 course of the project. At present, there are a number of issues that future work
 would be well-served to rectify.
 \begin{description}
-  \item[Compiler Lock-in] TESLA is currently built against LLVM 3.4, a version
-  released in 2014. This means that applications built with TESLA
-  instrumentation must be compiled with \texttt{clang} 3.4. While the lock-in to
-  \texttt{clang} is unavoidable by design, keeping the version up to date would
-  be a useful improvement.
+  \item[Compiler Lock-in] Applications that use TESLA must be compiled with the
+    same version of clang that TESLA itself is built against. As long as TESLA
+    is kept up to date, this is not a major usability concern.
   
   \item[Documentation] The only online documentation for TESLA is somewhat
   outdated---writing TESLA assertions for the first time currently involves some

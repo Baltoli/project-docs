@@ -712,9 +712,9 @@ In practical terms, this means that assertions that have a counterexample can be
 checked a great deal faster than those that do not---if there is no
 counterexample, then every path shorter than the bounding length must be
 checked. For example, checking any incorrect test case from
-\autoref{sec:hand-coded} with a bound of 200 basic blocks takes less than
+\autoref{sec:hand-coded} with a bound of \num{1000} basic blocks takes less than
 \num{0.1}\si{\second}, while the successful cases take approximately
-\num{160}\si{\second}. 
+\num{125}\si{\second}. 
 
 The complexity of the model checker is exponential in the number of conditional
 branches in a bounding interval. This complexity can be reduced in two primary
@@ -722,7 +722,7 @@ ways:
 \begin{itemize}
   \item LLVM implements a control flow graph simplification pass that can
     potentially reduce the number of conditional branches. Running this pass
-    after the inlining process lead to a significant performance improvement.
+    after the inlining process led to a significant performance improvement.
   \item Narrower bounds for assertions will naturally lead to less complex
     control flow in the inlined function---this is dependent on the author of
     the assertion rather than the model checker itself.
@@ -741,4 +741,4 @@ splitting assertions such that statically provable components are proved
 where possible, leaving behind components of the assertion that must be
 instrumented dynamically. This approach would require major changes to
 some TESLA internals, and was found not to be feasible within the scope
-of this project (allowing for the work already done).
+of this project.
