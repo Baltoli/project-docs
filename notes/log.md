@@ -2235,3 +2235,42 @@ actual_cb_func()
   TESLA (better examples etc). Jekyll theme on github pages is probably the most
   sensible for now I think.
 * Should see if TESLA works if dependencies are installed via Homebrew.
+
+## 9/5/2017
+
+* Worked on getting a website for TESLA up and running.
+* Need to investigate TESLA's internal generation of inclusive / exclusive or
+  automata, and see if my FSM generation code does the right thing when building
+  my automata. If not, it might be necessary to actually construct a cross
+  product automaton (and write it up etc.)
+  * Basically need to see what happens if I write `foo() || bar()`.
+
+## 10/5/2017
+
+* Identified a bug in the model checker last thing yesterday - need to work out
+  what's causing it and how I can fix it. Identified problem was that the
+  assertion site event in a TESLA demo wasn't being picked up, causing the
+  analysis to fail.
+* Real problem was to do with an unfortunate interaction between mem2reg and
+  argument names that is now fixed.
+* Important point - tests only run correctly on Debug build mode, presumably
+  because of NDEBUG being set and preventing some examples from producing any
+  actual output.
+* Conclusion is that mem2reg makes the checking *dramatically* faster, but can
+  break variable names. Shouldn't ever make it incorrect, though - it will only
+  discount correct things because their name can't be found. Leave disabled for
+  now.
+* Also being reminded of the existing issues with the parser - can't use by
+  value structs at all. Need to fix this in the summer probably.
+* Long term, I think the moral is that argument lookup code needs a rework
+  (possibly to use the new debug information available about names etc). Tied
+  into fixing bugs in the parsing code if at all possible.
+* Parser being clang is nice because it makes things "native", but runs into
+  issues as described previously. Other implementation options?
+* Found an unsafety bug - `possibly_checked` logic needs to include assertion
+  sites contained in the automaton as well as entry and exit.
+* Repeat [m..n] is broken for my automaton construction - investigate. Fixed -
+  cause was just an off-by-one error.
+* Change to the alloca finding logic doesn't seem to have broken any tests, but
+  it's still something to keep an eye on in case of changes in the future.
+* Maybe investigate Sphinx as being a better choice than Jekyll?
