@@ -2274,3 +2274,27 @@ actual_cb_func()
 * Change to the alloca finding logic doesn't seem to have broken any tests, but
   it's still something to keep an eye on in case of changes in the future.
 * Maybe investigate Sphinx as being a better choice than Jekyll?
+
+## 11/5/2017
+
+* Set up an MkDocs site for TESLA.
+* Interesting issue with inlining / argument lookup interaction - because
+  assertion sites are "lifted" into the inlined context, if the assertion names
+  a variable, it can "escape" its scope and end up referring to something
+  different. This seems to be OK in the dynamic instrumentation because there's
+  no inlining (and so names mean what you think they mean). The static version
+  probably needs some kind of binding / name mapping for inlining - the dynamic
+  lookup code isn't really good enough.
+* Key point is that name lookup needs to be preserved properly across inlining,
+  which means building a mapping of names during the inlining process.
+* How can we support this? By inlining, we lose all sense of variable scoping -
+  which is how TESLA implements argument lookup. We'd need to implement some
+  kind of a hierarchical mapping from values to names that can be queried at the
+  time of inlining.
+* Hacky solution is to write assertions that use variable names only at the
+  topmost possible level.
+* Added some more documentation on a simple TESLA example, as well as
+  placeholders for a macro reference document.
+* Working on a homebrew formula to make TESLA installation easier.
+* Formula seems to work - installs on my machine just fine, and trying on Alex's
+  for completeness. Easiest installation of TESLA for end users *ever*.
