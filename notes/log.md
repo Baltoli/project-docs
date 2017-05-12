@@ -2298,3 +2298,21 @@ actual_cb_func()
 * Working on a homebrew formula to make TESLA installation easier.
 * Formula seems to work - installs on my machine just fine, and trying on Alex's
   for completeness. Easiest installation of TESLA for end users *ever*.
+
+## 12/5/2017
+
+* Worked on the TESLA Homebrew formula some more - it now supports bottled
+  distributions, and can be installed from a specific version.
+* Could do a FreeBSD port as well, but this does seem more complicated (and
+  maybe better to leave until summer or for someone more familiar with FreeBSD
+  to do).
+* The test suite can now run on OS X as well (as long as FileCheck and lit are
+  installed).
+* Fixed some small problems with the test suite caused by incompatibilities in
+  CPP flags.
+* Did some digging into the absolute paths issue - turns out to be that clang
+  tools get given an absolute path every time they're run (instead of exactly
+  what's specified on the command line). The upshot of this is that the first
+  compilation does need to give an absolute path to clang so that `__FILE__`
+  gets expanded correctly.
+* Working on TESLA command documentation.
