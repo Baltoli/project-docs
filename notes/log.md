@@ -2316,3 +2316,23 @@ actual_cb_func()
   compilation does need to give an absolute path to clang so that `__FILE__`
   gets expanded correctly.
 * Working on TESLA command documentation.
+
+## 13/5/2017
+
+* Things to look at today - command documentation needs finishing off, but other
+  than that not a lot. Will take tomorrow to look at the dissertation writing
+  again (maybe with some reading of Zobel, but today can be a partial break from
+  TESLA).
+* Maybe replace mentions of "marker functions" with "instrumentation hooks" in
+  the writeup? Possibly clearer.
+
+## 14/5/2017
+
+* Got a reply from Alan regarding my first draft - some good points but also
+  some that have been fixed already based on feedback frOm Robert.
+* Should work in a reference to soundiness somewhere - good justification for
+  why it's OK to do finite bounded model checking. Doing this requires that I
+  call out exactly why my method is unsound - basically because you can go "off
+  the end".
+* Fixed up a number of issues with the bibliography and sent the newer version
+  of the dissertation back to Alan with some more comments.
