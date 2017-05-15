@@ -2336,3 +2336,27 @@ actual_cb_func()
   the end".
 * Fixed up a number of issues with the bibliography and sent the newer version
   of the dissertation back to Alan with some more comments.
+
+## 15/5/2017
+
+* Doing some reading and annotation of Zobel / dissertation to see if I cna
+  improve anything.
+* Problem with Or / Xor diagnosed - not a soundness problem, as I won't end up
+  accepting invalid programs (only rejecting valid ones). Should still fix by
+  implementing a cross-product like composition of automata for inclusive or -
+  the original paper has the exact construction, so I should be able to just
+  translate it and write the extension up in the dissertation.
+* Would also be nice to clean up, document and test the FSM code as much as
+  possible.
+* Also check up on argument-dependent "possibility" checking - what are the
+  exact rules for when this works?
+* Possible that the SSA-name based method is too fragile and it would be best in
+  the long run to just switch to a DI method now that we have a newer version of
+  LLVM.
+* Completed a pretty thorough review of the dissertation, producing a lot of
+  annotations to be worked on before my next meeting with Robert.
+* Separating the FSM library out into a "modern CMake" installable thing for
+  now, as the compile times are otherwise a limiting factor. Also means that
+  writing unit tests is easier.
+* Set up CI and a better build structure for the FSM library - next step is to
+  add a cross product construction to it.
