@@ -2360,3 +2360,22 @@ actual_cb_func()
   writing unit tests is easier.
 * Set up CI and a better build structure for the FSM library - next step is to
   add a cross product construction to it.
+
+## 16/5/2017
+
+* Worked on testing and documentation for the FSM library - got Doxygen running
+  on it successfully.
+* Started to write the cross product construction.
+
+## 17/5/2017
+
+* More work on the cross product construction.
+* Got inclusive OR implemented (and noticed more weirdness in the constructed
+  automata).
+* Lots of work on debug printing of FSMs - helpful especially when they start to
+  get large.
+
+## 18/5/2017
+
+* Worked on demo app that uses the FSM library.
+* Fixed up the small modifications to my dissertation and sent it to Robert.

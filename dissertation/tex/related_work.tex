@@ -1,5 +1,6 @@
 In this chapter I provide an overview of how my work on TESLA contributes new
-ideas and developments compared to relevant previous work.
+ideas and developments compared to relevant previous work, with particular
+emphasis on the areas of bounded model checking and SMT methods.
 
 \section{Program Verification} \label{sec:bounded-model-checking}
 
@@ -11,7 +12,7 @@ for TESLA.
 
 
 \textcite{biere_symbolic_1999} introduce the concept of bounded model checking,
-building upon the earlier idea of \emph{symbolic} model checking due to
+building on the earlier idea of \emph{symbolic} model checking due to
 \textcite{mcmillan_symbolic_1992}. In this section I give a summary of previous
 work in the area, with particular emphasis on where it has been applied to check
 C programs. I also note key differences between these previous works and my
@@ -21,38 +22,37 @@ supported, and the use of non-symbolic checking in my implementation.
 At the heart of model checking is the idea of counterexample generation---if a
 state is found to satisfy the negation of a formula, then that state is a
 counterexample for the original formula. Bounded model checking builds on this
-idea by searching for counterexamples with an upper bound on the allowable
-length. This means that the counterexamples discovered are of minimal length,
-and are discovered faster.
+idea by searching for counterexamples with an upper bound on their allowable
+size. This means that the counterexamples discovered are minimally sized, and
+are discovered faster.
 
 While the implementation strategies and analysis goals of BMC
 \cite{biere_symbolic_1999} (the first practical bounded model checker) and the
 TESLA model checker are quite different (BMC is a symbolic model checker for
 SMV\footnote{A state description language for model checking problems.}; the
-TESLA model checker is a non-symbolic and checks TESLA assertions embedded in C
+TESLA model checker is non-symbolic and checks TESLA assertions embedded in C
 programs), the strategy of searching for counterexamples using an
 iterative-deepening method is derived in part from the original work on bounded
-model checking.
+model checking. Another difference between the TESLA model checker and BMC is
+their approaches to soundness---BMC aimed to be provably sound, while TESLA aims
+for \emph{soundiness} \cite{livshits_defense_2015} (as long as the upper bound
+is large enough for the program in question, the model checker is sound).
 
 \subsubsection{CBMC}
 
 \citeauthor{clarke_behavioral_2003}'s CBMC \cite{clarke_behavioral_2003} applied
 bounded model checking to C programs by translating them into instances of the
-SAT decision problem. New developments included \emph{unwinding
-assertions}\footnote{An assertion that captures the idea that a loop has been
-unrolled \textquote{enough} times.}. CBMC allowed for C programs to be written
-as executable specifications for synchronous Verilog hardware designs without
-prohibiting the use of any C programming construct (use of pointers, memory
-allocations and recursive calls are all permitted).
+SAT decision problem. CBMC allowed for C programs to be written as executable
+specifications for synchronous Verilog hardware designs without prohibiting the
+use of any C programming construct (use of pointers, memory allocations and
+recursive calls are all permitted).
 
-Although CBMC is an example of model checking being applied to C
-programs, the assertions that can be checked are only local assertions
-(albeit with some temporal information available by supplying the value
-of Verilog signals to the C program). In this sense, the scope and
-target of TESLA assertions is different to those of CBMC---TESLA
-assertions are written to verify the behaviour of a program, while CBMC
-uses a C program with assertions to verify that a hardware
-implementation is behaviourally equivalent to that program.
+Although CBMC is an example of model checking being applied to C programs, the
+assertions that can be checked are only local assertions. The scope and target
+of TESLA assertions is different to those of CBMC---TESLA assertions are written
+to verify the behaviour of a program, while CBMC uses a C program with
+assertions to verify that a hardware implementation is behaviourally equivalent
+to that program.
 
 \subsubsection{LLBMC}
 
@@ -62,9 +62,8 @@ improvement---they contribute LLBMC, a bounded model checker that operates on
 LLVM \cite{lattner_llvm:_2002} intermediate representation. The benefits of this
 approach include broader language support, assistance from compiler
 optimisations for code simplification, and an improved memory model.
-Empirically, LLBMC represents an improvement over previous work in the area it
-is compared to---it is able to detect more assertion failures in a larger set of
-programs than CBMC.
+Empirically, LLBMC represents an improvement over previous work it is compared
+to.
 
 The use of a compiler intermediate representation to simplify model
 checking is similar in concept to TESLA (modulo the differences between
@@ -79,11 +78,10 @@ translation of an LTL formula into a B\"uchi automaton, which is then
 itself converted to C code and woven into the program to be checked.
 
 This approach is reminiscent of TESLA instrumentation, but has some key
-differences. The automaton code here has its own thread of execution
-rather than being inlined as TESLA instrumentation is, and instead of
-producing a modified executable that exhibits runtime failures on
-assertion violations, the combined program is checked statically using
-ESMBC to check for violations.
+differences. The automaton code here has its own thread of execution rather than
+being inserted inline, and instead of producing a modified executable that
+exhibits runtime failures on assertion violations, the combined program is
+checked statically using ESMBC \cite{cordeiro_smt-based_2009}.
 
 Although the development of this work was partly contemporaneous with
 the initial work on TESLA, and the implementation strategies were
@@ -109,8 +107,8 @@ vulnerabilities in well-known open-source software.
 Properties in MOPS are expressed as finite state automata, with accepting states
 representing an execution on which an unsafe event has occurred. The expression
 of TESLA assertions is similar in concept to this, but with extensions to check
-function arguments and return values. MOPS assertions can express slightly
-different properties than TESLA assertions can (and vice versa). MOPS can assert
+function arguments and return values. MOPS assertions express slightly
+different properties to TESLA assertions (and vice versa). MOPS can assert
 properties such as \textquote{a call to \mintinline{c}{f} is immediately
 followed by a call to \mintinline{c}{g}}, while TESLA can assert that
 \textquote{if execution reaches this program point, \mintinline{c}{f} was
@@ -124,10 +122,9 @@ paths, and the ability to check a subset of the program's data flow.
 
 KLEE \cite{cadar_klee:_2008} is a system for symbolic execution of programs in
 order to automatically generate tests or prove assertions. It differs from other
-approaches described here as it is does not perform model checking---instead, it
+approaches described here as it does not perform model checking---instead, it
 generates constraints that must hold for a program point to be reachable, then
-solves the constraints to generate test inputs to the program. KLEE is
-implemented as an interpreter for LLVM bitcode.
+solves the constraints to generate test inputs to the program.
 
 The primary motivation for this implementation style is to increase the
 source-level coverage of a program's test suite. This means exploring every
@@ -140,7 +137,7 @@ translation of LLVM IR to solve constraint systems.
 \section{SMT} \label{sec:smt}
 
 In this section I give a brief overview of the theory of SMT methods, as well as
-a summary of important work in the area.
+a summary of important work related to program analysis using SMT methods.
 
 \subsection{Background}
 
@@ -180,30 +177,30 @@ meaning is associated with these functions when an SMT problem is specified,
 only that they have a particular \emph{sort}\footnote{Informally, sorts can be
 understood as ``types'' in a particular problem. Examples are the sorts of
 integers, booleans, and functions with particular domain and range.}. An SMT
-solver may assign interpretations to these functions in order to satisfy the
-instance constraints.
+solver may assign interpretations (definitions) to these functions in order to
+satisfy the instance constraints.
 
 \subsubsection{Tools and Standards}
 
 A great deal of research and engineering work is invested in the use of SMT
 tools. Two of the most commonly used solver implementations are Z3
 \cite{de_moura_z3:_2008} and CVC4 \cite{barrett_cvc4_2011}, but there are
-numerous others with individual strengths and weaknesses. As well as
-implementations, there exist standards such as SMT-LIB \cite{BarFT-SMTLIB} that
-specify textual input and output formats for SMT solvers. Standardisation in
-this way allows for competitive benchmarking of solver performance (the primary
-venue for this is SMT-COMP \cite{CDW14}).
+numerous others with individual strengths and weaknesses. There exist standards
+such as SMT-LIB \cite{BarFT-SMTLIB} that specify textual input and output
+formats for SMT solvers. Standardisation in this way allows for competitive
+benchmarking of solver performance (the primary venue for this is SMT-COMP
+\cite{CDW14}).
 
 \subsection{Related Work}
 
 SMT solvers are a low-level tool---using them to solve a domain-specific problem
 involves translating the problem into a formulae in a particular theory. Because
 of this flexibility, SMT solvers have been used to solve a large number of
-disparate problems. For example, Microsoft list 58 publications related to
+different problems. For example, Microsoft list 58 publications related to
 Z3\footnote{\url{https://github.com/Z3Prover/z3/wiki/Publications}} that span
-areas as diverse as cloud computing, verification of real-time systems, and
-functional programming. Broadly, most applications of SMT methods involve some
-form of \emph{program analysis}.
+areas as diverse as cloud computing, real-time systems, and functional
+programming. Broadly, most applications of SMT methods involve some form of
+\emph{program analysis}.
 
 \textcite{dahlweid_vcc:_2009} provide VCC, a tool for proving partial
 correctness of C programs using annotations that describe invariants on data

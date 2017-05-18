@@ -1,22 +1,31 @@
 In this chapter I give a summary of previous work related to TESLA on which this
 project builds, a short overview of the practical issues associated with using
-TESLA and an introduction to the TESLA assertion language used throughout this
-report.
+TESLA and an introduction to the TESLA assertion language. I also provide a
+guide to the TESLA-specific terminology used throughout the rest of this report.
 
 \section{Temporal Assertions}
 
 Before describing TESLA in detail, it is worth giving a motivating example of
 why it is useful. The simplest possible explanation is that it allows the
-programmer to make assertions about the past and future execution of a
-program---what has happened in the past, and what will happen in the future.
+programmer to make assertions about events that occur in the past and future
+execution of a program (rather than just about the current program state).
 
 \autoref{lst:mutex-simple} shows a C function for acquiring a mutual exclusion
-lock. For a program's usage of the lock to be \emph{safe}, it must eventually
-release the lock. However, within \mintinline{c}{lock_acquire}, there is no way
-of asserting this property using standard C constructs---the call that releases
-the lock could be logically separated from the call that acquires it (for
-example, a library function could acquire the lock then depend on user code
-releasing it).
+lock.\footnote{In a simple usage scenario, and modulo a correct implementation
+of atomic compare-and-swap (\mintinline{c}{CAS}).} For a program's usage of the
+lock to be \emph{safe}, it must eventually release the lock. However, within
+\mintinline{c}{lock_acquire}, there is no way of asserting this property using
+standard C constructs---the call that releases the lock could be logically
+separated from the call that acquires it (for example, a library function could
+acquire the lock then depend on user code releasing it).
+
+TESLA allows for \emph{temporal} properties to be expressed.
+\autoref{lst:mutex-better} shows the same lock acquisition function, but with a
+TESLA assertion enforcing the safety property. The property is in the same
+source location as the function it applies to, and is independent of where calls
+to \mintinline{c}{lock_acquire} and \mintinline{c}{lock_release} are made. The
+remainder of this chapter describes TESLA assertions and the associated tooling
+in more detail.
 
 \begin{figure}
   \begin{minted}{c}
@@ -27,14 +36,6 @@ void lock_acquire(lock_t *lock) {
   \caption{Lock acquisition without safety propery enforced}
   \label{lst:mutex-simple}
 \end{figure}
-
-TESLA allows for \emph{temporal} properties to be expressed.
-\autoref{lst:mutex-better} shows the same lock acquisition function, but with a
-TESLA assertion enforcing the safety property. The property is in the same
-source location as the function it applies to, and is independent of where calls
-to \mintinline{c}{lock_acquire} and \mintinline{c}{lock_release} are made. The
-remainder of this chapter describes TESLA assertions and the associated tooling
-in more detail.
 
 \begin{figure}
   \begin{minted}{c}
@@ -62,39 +63,40 @@ safety\footnote{A \emph{safety} property asserts that ``bad things'' do not
 happen during the execution of a program, while a \emph{liveness} property
 asserts that ``good things'' do eventually happen
 \cite{lamport_proving_1977,alpern_defining_1984}.} properties of systems code.
-These safety properties are written inline to the program they describe, and are
-checked at runtime by means of an extended compilation process that adds
-instrumentation to the intermediate representation of a program.
+These safety properties are written inline with the program they describe, and
+are checked at runtime by dynamic instrumentation code (added during an extra
+compilation phase).
 
-In \cite{anderson_tesla:_2014}, the authors detail their experiences
-using TESLA to perform complex debugging on large pieces of systems
-software. These efforts were successful---a security vulnerability in
-OpenSSL was discovered and fixed, along with an elusive bug in the
-GNUStep graphics library. Additionally, they detail the overhead
-associated with using TESLA (at compile time and run time) and identify
-static analysis as a possible future direction of research.
+In \cite{anderson_tesla:_2014}, the authors detail their experiences using TESLA
+to perform complex debugging on large, well-known systems software. These
+efforts were successful---a security vulnerability in OpenSSL was discovered and
+fixed, along with an elusive bug in the GNUStep graphics library. Additionally,
+they detail the overhead associated with using TESLA (at compile- and run-time)
+and identify static analysis as a possible future direction of research.
 
-The work in this report builds on the original implementation of
-TESLA---the primary components of this are a parser for TESLA
-assertions, an instrumentation system that adds code to the programs in
-questions, and a runtime support library. While my work has involved
-some minor modifications to the original implementation, the majority of
-it is newly developed. The distinction between original and new work
-should therefore be clear.
+The work in this report builds on the original implementation of TESLA---the
+primary components of the original work are a parser for TESLA assertions, an
+instrumentation system that adds code to the programs in questions, and a
+runtime support library. While my work has involved some minor modifications to
+the original implementation, the majority of it is newly developed. Any
+references to dynamic or runtime components are part of the original TESLA
+implementation, while any references to static analysis or model checking are
+part of my contributions. I explicitly note places where I have modified the
+original TESLA implementation.
 
 \section{Programming with TESLA}
 
 In this section I give a brief overview of how TESLA is used in practice
 to instrument programs.
 
-\subsection{Terminology}
+\subsection{Terminology} \label{sec:terminology}
 
 Programmers may add \emph{assertions} to their code to ensure its
-correctness---these are logical statements predicated on the current
-scope. TESLA assertions are similar in concept, but allow for
-\emph{temporal} properties to be asserted as well. Temporal assertions require a
-\emph{bounding interval}---a pair of start and end events that specifies where
-initialisation and cleanup code should be placed.
+correctness---these are logical statements predicated on data in the current
+scope. TESLA assertions are similar in concept, but express temporal relations
+between \emph{program events}. Temporal assertions require a \emph{bounding
+interval}---a pair of start and end events that specifies where initialisation
+and cleanup code should be placed.
 
 Each TESLA assertion defines an \emph{automaton}, and a collection of
 these automata is referred to as a \emph{manifest} when serialised to
@@ -104,11 +106,10 @@ return from a function.
 
 \subsection{Build Process} \label{sec:build-tesla}
 
-Using TESLA to instrument a program requires that the build process is
-modified to produce TESLA-specific intermediate products.
-\autoref{fig:c-compilation} shows the traditional compilation model for
-C programs; \autoref{fig:c-tesla-compilation} shows the additional
-steps required by TESLA.
+Using TESLA to instrument a program requires that its build process is modified
+to produce TESLA-specific intermediate products. \autoref{fig:c-compilation}
+shows the traditional compilation model for C programs;
+\autoref{fig:c-tesla-compilation} shows the additional steps required by TESLA.
 
 \afterpage{%
 \clearpage\clearpage
@@ -161,9 +162,8 @@ steps required by TESLA.
 \end{figure}
 }
 
-A \texttt{.bc} file contains LLVM intermediate code in its stable binary format,
-and a \texttt{.tesla} file contains a binary representation of the TESLA
-assertion manifest.
+A \texttt{.bc} file contains LLVM intermediate code, and a \texttt{.tesla} file
+contains a binary or textual representation of the TESLA assertion manifest.
 
 The TESLA toolchain is used together with the Clang / LLVM compiler
 infrastructure to generate these intermediate artifacts. A brief summary of the
@@ -185,12 +185,10 @@ existing build system to generate TESLA intermediate products.
 
 \subsection{Writing Assertions}
 
-Once a project has been set up to build against TESLA, assertions can be
-written using the included set of preprocessor macros. These macros
-provide a convenient wrapper interface over the TESLA marker functions.
-Marker functions have no definitions---their only use is to appear as
-the target of a function call that will later be replaced with
-instrumentation code.
+TESLA assertions are written using a set of preprocessor macros that expand to
+calls to instrumentation hook functions. These functions have no definition, and
+are only used as a way to store information in the IR. Calls to them are removed
+by the instrumenter.
 
 An example of the TESLA macros being written inline with a program is
 given in \autoref{lst:tesla-example}.
@@ -218,25 +216,18 @@ int main(void)
 
 \section{The TESLA Assertion Language} \label{sec:assertions}
 
-Assertions specify temporal relations between \emph{program events},
-within a specified bounding interval. These events are function calls or
-returns (possibly with arguments and / or return values specified),
-assertion sites or structure field assignments. An assertion site event
-occurs when program execution reaches the location where the assertion
-was originally written in the program. A bounding interval is specified
-by two events and defines where initialisation and cleanup code should
-be inserted.
+Assertions specify temporal relations between \emph{program events} as defined
+in \autoref{sec:terminology} (function calls, assertion sites etc.).
 
 The basic temporal relation expressible in the assertion language is
-sequencing---an assertion that events occur in a particular order.
-Disjunction of events is also expressible, allowing for multiple
-choices. Assertions must include a reference to an assertion site
-event---this reference is implicit in \autoref{lst:tesla-example}
-through the \mintinline{c}{eventually} macro, which states that the
-sequence of events listed take place after the assertion site.
+sequencing---an assertion that events occur in a particular order. Disjunction
+of assertions is also expressible. Assertions must include a reference to an
+assertion site event---this reference is implicit in \autoref{lst:tesla-example}
+through the \mintinline{c}{eventually} macro, which states that the sequence of
+events listed take place after the assertion site.
 
-Automata can be written \emph{explicitly} to allow for composition
-(similar to defining a function in an ordinary program).
+Automata can be written \emph{explicitly} to allow for composition (similar to
+defining a function in an ordinary programming language).
 \autoref{lst:tesla-explicit} shows an example of this style.
 
 \begin{figure}

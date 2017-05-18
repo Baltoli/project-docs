@@ -1,10 +1,10 @@
-In this chapter I present the design and implementation of static
-analysis mechanisms for TESLA. First, I motivate this work by
-implementing a mutual exclusion lock instrumented with TESLA and
-demonstrating that performance improvements are possible. I then
-describe a set of ``hand-coded'' analyses specific to the lock
-structure. Finally, I generalise the analysis to an implementation of a
-non-symbolic model checker for TESLA assertions.
+In this chapter I present the design and implementation of static analysis
+mechanisms for TESLA. First, I motivate this work by implementing a mutual
+exclusion lock instrumented with TESLA and demonstrating that performance
+improvements are possible by removing TESLA instrumentation code. I then
+describe a set of ``hand-coded'' analyses specific to the lock structure.
+Finally, I generalise the analysis to an implementation of a non-symbolic model
+checker for TESLA assertions.
 
 \section{Modelling Locks with TESLA} \label{sec:locks}
 
@@ -13,15 +13,13 @@ TESLA exposes run-time behaviour using program instrumentation, illuminating
 coverage of complex state machines and detecting violations of specifications.
 \end{displaycquote}
 
-\textcite{anderson_tesla:_2014} draw attention to the suitability of
-TELSA for modelling and verifying \emph{state machines} within a
-program. A simple state machine that is present in a great deal of code
-is the mutual exclusion lock---in this section, I develop TESLA
-assertions for the usage of these locks and show the possible benefit of
-static analysis with respect to runtime performance.
-\autoref{fig:spinlock} shows the state machine for a spin-lock
-implemented using a mutex with non-blocking acquire and release
-operations.
+\textcite{anderson_tesla:_2014} draw attention to the suitability of TESLA for
+modelling and verifying \emph{state machines} within a program. A simple state
+machine that is present in a great deal of code is the mutual exclusion
+lock---in this section, I develop TESLA assertions for the usage of these locks
+and show the possible benefit of static analysis with respect to runtime
+performance. \autoref{fig:spinlock} shows the state machine for a spin-lock
+implemented using a mutex with non-blocking acquire and release operations.
 
 \begin{figure}
   \centering
@@ -46,10 +44,9 @@ operations.
   \label{fig:spinlock}
 \end{figure}
 
-While the number of states and operations associated with this state
-machine is small, asserting correct usage involves temporal properties
-over both control- and data-flow. It will therefore be a useful running
-example to demonstrate concepts and implementations throughout the rest
+While the number of states and operations associated with this state machine is
+small, asserting correct usage involves temporal properties over both control-
+and data-flow. It will therefore be a useful running example throughout the rest
 of this chapter.
 
 \subsection{Lock Implementation}
@@ -103,7 +100,7 @@ assertions---they express temporal relationships between program events (calls
 to the functions \mintinline{c}{lock_acquire} and \mintinline{c}{lock_release}).
 
 \autoref{lst:mutex-tesla} shows a TESLA implementation of the spin-lock
-usage properties expressed using explicit TESLA automata.
+usage properties written using explicit TESLA automata.
 \begin{figure}
   \begin{minted}{c}
   automaton(acq_rel, lock_t *lock) {
@@ -129,30 +126,27 @@ usage properties expressed using explicit TESLA automata.
 
 \subsection{Performance Overhead}
 
-The lock assertions can be used to experimentally demonstrate the
-performance overhead of using TESLA instrumentation---this motivates the
-removal of safe TESLA assertion code using static analysis.
+The lock assertions can be used to experimentally demonstrate the performance
+overhead of using TESLA instrumentation, motivating the removal of safe TESLA
+assertion code using static analysis.
 
 \subsubsection{Experimental Setup}
 
-The benchmark code used in this demonstration creates a number of
-threads, each of which attempts to sort a randomly chosen interval of a
-large shared array. Threads access the array under mutual exclusion,
-protected by a lock as described in \autoref{lst:mutex}---this creates
+The benchmark code used in this experiment created a number of
+threads, each of which attempted to sort a randomly chosen interval of a
+large shared array. Threads accessed the array under mutual exclusion,
+protected by a lock as described in \autoref{lst:mutex}---this created
 contention on the lock, dependent on the number of executing threads.
 
-A single TESLA assertion is added to the benchmark to assert the correct
-usage of the mutual exclusion lock on the shared array. Two versions of
-the program are generated---one with the TESLA instrumentation added,
-and the other without. Both versions are compiled using release build
-settings.
+A single TESLA assertion was added to the benchmark to assert the correct usage
+of the lock. Two versions of the program were compiled---one with the TESLA
+instrumentation added, and the other without. Both versions were compiled using
+release build settings.
 
-Both programs were run with the same parameters (threads sort an
-interval of size \num{15000} from a larger array of size \num{500000},
-and the number of threads was varied from 8 to 40), with results
-averaged over 5 runs of the program.
-
-The benchmarks were run on a dedicated server (Intel Xeon E5-1620
+Both programs were run with the same parameters (threads sort an interval of
+size \num{15000} from a larger array of size \num{500000}, and the number of
+threads was varied from 8 to 40), with results averaged over 5 runs of the
+program. The benchmarks were run on a dedicated server (Intel Xeon E5-1620
 \SI{3.6}{\GHz}, 8 cores, 64GB of RAM) running FreeBSD 11.
 
 \subsubsection{Results}
@@ -189,17 +183,19 @@ The uninstrumented binary is 25\% smaller than the instrumented binary
   \label{fig:locks-bench}
 \end{figure}
 
-The results from running the two benchmark programs as described above
-are shown in \autoref{fig:locks-bench}. At low levels of contention
-there is little difference between the programs; this is because the
-TESLA instrumentation code is only executed during acquisitions and
-releases of the lock. However, at higher levels of contention more time
-is spent in the TESLA instrumentation code, and the instrumented version
-becomes slower relative to the uninstrumented version.
+The results from running the two benchmark programs as described above are shown
+in \autoref{fig:locks-bench}. At low levels of contention there is little
+difference between the programs---this is because the TESLA instrumentation code
+is only executed during acquisitions and releases of the lock. However, at
+higher levels of contention more time is spent in the TESLA instrumentation
+code, and the instrumented version becomes slower relative to the uninstrumented
+version.
 
 If provably safe assertions lie on a frequently executed code path, then
-a runtime performance improvement is likely. A decrease in binary size
-is also likely, even if the assertions are executed only infrequently.
+a runtime performance improvement is observed. A decrease in binary size
+is also observed. This benchmark is a useful demonstration, but does not address
+the key question of \emph{why} TESLA imposes runtime overhead on a
+program---\autoref{sec:perf-analysis} addresses this question in detail.
 
 \section{Hand-Coded Static Analysis} \label{sec:hand-coded}
 
@@ -226,13 +222,12 @@ In order to check that these safety properties are not violated, I implemented a
 collection of LLVM \cite{lattner_llvm:_2002} analysis passes that each check a
 single safety property. 
 
-As well as these passes, I implemented a test suite of programs that use
-the lock interface. Each potential safety violation identified occurs at
-least once in the test suite; they therefore serve as a litmus test for
-correctness of an analysis. There are currently 16 orthogonal test cases
-implemented. A more comprehensive testing effort could perhaps involve
-automatic generation of test cases or a fuzzing mechanism to expose
-bugs.
+As well as these passes, I implemented a test suite of programs that use the
+lock interface. Each potential safety violation identified occurs at least once
+in the test suite; they therefore serve as a litmus test for correctness of an
+analysis. There are currently 16 orthogonal test cases implemented. A more
+exhaustive testing effort could perhaps involve automatic generation of test
+cases or a fuzzing mechanism to expose bugs.
 
 \subsection{Results}
 
@@ -244,7 +239,7 @@ While there are some advantages to writing assertion safety analyses in
 this way, it is far from an ideal approach to the problem. The key
 problems are:
 \begin{description}
-  \item[Development Time] Developing the LLVM analysis passes takes a
+  \item[Development Time] Writing and testing the LLVM analysis passes takes a
     long time (even allowing for the time spent developing
     \textquote{infrastructure} code).
   \item[Inflexibility] Even a small change to the assertions being
@@ -261,40 +256,33 @@ checked.
 
 \section{Formalising TESLA Assertions} \label{sec:formal}
 
-In order to generalise the hand-coded analyses to arbitrary assertions,
-it is necessary to define a more abstract model of the semantics of
-TESLA assertions and the programs to which they are applied. In
-particular, the failure conditions for arbitrary assertions must be
-defined (instead of being hand-coded by the assertion developer).
+To generalise the hand-coded analyses to arbitrary assertions, a more abstract
+model of the semantics of TESLA assertions and the programs to which they are
+applied needs to be defined. In particular, the failure conditions for arbitrary
+assertions must be defined (instead of being hand-coded by the assertion
+developer).
 
 TESLA assertions \textcquote[p. 3]{anderson_tesla:_2014}{have a natural
 expression as finite-state automata that can be mechanically woven into a
 program}. However, the exact manner in which these automata are constructed is
-only touched upon briefly in the paper. In this section, I define the
-semantics of TESLA assertions by providing an explicit translation into
-finite-state automata.
+not given in full in the paper. In this section, I define the semantics of TESLA
+assertions by providing the full translation into finite-state automata.
 
-The automata constructions given in this section are nondeterministic, with
-$\varepsilon$-transitions in some places. It is worth noting the well-known
-result that a non-deterministic automaton with $n$ states can always be
-converted to an equivalent deterministic automaton with up to $2^n$ states
+The automata constructions given in this section are nondeterministic with
+$\varepsilon$-transitions. It is worth noting the well-known result that a
+non-deterministic automaton with $n$ states can always be converted to an
+equivalent deterministic automaton with up to $2^n$ states
 \cite{rabin_finite_1959}. However, in practice the automata constructed using
-the methods described in this section do not experience this exponential
-increase in size.
+the methods described in this section do not experience an exponential increase
+in size.
 
 \subsection{Program Events}
 
-As described in \autoref{sec:assertions}, TESLA expresses temporal relationships
-between individual program events (function calls, assertion sites
-etc.). These events are the building blocks from which an automaton is
-constructed.
-
-Program events have no recursive structure (they define only an event
-category and associated metadata). As a result, the automata they define
-are very simple.  \autoref{fig:event-auto} shows the constructed
-automaton for an arbitrary program event $e$---it has a single
-transition from the initial state to the accepting state, labelled by
-the event $e$.
+Single program events have no recursive structure (they define only an event
+category and associated metadata). As a result, the automata they define are
+very simple. \autoref{fig:event-auto} shows the constructed automaton for an
+arbitrary program event $e$---it has a single transition from the initial state
+to the accepting state, labelled by the event $e$.
 
 \begin{figure}
   \centering
@@ -309,10 +297,10 @@ the event $e$.
   \label{fig:event-auto}
 \end{figure}
 
-The structure of this automaton is the same no matter what event $e$ it
-was constructed for, and it implicitly captures all the metadata
-associated with $e$. In \autoref{sec:checking} I give a full description
-of how these properties are used to check properties of a program.
+The structure of this automaton is the same no matter what event $e$ it was
+constructed for, and it captures all the metadata associated with $e$. In
+\autoref{sec:checking} I give a full description of how these properties are
+used to check properties of a program.
 
 \subsection{Composition}
 
@@ -402,20 +390,22 @@ accepting state to the initial state (as shown in
   \label{fig:seq-inf-auto}
 \end{figure}
 
-If the upper bound is finite, copies of the entire sequence are chained
-together to form the overall automaton. The copies in the accepting
-range\footnote{i.e. those where the number of repetitions is greater
-than or equal to the lower bound and less than the upper bound.} have an
-$\varepsilon$-transition to the final accepting state. Writing automata
-with a large but finite number of repetitions has a direct effect on
-program size as a consequence of this construction.
+If the upper bound is finite, copies of the entire sequence are chained together
+to form the overall automaton. The copies in the accepting range\footnote{i.e.
+those where the number of repetitions is greater than or equal to the lower
+bound and less than or equal to the upper bound.} have an
+$\varepsilon$-transition to the final accepting state. Writing automata with a
+large but finite number of repetitions has a direct effect on program size as a
+consequence of this construction.
 
 \subsubsection{Disjunction}
 
-TESLA can also express disjunction of sub-automata.
-\autoref{fig:disj-auto} shows how sub-automata can be composed in
-\textquote{parallel} to construct an automaton that accepts if any of
-its sub-automata do.
+TESLA can also express \emph{inclusive} and \emph{exclusive} disjunction of
+sub-automata. \textcite{anderson_tesla:_2014} specify a cross-product based
+construction for the inclusive case, where \texttt{a || b} means that either or
+both of \texttt{a} and \texttt{b} can occur. The exclusive case (\texttt{a xor
+b}) where only one of \texttt{a} or \texttt{b} may occur is simpler to
+construct, and an example is shown in \autoref{fig:disj-auto}.
 
 \begin{figure}
   \centering
@@ -441,7 +431,7 @@ its sub-automata do.
     \path[->] (end) edge node {$\varepsilon$} (realend);
     \path[->] (end2) edge node[below right] {$\varepsilon$} (realend);
   \end{tikzpicture}
-  \caption{Disjunction automaton}
+  \caption{Inclusive-or automaton}
   \label{fig:disj-auto}
 \end{figure}
 
@@ -469,11 +459,11 @@ that could be made to this approach.
 
 \subsection{Data Flow Inference} \label{sec:rvc}
 
-TESLA allows for properties of data flow to be asserted---in particular,
-the value of arguments passed to functions and the value returned by a
-function call. Checking arguments passed to functions can be performed
-by adapting existing TESLA code, and so in this section I describe only
-the algorithm used to check function return values.
+TESLA allows for properties of data flow to be asserted---in particular, the
+value of arguments passed to functions and the value returned by a function
+call. Checking arguments passed to functions can be performed with only minor
+modifications to existing TESLA code, and so in this section I describe only the
+algorithm used to check function return values.
 
 Stated formally, the property we are interested in checking is
 \textquote{on a particular execution path, can we infer that a function
@@ -490,14 +480,15 @@ can be used to solve the return value inference problem described above.
 
 A subset of LLVM IR can be easily translated to an SMT formula.\footnote{At least
 for the properties relevant to this problem---a full translation of the
-LLVM semantics would be far more complex.} For example, the LLVM
+LLVM semantics would be more complex.} For example, the LLVM
 instruction \mintinline{llvm}{%3 = add i32 %1, %2} can be seen as a formulae
 stating that $ \%_3 = \%_1 + \%_2 $, whatever interpretation is given to the
 values $ \%_1 $ and $ \%_2 $. This encoding relies on a particular background
 theory (for example, the theory of finite bit vectors) to supply
 the semantics of $ + $ and other operations. All of the LLVM binary and
 comparison operators can be translated to interpreted SMT functions using this
-method.
+method.\footnote{Except floating point operations, which are unsupported by
+TESLA in general.}
 
 Function calls and loads from memory are translated to uninterpreted
 functions---we have no \emph{a priori} knowledge of the value they will
@@ -505,13 +496,13 @@ take at runtime, but they can be assigned values in a satisfying model
 for the problem.
 
 A single execution path through a function is a finite sequence of basic blocks
-starting at the entry block. The blocks taken in the sequence constrain the
+starting at the entry block. The blocks executed in the sequence constrain the
 values of \emph{branch conditions} (the LLVM values on which conditional
 branches are predicated). These constraints are then added to the SMT problem as
 assertions.
 
 Applying this translation to a single execution path yields an SMT problem, the
-solution to which produces an assignment of values to LLVM SSA variables. It is
+solution to which produces an assignment of values to LLVM variables. It is
 possible that some variables are left unconstrained (if no conditional branches
 depend on their value), or that multiple values are satisfying assignments. In
 order to check whether a valuation is unique for a given variable, we construct
@@ -531,20 +522,22 @@ blocks, the function must be completely inlined. This is easily achieved using
 existing LLVM library code (with the caveat that infinite recursion can only be
 inlined up to a finite depth).
 
-Once the function has been inlined, all of its call sites are removed---this
-means we lose information about arguments passed and values returned. This
-problem is resolved, calls to stub functions are added before and after each
-call site to be inlined. Each stub function receives the same arguments as the
-call being made, and the return value of the call is replaced by the return
-value of the ``after'' stub. This means that call graph information is preserved
-in the inlined function.
+When a function is inlined, all calls to it are removed---this means we lose
+information about arguments passed and values returned. This problem is resolved
+by adding calls to stub functions before and after each call site to be inlined.
+Each stub function receives the same arguments as the call being made, and the
+return value of the call is replaced by the return value of the ``after'' stub.
+This means that relevant call graph information is preserved in the inlined
+function.
 
 Execution sequences are generated from the inlined function by walking its
 control flow graph to a specified finite depth---this finiteness condition is
 addressed further in \autoref{sec:mc}. Repeated basic blocks from loops in the
 graph are handled by simply duplicating the blocks. \autoref{lst:llvm-smt} shows
 a single trace taken from one of the programs in the mutex test suite after
-these transformations have been applied.
+these transformations have been applied.\footnote{In this example,
+\texttt{\_\_tesla\_sink} is a basic block added to preserve control flow
+information.}
 
 \begin{figure}
   \begin{minted}{llvm}
@@ -586,8 +579,8 @@ __tesla_sink: ; preds = %lock_acquire.exit, %1
   \label{lst:smt-example}
 \end{figure}
 
-From these execution sequences, the Z3 SMT solver \cite{de_moura_z3:_2008} is
-used to construct and solve the SMT problem. Z3 was chosen as a
+The Z3 SMT solver \cite{de_moura_z3:_2008} is used to construct and solve the
+SMT problem corresponding to an execution sequence. Z3 was chosen as a
 production-quality SMT implementation with a well-documented C++ API, but the
 techniques used apply equally well to any SMT solver implementation.
 \autoref{lst:smt-example} shows the SMT translation of the LLVM IR in
@@ -597,18 +590,16 @@ techniques used apply equally well to any SMT solver implementation.
 
 Given the SMT-based mechanism for determining function return values described
 above, a model checking algorithm for TESLA assertions can now be defined. This
-algorithm is defined in terms of execution traces over an LLVM function,
-together with the finite-state automaton translation of an assertion given in
-\autoref{sec:formal}.
+algorithm is defined in terms of execution traces over an LLVM function (as
+defined previously), along with the finite-state automaton translation of an
+assertion given in \autoref{sec:formal}.
 
 \subsubsection{Execution Traces}
 
 TESLA assertions are bounded by beginning and end events. In the model checker,
 for ease of implementation we consider only assertions bounded by entry and exit
 to the same function. Possible executions are then sequences of basic blocks
-that begin at the function's entry block (an execution of finite length may not
-reach a terminating block---this is discussed further in
-\autoref{sec:auto-check}).
+that begin at the function's entry block.
 
 The model checker generates all possible executions through the inlined bounding
 function up to a given length maximum length. On each of these generated
@@ -647,11 +638,10 @@ Call stack:
   \label{lst:counter}
 \end{figure}
 
-\subsubsection{Checking Execution Traces} \label{sec:auto-check}
+\subsubsection{Checking Execution Traces}
 
 In this section I describe how an execution trace can be checked against a
-specification automaton in order to implement the model checking procedure
-described previously. I first describe how individual state transitions are
+specification automaton. I first describe how individual state transitions are
 checked, and from there define a notion of acceptance for an entire execution
 trace.
 
@@ -661,7 +651,7 @@ instruction in the sequence, the following checks are made:
   \item Is the instruction a function call? (all checkable program events are
     expressed as function calls in the IR---either to entry or return stubs, or
     to the internal TESLA assertion site function).
-  \item If it is, is it accepted by any of the edges from the current edge?
+  \item If it is, is it accepted by any of the edges from the current state?
   \item If none of the edges accept the function call, does there exist an edge
     elsewhere in the automaton that would accept it?
 \end{itemize}
@@ -698,35 +688,10 @@ truncated execution path.}
 
 \subsection{Results} \label{sec:model-limits}
 
-The implementation of the algorithms described above was able to check all the
-examples from the mutex test suite described in \autoref{sec:hand-coded},
-achieving parity with the less flexible hand-coded analyses.
-
-\subsubsection{Performance}
-
-Generally speaking, running the model checker is computationally expensive.
-However, shorter execution traces are checked first. This means that minimal
-counterexamples will be generated as soon as possible.
-
-In practical terms, this means that assertions that have a counterexample can be
-checked a great deal faster than those that do not---if there is no
-counterexample, then every path shorter than the bounding length must be
-checked. For example, checking any incorrect test case from
-\autoref{sec:hand-coded} with a bound of \num{1000} basic blocks takes less than
-\num{0.1}\si{\second}, while the successful cases take approximately
-\num{125}\si{\second}. 
-
-The complexity of the model checker is exponential in the number of conditional
-branches in a bounding interval. This complexity can be reduced in two primary
-ways:
-\begin{itemize}
-  \item LLVM implements a control flow graph simplification pass that can
-    potentially reduce the number of conditional branches. Running this pass
-    after the inlining process led to a significant performance improvement.
-  \item Narrower bounds for assertions will naturally lead to less complex
-    control flow in the inlined function---this is dependent on the author of
-    the assertion rather than the model checker itself.
-\end{itemize}
+The implementation of the algorithms described above was able to correctly check
+all the examples from the mutex test suite described in
+\autoref{sec:hand-coded}, achieving parity with the less flexible hand-coded
+analyses.
 
 \subsubsection{Field Assignments}
 
@@ -741,4 +706,5 @@ splitting assertions such that statically provable components are proved
 where possible, leaving behind components of the assertion that must be
 instrumented dynamically. This approach would require major changes to
 some TESLA internals, and was found not to be feasible within the scope
-of this project.
+of this project. The SMT methods for function return value inference may also be
+applicable (with some adaptation).

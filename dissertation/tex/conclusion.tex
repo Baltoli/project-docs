@@ -9,13 +9,14 @@ and usage of TESLA in general---the model checker can be used to produce
 counterexamples to a TESLA assertion, and I provide a collection of programs
 that demonstrate how TESLA can be used to model temporal properties of a data
 structure. Future work on TESLA (whether in the context of static analysis or
-otherwise) will benefit from these improvements, as well as from the concrete
+otherwise) will benefit from these improvements, as well as from the
 improvements to the TESLA implementation and documentation I have contributed.
 
 The model checker itself constitutes an explicit formalisation of the underlying
-principles of TESLA, along with novel algorithms for proving properties of
-control flow that depend partially on data flow. I have identified ways in which
-future work could extend these techniques to prove stronger properties.
+principles of TESLA, as well as demonstrating a novel SMT-based algorithm for
+proving properties of control flow that depend partially on data flow. I have
+identified ways in which future work could extend these techniques to prove
+stronger properties.
 
 An initial goal of the project was to provide a TESLA model of a network
 protocol implementation. While this goal was not fully successful, the insights
@@ -24,8 +25,12 @@ right---I have described features of source code that are hostile to TESLA
 instrumentation and static analysis, and introduced a characterisation of
 scenarios in which TESLA can be usefully applied.
 
-Motivated by this characterisation of the effective use of TESLA, I demonstrate
-a framework by which library developers can more reliably enforce temporal
-properties on usages of their library code. This is the first instance of a
-generic application of TESLA. The performance improvements made possible through
-the use of static analysis are an important part of this contribution.
+Motivated by this characterisation of the effective use of TESLA, I have
+demonstrated a framework by which library developers can more reliably enforce
+temporal properties on usages of their library code. This is a more general
+application of TESLA than previous work has demonstrated. The performance
+improvements made possible through the use of static analysis are an important
+part of this contribution---I have shown that even a small number of assertions
+can cause a large runtime performance overhead on instrumented programs, and
+that static analysis is able to completely eliminate this overhead in real
+programs.
