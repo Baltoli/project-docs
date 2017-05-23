@@ -2379,3 +2379,17 @@ actual_cb_func()
 
 * Worked on demo app that uses the FSM library.
 * Fixed up the small modifications to my dissertation and sent it to Robert.
+
+## 19-21/5/2017
+
+* Days off
+
+## 22/5/2017
+
+* Meeting with Robert to discuss the latest draft of my dissertation.
+
+## 23/5/2017
+
+* Got the first part of my dissertation back from Robert with detailed comments.
+  Working on fixing these.
+* 
