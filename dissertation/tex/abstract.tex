@@ -1,24 +1,24 @@
 \begin{abstract}
 
-TESLA \cite{anderson_tesla:_2014} is a tool that allows for temporal assertions
-  to be written about C programs, expressing richer safety properties than
-  traditional development tools can. However, adding temporal assertions to a
-  program incurs a significant runtime performance overhead. As a result, the
-  usefulness of TESLA is limited to debugging scenarios where this overhead is
-  acceptable. 
+TESLA \cite{anderson_tesla:_2014} is a compiler-based tool that allows temporal
+  run-time assertions to be written about C programs, expressing richer safety
+  properties than traditional development tools can. However, adding temporal
+  assertions to a program incurs a significant runtime performance overhead. As
+  a result, the usefulness of TESLA is limited to debugging scenarios where this
+  overhead is acceptable. 
   
   I formalise the assertion language used by TESLA, then use the formalism to
   develop a \emph{model checker} for a subset of its assertions, demonstrating
   its usefulness by applying it to a TESLA-instrumented implementation of mutual
   exclusion locks. I analyse the usefulness of TESLA with respect to a large,
-  widely-used open source library, finding that commonly used source code
+  widely-used open source library, finding that commonly used source-code
   features greatly inhibit useful application of TESLA. Based on these results,
   I improve on previous work by describing a general method for applying TESLA
   to library interfaces, then apply the method successfully to an existing
-  server application. I analyse the performance overhead of TESLA
+  server application. To evaluate, I analyse the performance overhead of TESLA
   instrumentation in this server, finding a $40\%$ overhead for as few as five
   assertions. Applying the model checker to prove these assertions at compile
-  time eliminates the runtime overhead completely while retaining the asserted
+  time eliminates the run-time overhead completely while retaining the asserted
   safety properties.
 
 \end{abstract}

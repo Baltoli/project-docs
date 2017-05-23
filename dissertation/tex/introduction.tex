@@ -1,24 +1,23 @@
 The tools available for programmers to assert the correctness of their code are
 almost always \emph{instantaneous}---assertions can be made about the current
 state of the program, but not about previous or future states. As a result,
-\emph{temporal} properties of programs are often checked informally or not at
-all.
+\emph{temporal} properties of programs are often checked informally using manual
+instrumentation, or not at all.
 
-TESLA \cite{anderson_tesla:_2014} provides systems programmers with a way of
-mechanically checking temporal properties of their code by using an augmented
-compilation proces. This approach proved successful---a number of bugs in large
-open-source libraries were identified and fixed with the help of temporal
-assertions. However, using TESLA imposes significant runtime performance
-overhead on a program (up to $7\times$ on some workloads), and so its usage to
-date has been restricted to debugging scenarios where this overhead is
-acceptable.
+TESLA \cite{anderson_tesla:_2014} provides C-language systems programmers with a
+way of mechanically checking temporal properties of their code by using an
+augmented compilation proces. This approach proved successful---a number of bugs
+in large open-source libraries were identified and fixed with the help of
+temporal assertions. However, using TESLA imposes significant run-time
+performance overhead on a program (up to $7\times$ on some workloads). As a
+result, TESLA has only been useful as a debugging tool in research contexts.
 
-In this report I propose the use of \emph{static analysis} for optimisation of
-TESLA assertions---if an assertion can be proved correct at compile time, then
-its instrumentation code can be omitted from the program. The program is likely
-to be smaller and faster than if the instrumentation were included, and
-potential counterexamples to assertions can be used by the programmer as a
-useful debugging tool in their own right.
+In this dissertation I propose the use of \emph{static analysis} for
+optimisation of TESLA assertions---if an assertion can be proved correct at
+compile time, then its instrumentation code can be omitted from the program. The
+program is likely to be smaller and faster than if the instrumentation were
+included, and potential counterexamples to assertions can be used by the
+programmer as a useful debugging tool in their own right.
 
 To demonstrate the utility of static analysis, I provide an implementation of
 TESLA-instrumented mutual exclusion locks along with benchmarks that show
@@ -28,22 +27,19 @@ prove the correctness of these assertions.
 
 Generalising from these analyses, I contribute a translation of TESLA assertions
 to finite state automata that formalises components of the original work. I use
-this translation to describe an algorithm for checking the correctness of a
-program with respect to a checkable subset of TESLA assertions. Finally, I give
-an implementation of this algorithm that is fully integrated into the existing
-TESLA toolchain.
+this translation to implement a model checker for a subset of TESLA assertions:
+TMC (TESLA Model Checker).
 
-To evaluate the model checker, I investigate how TESLA can be applied to the
-internal implementation of TCP in the \lwip{} library \cite{dunkels_design_2001}
-(with emphasis on the potential of statically analysing this instrumentation).
-Then, motivated by the difficulties encountered during this process, I describe
-a general framework for using TESLA to instrument library interface code. This
-represents a much more general approach to using TESLA than previous work has
-identified.
+I investigate how TESLA can be applied to the internal implementation of TCP in
+\lwip{} \cite{dunkels_design_2001}, a widely-used library implementing a
+complete, portable IP protocol stack. Then, motivated by the difficulties
+encountered during this process, I describe a general framework for using TESLA
+to instrument library interface code. This represents a much more general
+approach to using TESLA than previous work has identified.
 
-I apply this technique to an existing application written using the \lwip{}
-APIs, adding TESLA assertions to validate the application's usage of TCP
-protocol code. Architectural and microarchitectural benchmarks show performance
-overhead of up to $40\%$ from five TESLA assertions. This overhead can be
-completely eliminated by the model checker, demonstrating that it is a valuable
-contribution towards greater applicability of TESLA.
+To evaluate, I apply this technique to an existing application written using
+\lwip{}, adding TESLA assertions to validate its usage of TCP protocol code.
+Architectural and microarchitectural benchmarks show performance overhead of up
+to $40\%$ from five TESLA assertions. This overhead can be completely eliminated
+by TMC, demonstrating that it is a valuable contribution towards greater
+applicability of TESLA.

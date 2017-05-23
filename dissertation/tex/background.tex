@@ -8,12 +8,12 @@ guide to the TESLA-specific terminology used throughout the rest of this report.
 Before describing TESLA in detail, it is worth giving a motivating example of
 why it is useful. The simplest possible explanation is that it allows the
 programmer to make assertions about events that occur in the past and future
-execution of a program (rather than just about the current program state).
+execution of a program, rather than just about the current program state.
 
-\autoref{lst:mutex-simple} shows a C function for acquiring a mutual exclusion
-lock.\footnote{In a simple usage scenario, and modulo a correct implementation
-of atomic compare-and-swap (\mintinline{c}{CAS}).} For a program's usage of the
-lock to be \emph{safe}, it must eventually release the lock. However, within
+\autoref{lst:mutex-simple} shows C functions for acquiring and releasing a
+mutual exclusion lock.\footnote{Modulo a correct implementation of atomic
+compare-and-swap (\mintinline{c}{CAS}).} For a program to make progress, it
+should eventually release the lock after it has been acquired.  However, within
 \mintinline{c}{lock_acquire}, there is no way of asserting this property using
 standard C constructs---the call that releases the lock could be logically
 separated from the call that acquires it (for example, a library function could
@@ -32,8 +32,12 @@ in more detail.
 void lock_acquire(lock_t *lock) {
   return CAS(&lock->locked, false, true);
 }
+
+void lock_release(lock_t *lock) {
+  lock->locked = false;
+}
   \end{minted}
-  \caption{Lock acquisition without safety propery enforced}
+  \caption{Lock operations without progress property enforced}
   \label{lst:mutex-simple}
 \end{figure}
 
@@ -45,8 +49,15 @@ void lock_acquire(lock_t *lock) {
   ));
   return CAS(&lock->locked, false, true);
 }
+
+void lock_release(lock_t *lock) {
+  TESLA_WITHIN(main, previously(
+    lock_acquire(lock) == 1;
+  ));
+  lock->locked = false;
+}
   \end{minted}
-  \caption{Lock acquisition with safety property enforced using TESLA}
+  \caption{Lock operations with progress property enforced using TESLA}
   \label{lst:mutex-better}
 \end{figure}
 
@@ -64,25 +75,67 @@ happen during the execution of a program, while a \emph{liveness} property
 asserts that ``good things'' do eventually happen
 \cite{lamport_proving_1977,alpern_defining_1984}.} properties of systems code.
 These safety properties are written inline with the program they describe, and
-are checked at runtime by dynamic instrumentation code (added during an extra
-compilation phase).
+are checked at run time by dynamic instrumentation code added during an extra
+compilation phase.
 
-In \cite{anderson_tesla:_2014}, the authors detail their experiences using TESLA
-to perform complex debugging on large, well-known systems software. These
-efforts were successful---a security vulnerability in OpenSSL was discovered and
-fixed, along with an elusive bug in the GNUStep graphics library. Additionally,
-they detail the overhead associated with using TESLA (at compile- and run-time)
-and identify static analysis as a possible future direction of research.
+The authors detail their experiences using TESLA to perform complex debugging on
+large, well-known systems software. These efforts were successful---the
+discovery of a known a security vulnerability in OpenSSL was reproduced using
+TESLA, and an elusive bug in the GNUStep graphics library was diagnosed and
+fixed. Additionally, they detail the overhead associated with using TESLA (at
+compile and run time) and identify static analysis as a possible future
+direction of research.
 
-The work in this report builds on the original implementation of TESLA---the
-primary components of the original work are a parser for TESLA assertions, an
-instrumentation system that adds code to the programs in questions, and a
-runtime support library. While my work has involved some minor modifications to
-the original implementation, the majority of it is newly developed. Any
-references to dynamic or runtime components are part of the original TESLA
-implementation, while any references to static analysis or model checking are
-part of my contributions. I explicitly note places where I have modified the
-original TESLA implementation.
+At the time I began work on this project, the primary components of TESLA were a
+parser for assertions written in C programs, a compiler-based instrumentation
+tool, and a runtime support library (\texttt{libtesla}). The primary
+contribution from my work is a model checker for TESLA assertions.
+\autoref{fig:components} shows how these components interact with each other.
+Existing TESLA components are highlighted in blue, and my contribution in green.
+As well as the model checker, I have contributed bug fixes and other
+improvements to the existing TESLA components. 
+
+\begin{figure}
+  \tikzstyle{box}=[rounded corners,minimum height=2em,minimum width=7em,draw]
+  \tikzstyle{them}=[box,fill=blue!20]
+  \tikzstyle{me}=[box,fill=green!20]
+  \tikzstyle{other}=[box,fill=gray!20]
+
+  \makebox[\textwidth][c]{
+  \begin{tikzpicture}
+    [
+      >=latex,auto,node distance=2.3cm,
+      every label/.append style={font=\footnotesize},
+      every edge/.append style={nodes={font=\footnotesize}}
+    ]
+    \node[them] (ana) {Analyser};
+    \node[left=of ana,coordinate] (i) {};
+    \path[->] (i) edge node {source code} (ana);
+
+    \node[other,below=of ana] (com) {Compiler};
+    \node[left=of com,coordinate] (j) {};
+    \path[->] (j) edge node {source code} (com);
+
+    \node[them,right=of ana] (ins) {Instrumenter};
+    \path[->] (ana) edge node {assertions} (ins);
+    \draw[->] (com.east) to[out=0,in=180] node {LLVM IR} (ins.west);
+
+    \node[me,below=of ins] (mc) {Model Checker};
+    \path[<->] (ins) edge node[align=center] {property\\ checks} (mc);
+
+    \node[other,right=of ins] (com2) {Compiler};
+    \path[->] (ins) edge node[align=center] {instrumented\\ LLVM IR} (com2);
+
+    \node[them,below=of com2] (lib) {\texttt{libtesla}};
+    \path[->] (lib) edge node {link} (com2);
+
+    \node[right=of com2,coordinate] (k) {};
+    \path[->] (com2) edge node {program} (k);
+  \end{tikzpicture}
+  }
+  \caption{TESLA system components}
+  \label{fig:components}
+\end{figure}
 
 \section{Programming with TESLA}
 
@@ -91,12 +144,13 @@ to instrument programs.
 
 \subsection{Terminology} \label{sec:terminology}
 
-Programmers may add \emph{assertions} to their code to ensure its
+Today, programmers may add \emph{assertions} to their code to ensure its
 correctness---these are logical statements predicated on data in the current
 scope. TESLA assertions are similar in concept, but express temporal relations
 between \emph{program events}. Temporal assertions require a \emph{bounding
-interval}---a pair of start and end events that specifies where initialisation
-and cleanup code should be placed.
+interval}---a pair of start and end events that limit the scope of the
+assertion. In \autoref{lst:mutex-better}, the bounding interval is from each
+call to \mintinline{c}{main} to the corresponding return.
 
 Each TESLA assertion defines an \emph{automaton}, and a collection of
 these automata is referred to as a \emph{manifest} when serialised to
@@ -116,48 +170,60 @@ shows the traditional compilation model for C programs;
 \begin{figure}[t]
   \centering
   \begin{tikzpicture}
+    [
+      >=latex,auto,node distance=2.3cm,
+      every label/.append style={font=\footnotesize},
+      every edge/.append style={nodes={font=\footnotesize}}
+    ]
     \node [msourcefile] (source1) {\texttt{.c}};
 
     \node [msourcefile, right=3em of source1] (obj1) {\texttt{.o}};
 
-    \draw[-latex] (source1.east) -- (obj1.west);
+    \path[->] (source1.east) edge node {\texttt{cc}} (obj1.west);
 
-    \node [right=3em of obj1] (exe) {executable};
+    \node [sourcefile,right=3em of obj1] (exe) {executable};
 
-    \draw[-latex] (obj1.east) -- (exe.west);
+    \path[->] (obj1.east) edge node {\texttt{ld}} (exe.west);
   \end{tikzpicture}
   \caption{The traditional C compilation model}
   \label{fig:c-compilation}
 \end{figure}
 
 \begin{figure}[h]
-  \centering
+  \makebox[\textwidth][c]{
   \begin{tikzpicture}
-    \node [msourcefile] (source1) {\texttt{.c}};
+    [
+      >=latex,auto,node distance=2.2cm,
+      every label/.append style={font=\footnotesize},
+      every edge/.append style={nodes={font=\footnotesize}}
+    ]
+    \node [msourcefile] (source1) {\texttt{.c}\\ with TESLA\\ assertions};
 
-    \node [right=5em of source1] (mid) {};
+    \node [right=of source1] (mid) {};
     \node [msourcefile, above=1em of mid] (bc1) {\texttt{.bc}};
     \node [msourcefile, below=1em of mid] (tesla1) {\texttt{.tesla}};
 
-    \draw[-latex] (source1.east) to [out=0,in=180] (bc1.west);
-    \draw[-latex] (source1.east) to [out=0,in=180] (tesla1.west);
+    \path[out=0,in=180,->] (source1.east) edge node {\texttt{cc}} (bc1.west);
+    \path[out=0,in=180,->] (source1.east) edge node[below left=1em and -0.5em,align=center] {\texttt{tesla}\\ \texttt{analyse}} (tesla1.west);
 
-    \node [sourcefile,right=3em of tesla1] (tesla2) {\texttt{.manifest}};
+    \node [sourcefile,right=of tesla1] (tesla2) {\texttt{.manifest}};
     \node [sourcefile] at (bc1 -| tesla2) (bc2) {\texttt{.bc}};
 
-    \draw[-latex] (bc1.east) to [out=0,in=180] (bc2.west);
-    \draw[-latex] (tesla1.east) to [out=0,in=180] (tesla2.west);
+    \path[->] (bc1.east) edge node {\texttt{llvm-link}} (bc2.west);
+    \path[->] (tesla1.east) edge node[align=center] {\texttt{tesla}\\ \texttt{cat}} (tesla2.west);
 
-    \node [sourcefile,right=12em of mid] (instr) {\texttt{.instr.bc}};
+    \node [sourcefile,right=of ($(bc2)!0.5!(tesla2)$)] (instr) {\texttt{.instr.bc}};
 
-    \draw[-latex] (bc2.east) to [out=0,in=180] (instr.west);
-    \draw[-latex] (tesla2.east) to [out=0,in=180] (instr.west);
+    \path[out=0,in=180,->] (bc2.east) edge node[above right=1em and -0.5em,align=center] {\texttt{tesla}\\ \texttt{instrument}} (instr.west);
+    \path[out=0,in=180,->] (tesla2.east) edge node[below right=1em and
+    -0.5em,align=center] {\texttt{tesla}\\ \texttt{instrument}} (instr.west);
 
-    \node [right=3em of instr] (exe) {executable};
+    \node [sourcefile,right=1cm of instr] (exe) {executable};
 
-    \draw[-latex] (instr) -- (exe);
+    \draw[->] (instr) edge node {\texttt{cc}} (exe);
   \end{tikzpicture}
-  \caption{The C compilation model with TESLA integrated}
+  }
+  \caption{The C compilation model with TESLA}
   \label{fig:c-tesla-compilation}
 \end{figure}
 }
@@ -178,17 +244,18 @@ individual TESLA tools used is:
     checking for consistency and eliminating redundant definitions.
 \end{description}
 
-Using these tools as described in the context of an automated build system
-imposes some configuration overhead on the programmer. However, it is
-possible to develop generic TESLA build scripts or to modify a project's
-existing build system to generate TESLA intermediate products.
+These tools can be easily integrated with an automatic build system. An issue
+specific to TESLA is that assertions written in one compilation unit can affect
+instrumentation code in all other compilation units. This means that changing
+one source file can cause the entire project to be reinstrumented, increasing
+build times. Incremental build times are worst affected by this issue.
 
 \subsection{Writing Assertions}
 
 TESLA assertions are written using a set of preprocessor macros that expand to
-calls to instrumentation hook functions. These functions have no definition, and
-are only used as a way to store information in the IR. Calls to them are removed
-by the instrumenter.
+calls to stand-in functions. These functions have no definition, and are only
+used as a way to store information in the IR. Calls to them are removed by the
+instrumenter.
 
 An example of the TESLA macros being written inline with a program is
 given in \autoref{lst:tesla-example}.
@@ -214,7 +281,7 @@ int main(void)
   \label{lst:tesla-example}
 \end{figure}
 
-\section{The TESLA Assertion Language} \label{sec:assertions}
+\subsection{The TESLA Assertion Language} \label{sec:assertions}
 
 Assertions specify temporal relations between \emph{program events} as defined
 in \autoref{sec:terminology} (function calls, assertion sites etc.).
@@ -224,7 +291,9 @@ sequencing---an assertion that events occur in a particular order. Disjunction
 of assertions is also expressible. Assertions must include a reference to an
 assertion site event---this reference is implicit in \autoref{lst:tesla-example}
 through the \mintinline{c}{eventually} macro, which states that the sequence of
-events listed take place after the assertion site.
+events listed take place after the assertion site. The properties expressible
+using these constructions are of the form ``in the future, events $x, y, z$
+happen in order'' or ``in the past, at least one of events $a, b, c$ happened''.
 
 Automata can be written \emph{explicitly} to allow for composition (similar to
 defining a function in an ordinary programming language).
@@ -242,3 +311,62 @@ automaton(name_of_auto, struct arg_type *s) {
   \caption{Example of an explicit TESLA automaton}
   \label{lst:tesla-explicit}
 \end{figure}
+
+\section{LLVM}
+
+In this section I give a brief overview of LLVM \cite{lattner_llvm:_2002}, the
+compiler framework used to implement the TESLA toolchain. In particular, I
+describe its intermediate representation and associated tooling.
+
+The primary attraction of implementing a compiler-based tool using LLVM is its
+\emph{intermediate representation}, which can be easily manipulated in-memory
+using a C++ API or manipulated as human-readable text in an assembly-like
+format. LLVM IR is \textquote{a Static Single Assignment (SSA) based
+representation that provides type safety, low-level operations [and]
+flexibility}\footnote{\url{http://llvm.org/docs/LangRef.html\#abstract}}.
+
+\begin{figure}
+  \begin{minted}{llvm}
+declare void @bar(i32)
+
+define i32 @foo(i32 %x) {
+entry:
+  %mul = mul i32 %x, 3
+  %cmp = icmp sgt i32 %mul, 100
+  br i1 %cmp, label %if.then, label %if.else
+
+if.then:
+  call void @bar(i32 %mul)
+  ret i32 0
+
+if.else:
+  ret i32 %mul
+}
+  \end{minted}
+  \caption{Example of textual LLVM IR code}
+  \label{lst:llvm-assembly}
+\end{figure}
+
+\autoref{lst:llvm-assembly} gives an example of textual IR that illustrates some
+of the important features of LLVM:
+\begin{description}
+  \item[Functions] LLVM IR can represent functions that are conceptually similar
+    to C functions, though control flow is made explicit by using basic blocks
+    and jumps rather than loops and conditional statements. Similarly to C,
+    functions can be declared but not defined.
+
+  \item[Values] A key design decision taken by LLVM is that instructions produce
+    named SSA values. When manipulating LLVM IR programatically, an instruction
+    is synonymous with the value it produces. In textual IR, values are
+    identified by \texttt{\%} or \texttt{@} preceding their name (for local and
+    global values respectively).
+
+  \item[Types] LLVM IR retains strong type information from its source
+    program---all values are typed, and casts between types must be made
+    explicitly using special instructions.
+\end{description}
+
+The TESLA instrumenter is implemented using the in-memory IR manipulation
+libraries provided by LLVM. It replaces known instrumentation sites in the IR
+with TESLA-specific instrumentation code that can then be compiled to an
+executable.

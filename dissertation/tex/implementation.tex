@@ -15,11 +15,13 @@ coverage of complex state machines and detecting violations of specifications.
 
 \textcite{anderson_tesla:_2014} draw attention to the suitability of TESLA for
 modelling and verifying \emph{state machines} within a program. A simple state
-machine that is present in a great deal of code is the mutual exclusion
-lock---in this section, I develop TESLA assertions for the usage of these locks
-and show the possible benefit of static analysis with respect to runtime
-performance. \autoref{fig:spinlock} shows the state machine for a spin-lock
-implemented using a mutex with non-blocking acquire and release operations.
+machine used in many programs is the mutual exclusion lock---in this section, I
+develop TESLA assertions for the usage of these locks and show the possible
+benefit of static analysis with respect to runtime performance.
+\autoref{fig:spinlock} shows the state machine for a single-usage spin-lock
+implemented using a mutex with non-blocking acquire and release
+operations.\footnote{The lock is single-usage for simplicity---the approaches
+used can be easily generalised.}
 
 \begin{figure}
   \centering
@@ -63,6 +65,10 @@ member variable with a compare-and-swap function ensures thread-safety.
   struct lock_t {
     _Atomic(bool) locked
   };
+
+  void lock_init(struct lock_t *lock) {
+    atomic_init(&(lock->locked), false);
+  }
 
   bool lock_acquire(struct lock_t *lock) {
     bool f = false;
