@@ -2393,3 +2393,9 @@ actual_cb_func()
 * Got the first part of my dissertation back from Robert with detailed comments.
   Working on fixing these.
 * Worked on diagrams, small fixes etc. as suggested by Robert.
+
+## 24/5/2017
+
+* More work on the changes suggested by Robert
+* Got all the changes suggested by Robert integrated. Tomorrow need to have a
+  look at general coherency etc. with respect to these changes.
