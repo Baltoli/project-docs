@@ -21,14 +21,11 @@ programmer as a useful debugging tool in their own right.
 
 To demonstrate the utility of static analysis, I provide an implementation of
 TESLA-instrumented mutual exclusion locks along with benchmarks that show
-performance overhead of more than $10\%$ for a single assertion. Then, I
-demonstrate a set of highly specialised program analyses that can be used to
-prove the correctness of these assertions.
-
-Generalising from these analyses, I contribute a translation of TESLA assertions
-to finite state automata that formalises components of the original work. I use
-this translation to implement a model checker for a subset of TESLA assertions:
-TMC (TESLA Model Checker).
+performance overhead of more than $10\%$ for a single assertion. I then
+contribute a translation of TESLA assertions to finite state automata that
+formalises components of the original work, and use this translation to
+implement a model checker for a subset of TESLA assertions: TMC (TESLA Model
+Checker).
 
 I investigate how TESLA can be applied to the internal implementation of TCP in
 \lwip{} \cite{dunkels_design_2001}, a widely-used library implementing a

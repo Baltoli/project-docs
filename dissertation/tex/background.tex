@@ -11,9 +11,10 @@ programmer to make assertions about events that occur in the past and future
 execution of a program, rather than just about the current program state.
 
 \autoref{lst:mutex-simple} shows C functions for acquiring and releasing a
-mutual exclusion lock.\footnote{Modulo a correct implementation of atomic
-compare-and-swap (\mintinline{c}{CAS}).} For a program to make progress, it
-should eventually release the lock after it has been acquired.  However, within
+mutual exclusion lock.\footnote{Modulo a suitable \mintinline{c}{struct lock_t}
+type and a correct implementation of atomic compare-and-swap
+(\mintinline{c}{CAS}).} For a program to make progress, it should eventually
+release the lock after it has been acquired.  However, within
 \mintinline{c}{lock_acquire}, there is no way of asserting this property using
 standard C constructs---the call that releases the lock could be logically
 separated from the call that acquires it (for example, a library function could
@@ -29,11 +30,11 @@ in more detail.
 
 \begin{figure}
   \begin{minted}{c}
-void lock_acquire(lock_t *lock) {
+void lock_acquire(struct lock_t *lock) {
   return CAS(&lock->locked, false, true);
 }
 
-void lock_release(lock_t *lock) {
+void lock_release(struct lock_t *lock) {
   lock->locked = false;
 }
   \end{minted}
@@ -43,14 +44,14 @@ void lock_release(lock_t *lock) {
 
 \begin{figure}
   \begin{minted}{c}
-void lock_acquire(lock_t *lock) {
+void lock_acquire(struct lock_t *lock) {
   TESLA_WITHIN(main, eventually(
     lock_release(lock)
   ));
   return CAS(&lock->locked, false, true);
 }
 
-void lock_release(lock_t *lock) {
+void lock_release(struct lock_t *lock) {
   TESLA_WITHIN(main, previously(
     lock_acquire(lock) == 1;
   ));
@@ -89,7 +90,7 @@ direction of research.
 At the time I began work on this project, the primary components of TESLA were a
 parser for assertions written in C programs, a compiler-based instrumentation
 tool, and a runtime support library (\texttt{libtesla}). The primary
-contribution from my work is a model checker for TESLA assertions (TMC).
+contribution of my work is a model checker for TESLA assertions (TMC).
 \autoref{fig:components} shows how these components interact with each other.
 Existing TESLA components are highlighted in blue, and my contribution in green.
 As well as TMC, I have contributed bug fixes and other improvements to the
