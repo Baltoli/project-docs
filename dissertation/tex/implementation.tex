@@ -2,9 +2,8 @@ In this chapter I present the design and implementation of static analysis
 mechanisms for TESLA. First, I motivate this work by implementing a mutual
 exclusion lock instrumented with TESLA and demonstrating that performance
 improvements are possible by removing TESLA instrumentation code. I then
-describe a set of ``hand-coded'' analyses specific to the lock structure.
-Finally, I generalise the analysis to an implementation of a non-symbolic model
-checker for TESLA assertions.
+fully describe TESLA assertions as finite-state automata. From this description,
+I implement TMC, a model checker for TESLA assertions.
 
 \section{Modelling Locks with TESLA} \label{sec:locks}
 
@@ -102,7 +101,7 @@ invariants:
   \item The lock is not released before it is acquired
 \end{itemize}
 
-\subsection{TESLA Assertions}
+\subsection{TESLA Assertions} \label{sec:lock-assertions}
 
 The properties described previously are well-suited to being expressed as TESLA
 assertions---they express temporal relationships between program events (calls
@@ -131,6 +130,12 @@ properties using explicit TESLA automata.
   \caption{Mutex lock properties expressed using TESLA}
   \label{lst:mutex-tesla}
 \end{figure}
+
+I implemented a test suite of programs instrumented using these assertions. The
+test suite contained both correct and incorrect uses of the lock (with respect
+to the assertions in \autoref{lst:mutex-tesla}), and was used to check that the
+invariants described previously were in fact properly checked by these
+assertions.
 
 \subsection{Performance Overhead}
 
@@ -626,20 +631,20 @@ assertion given in \autoref{sec:formal}.
 
 \subsubsection{Execution Traces}
 
-TESLA assertions are bounded by beginning and end events. In the model checker,
-for ease of implementation we consider only assertions bounded by entry and exit
-to the same function. Other specifications of a bounding interval are possible,
-but in practice most TESLA assertions tend to be bounded by a function in this
+TESLA assertions are bounded by beginning and end events. In TMC, for ease of
+implementation we consider only assertions bounded by entry and exit to the same
+function. Other specifications of a bounding interval are possible, but in
+practice most TESLA assertions tend to be bounded by a function in this
 way.\footnote{The FreeBSD assertions written by \textcite{anderson_tesla:_2014}
 are all bounded by a system call and corresponding return, for example.}
 Possible executions are then sequences of basic blocks that begin at the
 function's entry block.
 
-The model checker generates all possible executions through the inlined bounding
-function up to a given length maximum length. On each of these generated
-executions, we compute function return values using Z3 as described previously.
-Then, the execution is checked for acceptance against the finite-state automaton
-obtained from the original assertion.
+TMC generates all possible executions through the inlined bounding function up
+to a given length maximum length. On each of these generated executions, we
+compute function return values using Z3 as described previously. Then, the
+execution is checked for acceptance against the finite-state automaton obtained
+from the original assertion.
 
 If all possible executions are accepted by the automaton, then the assertion
 cannot fail at runtime. Its instrumentation code can therefore be removed safely
@@ -723,18 +728,19 @@ truncated execution path.}
 
 \subsection{Results} \label{sec:model-limits}
 
-The implementation of the algorithms described above was able to correctly check
-all the examples from the mutex test suite described in
-\autoref{sec:hand-coded}, achieving parity with the less flexible hand-coded
-analyses.
+TMC was able to correctly check all the examples from the mutex test suite
+described in \autoref{sec:lock-assertions}. Correctness here means that a
+program checked by TMC should behave identically to one with the default TESLA
+instrumentation---all the test programs produced identical behaviour when run
+after having their instrumentation removed by TMC.
 
 \subsubsection{Field Assignments}
 
-As noted previously, the model checker cannot check any assertion that
-contains a structure field assignment. This limitation arises because
-field assignments are inherently \emph{value-dependent}---locating the
-IR instruction that assigns to a structure field is easily done, but
-computing the value assigned is not easy (in the general case).
+As noted previously, TMC cannot check any assertion that contains a structure
+field assignment. This limitation arises because field assignments are
+inherently \emph{value-dependent}---locating the IR instruction that assigns to
+a structure field is easily done, but computing the value assigned is not easy
+(in the general case).
 
 A TESLA-specific solution to this issue would be to devise a way of
 splitting assertions such that statically provable components are proved

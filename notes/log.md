@@ -2399,3 +2399,10 @@ actual_cb_func()
 * More work on the changes suggested by Robert
 * Got all the changes suggested by Robert integrated. Tomorrow need to have a
   look at general coherency etc. with respect to these changes.
+
+## 25/5/2017
+
+* Looking at general coherency of the dissertation, making sure it hangs
+  together OK.
+* Went through and changed usages of "TESLA model checker" to say TMC instead
+  for ease of reference.

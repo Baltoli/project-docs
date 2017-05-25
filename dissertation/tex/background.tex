@@ -89,11 +89,11 @@ direction of research.
 At the time I began work on this project, the primary components of TESLA were a
 parser for assertions written in C programs, a compiler-based instrumentation
 tool, and a runtime support library (\texttt{libtesla}). The primary
-contribution from my work is a model checker for TESLA assertions.
+contribution from my work is a model checker for TESLA assertions (TMC).
 \autoref{fig:components} shows how these components interact with each other.
 Existing TESLA components are highlighted in blue, and my contribution in green.
-As well as the model checker, I have contributed bug fixes and other
-improvements to the existing TESLA components. 
+As well as TMC, I have contributed bug fixes and other improvements to the
+existing TESLA components. 
 
 \begin{figure}
   \tikzstyle{box}=[rounded corners,minimum height=2em,minimum width=7em,draw]
@@ -120,7 +120,7 @@ improvements to the existing TESLA components.
     \path[->] (ana) edge node {assertions} (ins);
     \draw[->] (com.east) to[out=0,in=180] node {LLVM IR} (ins.west);
 
-    \node[me,below=of ins] (mc) {Model Checker};
+    \node[me,below=of ins] (mc) {TMC};
     \path[<->] (ins) edge node[align=center] {property\\ checks} (mc);
 
     \node[other,right=of ins] (com2) {Compiler};

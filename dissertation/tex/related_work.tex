@@ -15,8 +15,8 @@ building on the earlier idea of \emph{symbolic} model checking due to
 \textcite{mcmillan_symbolic_1992}. In this section I give a summary of previous
 work in the area, with particular emphasis on where it has been applied to check
 C programs. I also note key differences between these previous works and my
-implementation of a TESLA model checker---namely the style of assertion
-supported, and the use of non-symbolic checking in my implementation.
+implementation of TMC---namely the style of assertion supported, and the use of
+non-symbolic checking in my implementation.
 
 At the heart of model checking is the idea of counterexample generation---if a
 state is found to satisfy the negation of a formula, then that state is a
@@ -26,16 +26,16 @@ size. This means that the counterexamples discovered are minimally sized, and
 are discovered faster.
 
 While the implementation strategies and analysis goals of BMC
-\cite{biere_symbolic_1999} (the first practical bounded model checker) and the
-TESLA model checker are quite different (BMC is a symbolic model checker for
-SMV\footnote{A state description language for model checking problems.}; the
-TESLA model checker is non-symbolic and checks TESLA assertions embedded in C
-programs), the strategy of searching for counterexamples using an
-iterative-deepening method is derived in part from the original work on bounded
-model checking. Another difference between the TESLA model checker and BMC is
-their approaches to soundness---BMC aimed to be provably sound, while TESLA aims
-for \emph{soundiness} \cite{livshits_defense_2015} (as long as the upper bound
-is large enough for the program in question, the model checker is sound).
+\cite{biere_symbolic_1999} (the first practical bounded model checker) and TMC
+are quite different (BMC is a symbolic model checker for SMV\footnote{A state
+description language for model checking problems.}; TMC is non-symbolic and
+checks TESLA assertions embedded in C programs), the strategy of searching for
+counterexamples using an iterative-deepening method is derived in part from the
+original work on bounded model checking. Another difference between TMC and BMC
+is their approaches to soundness---BMC aimed to be provably sound, while TMC
+aims for \emph{soundiness} \cite{livshits_defense_2015} (as long as the upper
+bound is large enough for the program in question, the model checking procedure
+is sound).
 
 \subsubsection{CBMC}
 
@@ -118,9 +118,9 @@ followed by a call to \mintinline{c}{g}}, while TESLA can assert that
 \textquote{if execution reaches this program point, \mintinline{c}{f} was
 previously called}. Broadly, however, the concepts are similar.
 
-The primary advantage of the TESLA model checker compared to MOPS is the
-inclusion of assertion site events for considering control flow only on certain
-paths, and the ability to check a subset of the program's data flow.
+The primary advantage of TMC compared to MOPS is the inclusion of assertion site
+events for considering control flow only on certain paths, and the ability to
+check a subset of the program's data flow.
 
 \subsubsection{KLEE}
 
@@ -134,9 +134,9 @@ The primary motivation for this implementation style is to increase the
 source-level coverage of a program's test suite. This means exploring every
 possible execution path, an approach that TESLA sought explicitly to avoid (by
 using automata bounds and assertion site events). However, some of the ideas
-present in KLEE are relevant to the TESLA model checker---like the return value
-inference algorithm I describe in \autoref{sec:rvc}, KLEE uses an SMT
-translation of LLVM IR to solve constraint systems.
+present in KLEE are relevant to TMC---like the return value inference algorithm
+I describe in \autoref{sec:rvc}, KLEE uses an SMT translation of LLVM IR to
+solve constraint systems.
 
 \section{SMT} \label{sec:smt}
 
