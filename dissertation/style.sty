@@ -1,5 +1,15 @@
 \ProvidesPackage{style}
 
+\usepackage[inner=3cm,outer=2cm,bottom=1.5in]{geometry}
+
+\tolerance 1414
+\hbadness 1414
+\emergencystretch 1.5em
+\hfuzz 0.3pt
+\widowpenalty=10000
+\vfuzz \hfuzz
+\raggedbottom
+
 \newcommand{\lwip}{{\scshape lw}IP}
 
 \usepackage{ amssymb }
@@ -36,10 +46,18 @@
 \titleformat{\chapter}[hang]
   {\Huge\bfseries}{\thechapter\hsp\textcolor{gray75}{|}\hsp}{0pt}{\Huge\bfseries}
 
-\newpagestyle{mystyle}{%
-  \headrule\sethead{}{}{\chaptertitle}
-  \setfoot{}{\thepage}{}}
+% \newpagestyle{mystyle}{%
+%   \headrule\sethead{}{}{\chaptertitle}
+%   \setfoot{}{\thepage}{}}
+\usepackage{fancyhdr}
+\fancypagestyle{mystyle}{%
+  \fancyhf{}%
+  \fancyhead[EL]{\leftmark}%
+  \fancyhead[OR]{\leftmark}%
+  \fancyfoot[C]{\thepage}
+}
 \pagestyle{mystyle}
+\renewcommand{\chaptermark}[1]{\markboth{\MakeUppercase{#1}}{}}
 
 \usepackage{afterpage}
 \newcommand\blankpage{%
