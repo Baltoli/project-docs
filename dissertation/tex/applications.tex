@@ -80,15 +80,17 @@ struct tcp_pcb * tcp_listen_with_backlog(struct tcp_pcb *pcb, u8_t backlog)
   \label{lst:tcp-decls}
 \end{figure}
 
-Such heavy reliance on structure fields is less than ideal because TMC cannot
-check assertions that reference structure field assignments, though checking
-assignments to structure fields is within the capabilities of TESLA at runtime.
-A further complication is that the implementation is not consistent in its use
-of PCB structures---some functions modify a structure instance passed to them
-(\mintinline{c}{tc_pbind}, \mintinline{c}{tcp_close}), while others return an
-entirely new instance (\mintinline{c}{tcp_listen_with_backlog}). The latter
-style of function is more difficult to instrument effectively in TESLA because
-the object being asserted about may change midway through an assertion, which is
+Such heavy reliance on structure fields is less than ideal because TMC
+cannot check assertions that reference structure field assignments,
+though checking assignments to structure fields is within the
+capabilities of runtime TESLA instrumentation.  A further complication
+is that the implementation is not consistent in its use of PCB
+structures---some functions modify a structure instance passed to them
+(\mintinline{c}{tc_pbind}, \mintinline{c}{tcp_close}), while others
+return an entirely new instance
+(\mintinline{c}{tcp_listen_with_backlog}). The latter style of function
+is more difficult to instrument effectively in TESLA because the object
+being asserted about may change midway through an assertion, which is
 difficult to express using the TESLA assertion language.
 
 \subsubsection{Macro Usage}

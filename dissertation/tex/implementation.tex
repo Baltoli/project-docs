@@ -7,7 +7,7 @@ I implement TMC, a model checker for TESLA assertions.
 
 \section{Modelling Locks with TESLA} \label{sec:locks}
 
-\begin{displaycquote}[p. 1]{anderson_tesla:_2014}
+\begin{displaycquote}[p.\ 1]{anderson_tesla:_2014}
 TESLA exposes run-time behaviour using program instrumentation, illuminating
 coverage of complex state machines and detecting violations of specifications.
 \end{displaycquote}
@@ -58,23 +58,23 @@ member variable with a compare-and-swap function ensures thread-safety.
 
 \begin{figure}
   \begin{minted}{c}
-  struct lock_t {
-    _Atomic(bool) locked
-  };
+struct lock_t {
+  _Atomic(bool) locked
+};
 
-  void lock_init(struct lock_t *lock) {
-    atomic_init(&(lock->locked), false);
-  }
+void lock_init(struct lock_t *lock) {
+  atomic_init(&(lock->locked), false);
+}
 
-  bool lock_acquire(struct lock_t *lock) {
-    bool f = false;
-    return atomic_compare_exchange_strong(
-            &(lock->locked), &f, true);
-  }
+bool lock_acquire(struct lock_t *lock) {
+  bool f = false;
+  return atomic_compare_exchange_strong(
+          &(lock->locked), &f, true);
+}
 
-  void lock_release(struct lock_t *lock) {
-    lock->locked = false;
-  }
+void lock_release(struct lock_t *lock) {
+  lock->locked = false;
+}
   \end{minted}
   \caption{Implementation of a mutual exclusion lock with C11 atomics}
   \label{lst:mutex}
@@ -110,22 +110,22 @@ to the functions \mintinline{c}{lock_acquire} and \mintinline{c}{lock_release}).
 properties using explicit TESLA automata.
 \begin{figure}
   \begin{minted}{c}
-  automaton(acq_rel, lock_t *lock) {
-    acquire(lock);
-    release(lock);
-    tesla_done;
-  }
+automaton(acq_rel, lock_t *lock) {
+  acquire(lock);
+  release(lock);
+  tesla_done;
+}
 
-  automaton(acquire, lock_t *lock) {
-    ATLEAST(0, lock_acquire(lock) == false);
-    lock_acquire(lock) == true;
-    tesla_done;
-  }
+automaton(acquire, lock_t *lock) {
+  ATLEAST(0, lock_acquire(lock) == false);
+  lock_acquire(lock) == true;
+  tesla_done;
+}
 
-  automaton(release, lock_t *lock) {
-    returnfrom(lock_release(lock));
-    tesla_done;
-  }
+automaton(release, lock_t *lock) {
+  returnfrom(lock_release(lock));
+  tesla_done;
+}
   \end{minted}
   \caption{Mutex lock properties expressed using TESLA}
   \label{lst:mutex-tesla}
@@ -205,11 +205,12 @@ higher levels of contention more time is spent in the TESLA instrumentation code
 calls are made), and the instrumented version becomes slower relative to the
 uninstrumented version.
 
-By manually removing assertions that lie on a frequently executed code path,a run
-time performance improvement is observed. A decrease in binary size is also
-observed. This result motivates the use of static analysis on TESLA-instrumented
-programs---if instrumentation code can be removed automatically, then the same
-performance improvements should be attainable.
+By manually removing assertions that lie on a frequently executed code
+path, a run time performance improvement is observed. A decrease in
+binary size is also observed. This result motivates the use of static
+analysis on TESLA-instrumented programs---if instrumentation code can be
+removed automatically, then the same performance improvements should be
+attainable.
 
 % \section{Hand-Coded Static Analysis} \label{sec:hand-coded}
 
@@ -270,12 +271,12 @@ performance improvements should be attainable.
 
 \section{Formalising TESLA Assertions} \label{sec:formal}
 
-To statically analyse the correctness of TESLA assertions, a more abstract model
-of their semantics needs to be defined. In particular, we are interested in the
-``bad things'' that cause an assertion to fail at run time, and how these events
-can be detected at compile time.
+To statically analyse the correctness of TESLA assertions, their
+semantics must be defined. In particular, we are interested in the ``bad
+things'' that cause an assertion to fail at run time, and how these can
+be detected at compile time.
 
-TESLA assertions \textcquote[p. 3]{anderson_tesla:_2014}{have a natural
+TESLA assertions \textcquote[p.\ 3]{anderson_tesla:_2014}{have a natural
 expression as finite-state automata that can be mechanically woven into a
 program}. However, the exact manner in which these automata are constructed is
 not given in full in the paper. In this section, I define the semantics of TESLA
@@ -325,11 +326,10 @@ used to check properties of a program.
 
 \subsection{Composition}
 
-There are two ways in which TESLA automata may be composed---sequential ordering
-and disjunction. The TESLA source code makes reference to a conjunction
-operation on automata, but it is left unimplemented. These assertions have
-recursive structure (i.e.  they contain other automata), and so their
-constructed automata are defined as compositions of other automata.
+There are two ways in which TESLA automata may be composed---sequential
+ordering and disjunction. These assertions have recursive structure
+(i.e.\ they contain other assertions), and so their constructed automata
+are defined as compositions of other automata.
 
 By convention, sub-automata are shown inside dashed boxes. Accepting states
 inside these boxes are the accepting states of the sub-automaton, and dotted
@@ -402,26 +402,26 @@ accepting state to the initial state (as shown in
     \path[->] (end2) edge node {$\varepsilon$} (realend);
     \draw[->,out=270,in=90] (end.south) to node[above]{$\varepsilon$} (start2.north);
 
-    \draw[->,looseness=1.2,out=90,in=45] (realend.north) to node[above]{$\varepsilon$} (realstart.north east);
+    \draw[->,looseness=1.4,out=90,in=45] (realend.north) to node[above]{$\varepsilon$} (realstart.north east);
   \end{tikzpicture}
   \caption{Infinite repetition sequence automaton}
   \label{fig:seq-inf-auto}
 \end{figure}
 
-If the upper bound is finite, copies of the entire sequence are chained together
-to form the overall automaton. The copies in the accepting range\footnote{i.e.
-those where the number of repetitions is greater than or equal to the lower
-bound and less than or equal to the upper bound.} have an
-$\varepsilon$-transition to the final accepting state. Writing automata with a
-large but finite number of repetitions has a direct effect on program size as a
-consequence of this construction.
+If the upper bound is finite, copies of the entire sequence are chained
+together to form the overall automaton. The copies in the accepting
+range\footnote{i.e.\ those where the number of repetitions is greater
+than or equal to the lower bound and less than or equal to the upper
+bound.} have an $\varepsilon$-transition to the final accepting state.
+Writing automata with a large but finite number of repetitions has a
+direct effect on program size as a consequence of this construction.
 
-Sequential orderings of events must include a reference to an assertion site
-(the source location where an assertion is used). The logical property expressed
-by a sequential ordering is then \textquote{on an execution path that includes
-this assertion site, all the events named in the sequence occur exactly in
-order}. There is no restriction on where in the program's execution the events
-occur.
+Sequential orderings of events must include a reference to an assertion
+site (the source location where an assertion is made). The logical
+property expressed by a sequential ordering is then \textquote{on an
+execution path that includes this assertion site, all the events named
+in the sequence occur exactly in order}. There is no restriction on
+where in the program's execution the events occur.
 
 \subsubsection{Disjunction}
 
@@ -468,10 +468,11 @@ occur, and it would be an error for any of the others to occur as well.
 \section{TMC: a TESLA Model Checker} \label{sec:checking}
 
 In \autoref{sec:formal} I gave a translation from TESLA assertions to
-nondeterministic finite automata with transitions labeled with program event
-assertions. These automata act as \emph{specifications} for a program. Checking
-whether a program is correct with regard to its specifications is a model
-checking problem in the style of \citeauthor{clarke_design_1982}: \textcquote[p.
+nondeterministic finite automata with transitions labeled with program
+event assertions. These automata act as \emph{specifications} for a
+program. Checking whether a program is correct with regard to its
+specifications is a model checking problem in the style of
+\citeauthor{clarke_design_1982}: \textcquote[p.\
 2]{clarke_design_1982}{[to] mechanically determine if the system meets a
 specification expressed in propositional temporal logic.}
 
@@ -544,28 +545,31 @@ about, and those we know we don't know about.}
 
 \subsubsection{Implementation}
 
-The algorithm described above is an intraprocedural one, because all the LLVM
-values in the SMT translation need to exist in the same function. Implementing
-it therefore requires several transformations to be made to an LLVM function
-before it can be translated to an SMT formula. First, the function must be
-completely inlined. This is achieved using existing LLVM library code (with the
-caveat that recursion can only be inlined up to a finite depth).
+The algorithm described above is an intraprocedural one; all the LLVM
+values in the SMT translation need to exist in the same function.
+Implementing it therefore requires several transformations to be made to
+a function before it can be translated to an SMT formula. First, the
+function must be completely inlined. This is achieved using existing
+LLVM library code (with the caveat that recursion can only be inlined up
+to a finite depth).
 
-When a function is inlined, all calls to it are removed---this means we lose
-information about arguments passed and values returned. This problem is resolved
-by adding calls to stub functions before and after each call site to be inlined.
-Each stub function receives the same arguments as the call being made, and the
-return value of the call is replaced by the return value of the ``after'' stub.
-This means that relevant call graph information is preserved in the inlined
-function. The inlined function can become very large for wide assertion bounds
+When a function is inlined, all calls to it are removed---this means we
+lose information about arguments passed and values returned. This
+problem is resolved by adding calls to \emph{stub functions} before and
+after each call site to be inlined.  Each stub function receives the
+same arguments as the call being made, and the return value of the call
+is replaced by the return value of the ``after'' stub.  This means that
+relevant call graph information is preserved in the inlined function.
+The inlined function can become very large for wide assertion bounds
 (for example, \mintinline{c}{main} or a system call).
 
-Execution sequences are generated from the inlined function by walking its
-control flow graph to a specified finite depth---this finiteness condition is
-addressed further in \autoref{sec:mc}. Repeated basic blocks from loops in the
-graph are handled by simply duplicating the blocks. \autoref{lst:llvm-smt} shows
-a single trace taken from one of the programs in the mutex test suite after
-these transformations have been applied.\footnote{In this example,
+Execution sequences are generated from the inlined function by walking
+its control flow graph to a specified finite depth---this finiteness
+condition is addressed further in \autoref{sec:mc}. Repeated basic
+blocks from loops in the graph are handled by simply duplicating the
+blocks. \autoref{lst:llvm-smt} shows a single trace taken from one of
+the programs in the mutex test suite from \autoref{sec:lock-assertions}
+after these transformations have been applied.\footnote{In this example,
 \texttt{\_\_tesla\_sink} is a basic block added to preserve control flow
 information.}
 
@@ -654,10 +658,10 @@ which the assertion may not hold, and the reasons why it may not hold.
 \autoref{lst:counter} shows a counterexample generated from one of the mutex
 test programs (the full DOT output for the finite-state automaton has been
 omitted for brevity). All executions are either accepted or not accepted---there
-is no ``don't know'' outcome possible.
+is no ``don't know'' outcome.
 
 \begin{figure}
-  \begin{minted}{objdump-nasm}
+  \begin{minted}{text}
 Unexpected event in state s3:
   return from lock_acquire (return value == 1)
 
@@ -722,7 +726,7 @@ incomplete traces is discussed in some depth by
 \textcite{eisner_reasoning_2003}---in particular, their description of a
 \textquote{weak view} corresponds to the checking criteria for incomplete traces
 described previously.\footnote{The weak view asserts that
-\textcquote[p.29]{eisner_reasoning_2003}{nothing has yet gone wrong}, while the
+\textcquote[p.\ 29]{eisner_reasoning_2003}{nothing has yet gone wrong}, while the
 strong view asserts that an assertion is \textquote{already} satisifed on a
 truncated execution path.}
 

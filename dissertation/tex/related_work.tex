@@ -18,12 +18,12 @@ C programs. I also note key differences between these previous works and my
 implementation of TMC---namely the style of assertion supported, and the use of
 non-symbolic checking in my implementation.
 
-At the heart of model checking is the idea of counterexample generation---if a
-state is found to satisfy the negation of a formula, then that state is a
-counterexample for the original formula. Bounded model checking builds on this
-idea by searching for counterexamples with an upper bound on their allowable
-size. This means that the counterexamples discovered are minimally sized, and
-are discovered faster.
+At the heart of model checking is the idea of counterexample
+generation---if a state is found to satisfy the negation of a formula,
+then that state is a counterexample for the original formula. Bounded
+model checking builds on this idea by searching for counterexamples with
+an upper bound on their allowable size. This means that counterexamples
+are discovered faster and are minimally sized.
 
 While the implementation strategies and analysis goals of BMC
 \cite{biere_symbolic_1999} (the first practical bounded model checker) and TMC
@@ -65,16 +65,16 @@ Empirically, LLBMC represents an improvement over previous work it is compared
 to.
 
 The use of a compiler intermediate representation to simplify model
-checking is similar in concept to TESLA (modulo the differences between
-symbolic and non-symbolic model checking).
+checking is similar in concept to TESLA, modulo the differences between
+symbolic and non-symbolic model checking.
 
 \subsubsection{Context-bounded LTL Checking}
 
 More recent work by \textcite{morse_context-bounded_2011,
-morse_model_2015-1} uses bounded model checking to verify more complex
-LTL assertions made of a C program. Their approach involves the
-translation of an LTL formula into a B\"uchi automaton, which is then
-itself converted to C code and woven into the program to be checked.
+morse_model_2015-1} uses bounded model checking to check LTL assertions
+against a C program. Their approach involves the translation of an LTL
+formula into a B\"uchi automaton, which is then itself converted to C
+code and woven into the program to be checked.
 
 This approach is reminiscent of TESLA instrumentation, but has some key
 differences. The automaton code here has its own thread of execution rather than
@@ -83,9 +83,9 @@ exhibits runtime failures on assertion violations, the combined program is
 checked statically using ESMBC \cite{cordeiro_smt-based_2009}.
 
 Although the development of this work was partly contemporaneous with
-the initial work on TESLA, and the implementation strategies were
-similar in some respects, the LTL assertions checkable by this system
-are closer to those asserted by CBMC than to those asserted by TESLA.
+initial work on TESLA, and the implementation strategies similar in some
+respects, the LTL assertions checkable by this system are closer to
+those asserted by CBMC than to those asserted by TESLA.
 
 \subsection{Other Approaches}
 
@@ -145,14 +145,14 @@ a summary of important work related to program analysis using SMT methods.
 
 \subsection{Background}
 
-As its name suggests, the study of satisfiability modulo theories (SMT) is
-founded in boolean satisfiability. The decision problem SAT was the first such
-problem to be proven to be NP-complete \cite{cook_complexity_1971}---its
-statement can be given concisely as \textquote{Does there exist a consistent
-assignment of truth values to the variables in a boolean formula such that the
-formula is satisfied?}. SAT exhibits the useful property of self-reducibility,
-meaning that any algorithm that solves the decision problem can be used to find
-a satisfying assigment.
+The study of satisfiability modulo theories (SMT) is founded in boolean
+satisfiability. The decision problem SAT was the first to be proven to
+be NP-complete \cite{cook_complexity_1971}---its statement can be given
+concisely as \textquote{Does there exist a consistent assignment of
+truth values to the variables in a boolean formula such that the formula
+is satisfied?}. SAT exhibits the useful property of self-reducibility,
+meaning that any algorithm that solves the decision problem can be used
+to find a satisfying assigment.
 
 Many problems can be easily reduced to SAT (formally, any problem in NP can be
 reduced to SAT in polynomial time, and informally, its structure makes it a good
@@ -161,7 +161,7 @@ are stated with respect to a background theory such as integer arithmetic or
 finite arrays. The key idea of SMT problems is to allow for a \emph{background
 theory} to be combined with a satisfiability problem.
 
-\textcite[ch. 12]{biere_handbook_2009} provide a formal definition of SMT
+\textcite[ch.\ 12]{biere_handbook_2009} provide a formal definition of SMT
 problems, as well as several commonly-used background theories. For the purposes
 of this report, only a basic definition is required.
 
@@ -201,7 +201,7 @@ SMT solvers are a low-level tool---using them to solve a domain-specific
 problem involves translating the problem into a formulae in a particular
 theory. Because of this flexibility, SMT solvers have been used to solve
 a large number of different problems. For example, Microsoft list 58
-publications related to Z3\cite{_publications:_????} that span areas as
+publications related to Z3 \cite{_publications:_????} that span areas as
 diverse as cloud computing, real-time systems, and functional
 programming. Broadly, most applications of SMT methods involve some form
 of \emph{program analysis}.
