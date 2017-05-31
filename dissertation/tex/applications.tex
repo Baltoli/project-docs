@@ -4,15 +4,16 @@ style can make writing TESLA assertions for a system more difficult, with
 reference to a large open-source library. Then, motivated by this difficulty, I
 describe a general method for applying TESLA to library interfaces with minimal
 modification to client code. Finally, I demonstrate a practical application of
-this technique by adding TESLA instrumentation to the interface of a widely-used
-TCP implementation.
+this technique by adding TESLA instrumentation to the interface of a \lwip{}, a
+widely-used network protocol library.
 
 \section{\lwip{}} \label{sec:lwip}
 
 An initial goal of the project was to investigate how TESLA might be
 applied to verify the behaviour of a larger state machine such as that
 of TCP. However, this verification proved to be more difficult than
-anticipated.
+anticipated due to a number of C programming idioms and design choices present
+in \lwip{}.
 
 In this section I investigate the application of TESLA to \lwip{}
 \cite{dunkels_design_2001}, a widely used, portable implementation of
@@ -50,7 +51,7 @@ application-specific code with the core library. Modifying this build system to
 use the TESLA infrastructure was not difficult, as much of the setup (flags,
 includes, linking etc.) was in place already---the only changes needed were to
 add the extra TESLA-specific rules and to compile to bitcode instead of object
-files.
+files. The changes made totalled 49 lines of Makefile code.
 
 The end result of this modification was that any of the example applications
 distributed with \lwip{} could be instrumented and built using TESLA. Based on
@@ -79,14 +80,16 @@ struct tcp_pcb * tcp_listen_with_backlog(struct tcp_pcb *pcb, u8_t backlog)
   \label{lst:tcp-decls}
 \end{figure}
 
-Such heavy reliance on structure fields is obviously less than ideal from the
-perspective of static analysis, although checking assignments to structure
-fields is within the capabilities of TESLA without static analysis. However, a
-further complication is that the implementation is not consistent in its use of
-PCB structures---some functions modify a structure passed to them
+Such heavy reliance on structure fields is less than ideal because TMC cannot
+check assertions that reference structure field assignments, though checking
+assignments to structure fields is within the capabilities of TESLA at runtime.
+A further complication is that the implementation is not consistent in its use
+of PCB structures---some functions modify a structure instance passed to them
 (\mintinline{c}{tc_pbind}, \mintinline{c}{tcp_close}), while others return an
-entirely new structure (\mintinline{c}{tcp_listen_with_backlog}). The latter
-style of function is more difficult to instrument effectively in TESLA.
+entirely new instance (\mintinline{c}{tcp_listen_with_backlog}). The latter
+style of function is more difficult to instrument effectively in TESLA because
+the object being asserted about may change midway through an assertion, which is
+difficult to express using the TESLA assertion language.
 
 \subsubsection{Macro Usage}
 
@@ -169,6 +172,14 @@ the author of the library). This means that the author of the library
 can do little beyond documentation to ensure correct usage of the API
 functions. In \autoref{sec:safer-libs} I show how this problem can be partially
 solved using TESLA.
+
+\textcite{anderson_tesla:_2014} did not encounter the problems related to
+callbacks that I describe here---the assertions they wrote are targeted at a
+complete system implementation where every function of interest is known ahead
+of time. This means that even if a function is called through a structure
+interface, it can still be instrumented. This is not the case when unknown user
+code is responsible for registering the callback functions, as is the case with
+\lwip{}.
 
 \subsection{Summary}
 
@@ -326,11 +337,11 @@ development:
     manifest---this means that users must install the TESLA toolchain and adapt
     their build process to use the library.
 
-  \item[Safety] TESLA has no way of preventing users from performing unsafe
-    operations outside of the library code. For example, if a library asserts
-    that a lock is held before a logging function is called, it is difficult to
-    stop the user from making calls to \mintinline{c}{fprintf} (for example)
-    without holding the lock.
+  \item[Safety] TESLA assertions on a library interface can only usefully
+    enforce properties of the functions in the interface---it is easy to construct
+    user code that circumvents these assertions by executing unsafe code (for
+    example, \textcquote[p. 13]{anderson_tesla:_2014}{casting data to
+    \mintinline{c}{char *} and manipulating raw bytes}).
 
   \item[Performance] If the user code is amenable to static analysis, then the
     performance impact of TESLA is minimal. However, this is dependent on how
