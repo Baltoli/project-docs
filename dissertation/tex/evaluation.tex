@@ -26,6 +26,47 @@ debugging tool to help developers understand the situations in which
 their assertions may fail---even if an assertion is not provable, being
 able to demonstrate situations in which it can fail is useful.
 
+\subsection{Regression Testing with TMC}
+
+To evaluate the usefulness of TMC as a development tool, I used it to
+perform retroactive regression testing on two applications distributed
+as part of \lwip{} (implementations of the echo and SMTP protocols). For
+each application, I identified a temporal property required of the
+application callbacks. For example, the SMTP callback for connection
+close events required a property similar to the one shown in
+\autoref{lst:argclose}. The properties used were taken from the
+applications at their initial working commits.
+
+\begin{figure}
+  \begin{minted}{c}
+TESLA_WITHIN(smtp_close, eventually(
+  call(tcp_arg),
+  tcp_close(ANY(ptr)) == ERR_OK || call(tcp_arg)  
+));
+  \end{minted}
+  \caption{Temporal property required by an SMTP implementation
+  callback}
+  \label{lst:argclose}
+\end{figure}
+
+TMC was able to prove the chosen property initially for the SMTP server,
+but not for the echo server because of an ``exceptional'' branch on
+which the assertion did not hold. I applied historical commits to the
+applications in sequence, checking the property at each commit. For the
+SMTP server, the property was proved by TMC at each commit. For the echo
+server, the property was provable after a commit refactored the relevant
+code.
+
+An attempt was made to reproduce a known bug from the \lwip{} database,
+but this was not possible---the applications using the \lwip{} API did
+not have any bugs registered in the database\footnote{All the bugs are
+instead relevant to the internal implementation.}. A different choice of
+library may give better results with regard to bug-hunting. However,
+this is not an indictment of the usefulness of TESLA and
+TMC---\textcite{anderson_tesla:_2014} conclude that TESLA is a useful
+bug-finding tool, and TMC is a strict improvement on the capabilities of
+TESLA.
+
 \subsection{Performance}
 
 Running TMC is computationally expensive---the number of execution traces
