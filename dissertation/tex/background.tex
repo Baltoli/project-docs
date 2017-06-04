@@ -1,15 +1,14 @@
 In this chapter I give a summary of previous work related to TESLA on which this
 project builds, a short overview of the practical issues associated with using
 TESLA and an introduction to the TESLA assertion language. I also provide a
-guide to the TESLA-specific terminology used throughout the rest of this report.
+guide to TESLA-specific terminology.
 
 \section{Temporal Assertions}
 
-Before describing TESLA in detail, it is worth giving a motivating
-example of why it is useful. A simple explanation is that it allows the
-programmer to make assertions about events that occur in the past and
-future of an execution, rather than just about the current program
-state.
+Before describing TESLA in detail, it is worth giving a motivating example of
+why it is useful. A simple explanation is that it allows the programmer to make
+assertions about events that occur in the past and future, rather than just
+about the current program state.
 
 \autoref{lst:mutex-simple} shows C functions for acquiring and releasing
 a mutual exclusion lock.\footnote{Modulo a suitable type
@@ -24,11 +23,11 @@ depend on user code releasing it).
 
 TESLA allows for \emph{temporal} properties to be expressed.
 \autoref{lst:mutex-better} shows the same lock acquisition function, but with a
-TESLA assertion enforcing the safety property. The property is in the same
-source location as the function it applies to, and is independent of where calls
-to \mintinline{c}{lock_acquire} and \mintinline{c}{lock_release} are made. The
+TESLA assertion enforcing the safety property. The property is defined along
+with the function it applies to, and is independent of where calls to
+\mintinline{c}{lock_acquire} and \mintinline{c}{lock_release} are made. The
 remainder of this chapter describes TESLA assertions and the associated tooling
-in more detail.
+in detail.
 
 \begin{figure}
   \begin{minted}{c}
@@ -77,26 +76,25 @@ safety\footnote{A \emph{safety} property asserts that ``bad things'' do not
 happen during the execution of a program, while a \emph{liveness} property
 asserts that ``good things'' do eventually happen
 \cite{alpern_defining_1984,lamport_proving_1977}.} properties of systems code.
-These safety properties are written inline with the program they describe, and
-are checked at run time by dynamic instrumentation code added during an extra
+These properties are written inline with the program they describe, and
+are checked at run time by instrumentation code added during an extra
 compilation phase.
 
 The authors detail their experiences using TESLA to perform complex debugging on
-large, well-known systems software. These efforts were successful---the
+large, well-known systems software. Their efforts were successful---the
 discovery of a known security vulnerability in OpenSSL was reproduced using
 TESLA, and an elusive bug in the GNUStep graphics library was diagnosed and
 fixed. Additionally, they detail the overhead associated with using TESLA (at
 compile and run time) and identify static analysis as a possible future
 direction of research.
 
-At the time I began work on this project, the components of TESLA were a
-parser for assertions written in C programs, a compiler-based instrumentation
-tool, and a runtime support library (\texttt{libtesla}). The primary
-contribution of my work is a model checker for TESLA assertions (TMC).
-\autoref{fig:components} shows how these components interact with each other.
-Existing TESLA components are highlighted in blue, and my contribution in green.
-As well as TMC, I have contributed bug fixes and other improvements to the
-existing TESLA components. 
+At the time I began work on this project, TESLA comprised a parser for
+assertions written in C programs, a compiler-based instrumentation tool, and a
+runtime library (\texttt{libtesla}). The primary contribution of my work
+is a model checker for TESLA assertions (TMC). \autoref{fig:components} shows
+how these components interact with each other. Existing components are
+highlighted in blue, and my contribution in green. As well as TMC, I have
+contributed several bug fixes and improvements to the existing TESLA components. 
 
 \begin{figure}
   \tikzstyle{box}=[rounded corners,minimum height=2em,minimum width=7em,draw]
@@ -149,11 +147,11 @@ to instrument programs.
 
 Today, programmers may add \emph{assertions} to their code to ensure its
 correctness---these are logical statements predicated on data in the current
-scope. TESLA assertions are similar in concept, but express temporal relations
-between \emph{program events}. Temporal assertions require a \emph{bounding
-interval}---a pair of start and end events that limit the scope of the
-assertion. In \autoref{lst:mutex-better}, the bounding interval is from each
-call to \mintinline{c}{main} to the corresponding return.
+scope. TESLA assertions express temporal relations between \emph{program
+events}. Such assertions require a \emph{bounding interval}---a pair of start
+and end events that limit the scope of the assertion. In
+\autoref{lst:mutex-better}, the bounding interval is from each call to
+\mintinline{c}{main} to the corresponding return.
 
 Each TESLA assertion defines an \emph{automaton}, and a collection of
 these automata is referred to as a \emph{manifest} when serialised to
@@ -289,16 +287,15 @@ int main(void)
 Assertions specify temporal relations between \emph{program events} as defined
 in \autoref{sec:terminology} (function calls, assertion sites etc.).
 
-The basic temporal relation expressible in the assertion language is
+The basic relationship expressible in the assertion language is
 sequencing---an assertion that events occur in a particular order. Disjunction
 of assertions is also expressible. Assertions must include a reference to an
 assertion site event---this reference is implicit in \autoref{lst:tesla-example}
 through the \mintinline{c}{eventually} macro, which states that the sequence of
-events listed take place after the assertion site.
+events named takes place after the assertion site.
 
-Automata can be written \emph{explicitly} to allow for composition (similar to
-defining a function in an ordinary programming language).
-\autoref{lst:tesla-explicit} shows an example of this style.
+Automata can be written \emph{explicitly}, allowing for composition and code
+reuse. \autoref{lst:tesla-explicit} shows an example of this style.
 
 \begin{figure}
   \begin{minted}{c}
@@ -316,8 +313,7 @@ automaton(name_of_auto, struct arg_type *s) {
 \section{LLVM}
 
 In this section I give a brief overview of LLVM \cite{lattner_llvm:_2002}, the
-compiler framework used to implement the TESLA toolchain. In particular, I
-describe its intermediate representation and associated tooling.
+compiler framework used to implement the TESLA toolchain.
 
 The primary attraction of implementing a compiler-based tool using LLVM is its
 \emph{intermediate representation}, which can be easily manipulated in-memory
@@ -352,9 +348,9 @@ if.else:
 of the important features of LLVM:
 \begin{description}
   \item[Functions] LLVM IR can represent functions that are conceptually similar
-    to C functions, though control flow is made explicit by using basic blocks
-    and jumps rather than loops and conditional statements. Similarly to C,
-    functions can be declared but not defined.
+    to C functions, though with basic blocks and jumps rather than loops and
+    conditional statements. Similarly to C, functions can be declared but not
+    defined.
 
   \item[Values] A key design decision taken by LLVM is that instructions produce
     named SSA values. When manipulating LLVM IR programatically, an instruction
@@ -362,12 +358,11 @@ of the important features of LLVM:
     identified by \texttt{\%} or \texttt{@} preceding their name (for local and
     global values respectively).
 
-  \item[Types] LLVM IR retains strong type information from its source
+  \item[Types] LLVM IR retains type information from its source
     program---all values are typed, and casts between types must be made
-    explicitly using special instructions.
+    explicitly using intrinsic instructions.
 \end{description}
 
-The TESLA instrumenter is implemented using the in-memory IR manipulation
-libraries provided by LLVM. It replaces known instrumentation sites in the IR
-with TESLA-specific instrumentation code that can then be compiled to an
-executable.
+The TESLA instrumenter is implemented using the in-memory LLVM IR manipulation
+libraries. It replaces known instrumentation sites in the IR with
+instrumentation code, yielding code that can be compiled to an executable.

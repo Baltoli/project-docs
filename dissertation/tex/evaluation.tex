@@ -105,16 +105,16 @@ significantly improved in two primary ways:
     assertion author.
 \end{itemize}
 
-I estimate that the corpus of TESLA assertions written by
-\textcite{anderson_tesla:_2014} for the FreeBSD kernel could be checked
-by TMC during an overnight build of the kernel (8--10 hours). This time
-estimate relies on the fact that some of the assertions are not provably
-safe. Improvements could be made to this time by parallelising TMC, or
-by not rechecking assertions on unmodified code paths. A formal
-measurement of this time was not possible because the assertions were
-written against an older version of TESLA not supported by TMC.
+I estimate that the corpus of 84 TESLA assertions written by
+\textcite{anderson_tesla:_2014} for the FreeBSD kernel could be checked by TMC
+during an overnight build of the kernel (8--10 hours). This time estimate relies
+on the fact that some of the assertions are not provably safe. Improvements
+could be made to this time by parallelising TMC, or by not rechecking assertions
+on unmodified code paths. A formal measurement of this time was not possible
+because the assertions were written against an older version of TESLA not
+supported by TMC.
 
-\subsection{Correctness}
+\subsection{Correctness} \label{sec:soundiness}
 
 TMC implements a decision procedure (\textquote{is this assertion usage safe to
 remove?}). False negatives result in redundant instrumentation code being left
@@ -130,7 +130,7 @@ analysed), then the analysis I present is sound.
 During development, any false positives were treated as serious bugs. During my
 instrumentation of the \lwip{} library interface (and other work not included in
 this dissertation), I encountered only a small number of these, all of which
-were fixed.\footnote{Some \textquote{unsafe} behaviour remains because of bugs
+were corrected.\footnote{Some \textquote{unsafe} behaviour remains because of bugs
 in the original TESLA implementation.} Future work on testing TMC could use
 techniques from automatic test generation or fuzzing to ensure no false
 positives are found.

@@ -1,12 +1,11 @@
-In this chapter I provide an overview of how my work on TESLA contributes new
-ideas and developments compared to relevant previous work, with particular
-emphasis on the areas of bounded model checking and SMT methods.
+In this chapter I provide an overview of how TMC contributes new ideas and
+developments compared to previous work, with particular emphasis on the
+areas of bounded model checking and SMT methods.
 
 \section{Program Verification} \label{sec:bounded-model-checking}
 
 In this section I give a summary of important work in the area of program
-analysis and verification that has influenced my development of static analysis
-for TESLA.
+analysis and verification that has influenced my development of TMC.
 
 \subsection{Bounded Model Checking}
 
@@ -14,69 +13,59 @@ for TESLA.
 building on the earlier idea of \emph{symbolic} model checking due to
 \textcite{mcmillan_symbolic_1992}. In this section I give a summary of previous
 work in the area, with particular emphasis on where it has been applied to check
-C programs. I also note key differences between these previous works and my
-implementation of TMC---namely the style of assertion supported, and the use of
-non-symbolic checking in my implementation.
+C programs. I also note key differences between these previous works and
+TMC---the style of assertion supported, and the use of non-symbolic checking.
 
-At the heart of model checking is the idea of counterexample
-generation---if a state is found to satisfy the negation of a formula,
-then that state is a counterexample for the original formula. Bounded
-model checking builds on this idea by searching for counterexamples with
-an upper bound on their allowable size. This means that counterexamples
-are discovered faster and are minimally sized.
+Key to model checking is the idea of counterexample generation---if a state
+satisfies the negation of a formula, then that state is a counterexample for the
+original formula. Bounded model checking extends this idea by searching for
+counterexamples with an upper bound on their allowable size. This means that
+counterexamples are discovered faster and are minimally sized.
 
 While the implementation strategies and analysis goals of BMC
 \cite{biere_symbolic_1999} (the first practical bounded model checker) and TMC
-are quite different (BMC is a symbolic model checker for SMV\footnote{A state
-description language for model checking problems.}; TMC is non-symbolic and
-checks TESLA assertions embedded in C programs), the strategy of searching for
-counterexamples using an iterative-deepening method is derived in part from the
-original work on bounded model checking. Another difference between TMC and BMC
-is their approaches to soundness---BMC aimed to be provably sound, while TMC
-aims for \emph{soundiness} \cite{livshits_defense_2015} (as long as the upper
-bound is large enough for the program in question, the model checking procedure
-is sound).
+are different (BMC is a symbolic model checker for an explicit state description
+language; TMC is non-symbolic and checks TESLA assertions in C
+programs), the strategy of searching for counterexamples using an
+iterative-deepening method is derived from the original work on bounded
+model checking. Another difference between TMC and BMC is their approaches to
+soundness---BMC aimed to be provably sound, while TMC aims for \emph{soundiness}
+\cite{livshits_defense_2015} (see \autoref{sec:soundiness}).
 
 \subsubsection{CBMC}
 
 \citeauthor{clarke_behavioral_2003}'s CBMC \cite{clarke_behavioral_2003} applied
 bounded model checking to C programs by translating them into instances of the
 SAT decision problem. CBMC allowed for C programs to be written as executable
-specifications for synchronous Verilog hardware designs without prohibiting the
-use of any C programming construct (use of pointers, memory allocations and
-recursive calls are all permitted).
+specifications for Verilog hardware designs without prohibiting the
+use of any C language constructs.
 
 Although CBMC is an example of model checking being applied to C programs, the
-assertions that can be checked are only local assertions. The scope and target
-of TESLA assertions is different to those of CBMC---TESLA assertions are written
-to verify the behaviour of a program, while CBMC uses a C program with
-assertions to verify that a hardware implementation is behaviourally equivalent
-to that program.
+assertions that can be checked are not temporal. The goal of TESLA assertions is
+different to that of CBMC---TESLA assertions are written to verify the behaviour
+of a program, while CBMC uses a C program with assertions to verify that a
+hardware implementation is behaviourally equivalent to that program.
 
 \subsubsection{LLBMC}
 
 CBMC operates at the level of C source code using syntactic transformations.
 \textcite{merz_llbmc:_2012} identify this as a potential avenue for
 improvement---they contribute LLBMC, a bounded model checker that operates on
-LLVM \cite{lattner_llvm:_2002} intermediate representation. The benefits of this
-approach include broader language support, assistance from compiler
-optimisations for code simplification, and an improved memory model.
-Empirically, LLBMC represents an improvement over previous work it is compared
-to.
-
-The use of a compiler intermediate representation to simplify model
-checking is similar in concept to TESLA, modulo the differences between
-symbolic and non-symbolic model checking.
+LLVM \cite{lattner_llvm:_2002} IR. The benefits of this approach include broader
+language support, assistance from compiler optimisations for code
+simplification, and an improved memory model.  Empirically, LLBMC represents an
+improvement over previous work it is compared to. The use of LLVM IR to simplify
+model checking is applied in TESLA and TMC.
 
 \subsubsection{Context-bounded LTL Checking}
 
-More recent work by \textcite{morse_context-bounded_2011,
+Recent work by \textcite{morse_context-bounded_2011,
 morse_model_2015-1} uses bounded model checking to check LTL assertions
-against a C program. Their approach involves the translation of an LTL
-formula into a B\"uchi automaton, which is then itself converted to C
+against C programs. Their approach translates an LTL
+formula into a B\"uchi automaton, which is then itself translated to C
 code and woven into the program to be checked.
 
-This approach is reminiscent of TESLA instrumentation, but has some key
+This approach is similar to TESLA instrumentation, with some key
 differences. The automaton code here has its own thread of execution rather than
 being inserted inline, and instead of producing a modified executable that
 exhibits runtime failures on assertion violations, the combined program is
@@ -84,8 +73,7 @@ checked statically using ESMBC \cite{cordeiro_smt-based_2009}.
 
 Although the development of this work was partly contemporaneous with
 initial work on TESLA, and the implementation strategies similar in some
-respects, the LTL assertions checkable by this system are closer to
-those asserted by CBMC than to those asserted by TESLA.
+respects, the expressivity of this system is more similar to CBMC than to TESLA.
 
 \subsection{Other Approaches}
 
@@ -101,12 +89,11 @@ usability} of a tool and how it is used in a non-research environment.
 \subsubsection{MOPS}
 
 \textcite{anderson_tesla:_2014} identify MOPS \cite{chen_mops:_2002} as being
-partially similar to TESLA in concept. The primary goal of MOPS is to discover
-potential vulnerabilities of C programs operating in a Unix environment (where
-security properties may have whole papers dedicated to explaining their
-subtleties, as is the case with \mintinline{c}{setuid} \cite{chen_setuid_2002}).
-The authors were able to use MOPS to discover a number of security
-vulnerabilities in well-known open-source software.
+similar to TESLA in concept. The primary goal of MOPS is to discover potential
+vulnerabilities of C programs operating in a Unix environment (where security
+properties may have whole papers dedicated to explaining their subtleties, as is
+the case with \mintinline{c}{setuid} \cite{chen_setuid_2002}).  The authorsused
+MOPS to discover a number of vulnerabilities in well-known open-source software.
 
 Properties in MOPS are expressed as finite state automata, with accepting states
 representing an execution on which an unsafe event has occurred. The expression
