@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper,twoside,openright]{report}
+\documentclass[12pt,a4paper,twoside,openright,notitlepage]{report}
 \usepackage{style}
 
 \addbibresource{/Users/brucecollie/Documents/Uni/Academic/zotero.bib}
@@ -7,13 +7,23 @@
 
 \pagenumbering{gobble}
 
-\input{tex/cover.tex}
+% \newgeometry{inner=3cm,outer=3cm,bottom=1.5in}
+% \input{tex/cover.tex}
+% \restoregeometry
 
-\input{tex/statement.tex}
+% \input{tex/statement.tex}
+
+\thispagestyle{plain}
 
 \input{tex/abstract.tex}
 
-\afterpage{\blankpage}
+\clearpage
+
+\thispagestyle{plain}
+
+Total word count: 11,993
+
+\clearpage
 
 \pagenumbering{roman}
 
