@@ -1,5 +1,15 @@
 \documentclass{beamer}
 
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata,positioning,fit,calc,shadows}
+
+\usepackage{minted}
+\usemintedstyle{friendly}
+\setminted{
+  breaklines=true,
+  samepage=true,
+}
+
 \usepackage[english]{babel}
 \usepackage[backend=biber,style=numeric-comp,sorting=none]{biblatex}
 \addbibresource{/Users/brucecollie/Documents/Uni/Academic/zotero.bib}
@@ -44,7 +54,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{TESLA}
   \framesubtitle{\textbf{T}emporally \textbf{E}nhanced \textbf{S}ystem
   \textbf{L}ogic \textbf{A}ssertions}
@@ -58,17 +68,22 @@
       \end{itemize}
 
     \item Implemented as an LLVM-based toolchain
-      \begin{itemize}
-        \item Extra intermediate build products
-        \item Instrumentation code added to the program's IR
-      \end{itemize}
 
     \item Assertions are checked at run time
-      \begin{itemize}
-        \item Properties are data- and control-flow based
-        \item Function call, return and field assignment
-      \end{itemize}
   \end{itemize}
+
+  \begin{center}
+    \begin{minipage}{0.5\textwidth}
+      \begin{minted}[mathescape,
+        fontsize=\footnotesize,
+        framesep=2mm]{c}
+TESLA_WITHIN(main, eventually(
+  foo(ANY(ptr)) == 0,
+  call(bar) || call(baz)
+));
+      \end{minted}
+    \end{minipage}
+  \end{center}
 \end{frame}
 
 \section{Why static analysis?}
@@ -150,6 +165,32 @@
       \end{itemize}
     \item Produces a counterexample if assertion not always true
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    \begin{tikzpicture}[>=latex',initial text={},
+                        node distance=3cm,on grid,auto]
+      \node[state,initial] (realstart) [] {$q_0$};
+      \node[state] (start) [right=of realstart] {$q_{0,0}$};
+      \node[state,accepting] (end) [right=of start] {$q_{1,0}$};
+
+      \node[state] [below=of start] (start2) {$q_{0,1}$};
+      \node[state,accepting] [right=of start2] (end2) {$q_{1,1}$};
+
+      \node[draw,dashed,fit=(start) (end), inner sep=0.3cm] {};
+      \node[draw,dashed,fit=(start2) (end2), inner sep=0.3cm] {};
+
+      \node[state,accepting] [right=of end2] (realend) {$q_1$};
+
+      \path[->] (start) edge node {\texttt{call(foo)}} (end);
+      \path[->] (start2) edge node {\texttt{st->x = 2}} (end2);
+
+      \path[->] (realstart) edge node {$\varepsilon$} (start);
+      \path[->] (end2) edge node {$\varepsilon$} (realend);
+      \draw[->,out=270,in=90] (end.south) to node[above]{$\varepsilon$} (start2.north);
+    \end{tikzpicture}
+  \end{center}
 \end{frame}
 
 \section{Using TESLA and TMC}
